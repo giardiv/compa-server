@@ -1,16 +1,14 @@
 package main.compa.Controller;
 
 import io.vertx.core.http.HttpMethod;
-import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.JsonArray;
-import io.vertx.ext.web.Route;
-import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
-import main.compa.App.Container;
-import main.compa.Location;
+import main.compa.Model.Location;
 import main.compa.App.Controller;
+import org.mongodb.morphia.query.Query;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class LocationController extends Controller {
     private ArrayList<Location> locations = new ArrayList<Location>();
@@ -19,10 +17,6 @@ public class LocationController extends Controller {
 
     public LocationController(){
         super(PREFIX);
-
-        locations.add(new Location(1.1, 2.1));
-        locations.add(new Location(1.2, 2.2));
-        locations.add(new Location(1.3, 2.3));
 
         this.registerRoute(HttpMethod.PUT, null, this::handlePostLocation);
         this.registerRoute(HttpMethod.GET, null, this::handleGetAllLocation);
@@ -39,7 +33,9 @@ public class LocationController extends Controller {
 
     private void handleGetAllLocation(RoutingContext routingContext){
         JsonArray arr = new JsonArray();
-        for (Location location: this.locations){arr.add(location.getJsonArray());}
+        final Query<Location> query = this.getDataStore().createQuery(Location.class);
+        final List<Location> locations = query.asList();
+        for (Location location: locations){arr.add(location.getJsonArray());}
         routingContext.response().putHeader("content-type", "application/json").end(arr.encodePrettily());
     }
 }

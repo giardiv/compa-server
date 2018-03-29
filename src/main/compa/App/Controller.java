@@ -5,6 +5,7 @@ import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
+import org.mongodb.morphia.Datastore;
 
 import java.util.ArrayList;
 
@@ -23,5 +24,9 @@ public class Controller {
     // TODO: Create service manager
     protected Router getRouter(){
         return Container.getInstance().getRouter();
+    }
+
+    protected Datastore getDataStore(){
+        return Container.getInstance().getDataStore();
     }
 }
