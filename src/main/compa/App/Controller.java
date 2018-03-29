@@ -17,7 +17,7 @@ public class Controller {
         this.routes = new ArrayList<Route>();
     }
     protected void registerRoute(HttpMethod method, String route, Handler<RoutingContext> handler){
-        routes.add(this.getRouter().route(method, prefix + (route == null ? "": route) + "/").handler(handler));
+        routes.add(this.getRouter().route(method, prefix + route).handler(handler));
     }
 
     // TODO: Create service manager

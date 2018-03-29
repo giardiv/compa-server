@@ -1,24 +1,24 @@
 package main.compa.App;
 
-import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServer;
-import io.vertx.core.http.HttpServerResponse;
-import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
 import main.compa.Controller.LocationController;
 
-public class Container extends AbstractVerticle{
+public class Container {
 
-    private static Container INSTANCE = new Container();
+    private static Container instance = new Container();
+    /*public JsonArray getJsonArray(){
+    return new JsonArray().add(latitude).add(longitude);
+}*/
 
     private Router router;
 
     private Container(){ }
 
     public static Container getInstance(){
-        return INSTANCE;
+        return instance;
     }
 
     public void run(){
@@ -34,10 +34,10 @@ public class Container extends AbstractVerticle{
         server.requestHandler(router::accept).listen(8080);
         router.route().handler(BodyHandler.create());
 
-        this.lunchController();
+        this.launchController();
     }
 
-    public void lunchController(){
+    public void launchController(){
         LocationController locationController = new LocationController();
     }
 
