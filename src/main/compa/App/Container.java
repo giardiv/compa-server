@@ -13,10 +13,6 @@ import org.mongodb.morphia.Morphia;
 public class Container {
 
     private static Container instance = new Container();
-    /*public JsonArray getJsonArray(){
-    return new JsonArray().add(latitude).add(longitude);
-}*/
-
     private Router router;
     private Datastore datastore;
     private ModelManager modelManager;
@@ -34,18 +30,15 @@ public class Container {
     public void start(){
         Vertx vertx = Vertx.vertx();
         HttpServer server = vertx.createHttpServer();
-        this.router = Router.router(vertx);
-
+        router = Router.router(vertx);
+        modelManager = new ModelManager();
         server.requestHandler(router::accept).listen(8080);
         router.route().handler(BodyHandler.create());
 
         final Morphia morphia = new Morphia();
-        morphia.mapPackage("main.compa.Model");
-        datastore = morphia.createDatastore(new MongoClient(), "compa");
+        morphia.mapPackage("main.compa.Model"); //constant?
+        datastore = morphia.createDatastore(new MongoClient(), "compa"); //constant?
         datastore.ensureIndexes();
-
-        // Test adding
-        datastore.save(new Location());
         
         this.launchController();
     }
