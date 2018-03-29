@@ -1,7 +1,6 @@
 package main.compa.App;
 
 import com.mongodb.MongoClient;
-import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServer;
 import io.vertx.ext.web.Router;
@@ -11,9 +10,12 @@ import main.compa.Model.Location;
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.Morphia;
 
-public class Container extends AbstractVerticle{
+public class Container {
 
-    private static Container INSTANCE = new Container();
+    private static Container instance = new Container();
+    /*public JsonArray getJsonArray(){
+    return new JsonArray().add(latitude).add(longitude);
+}*/
 
     private Router router;
     private Datastore datastore;
@@ -22,7 +24,7 @@ public class Container extends AbstractVerticle{
     private Container(){ }
 
     public static Container getInstance(){
-        return INSTANCE;
+        return instance;
     }
 
     public void run(){
@@ -44,11 +46,11 @@ public class Container extends AbstractVerticle{
 
         // Test adding
         datastore.save(new Location());
-
-        this.lunchController();
+        
+        this.launchController();
     }
 
-    public void lunchController(){
+    public void launchController(){
         LocationController locationController = new LocationController();
     }
 
