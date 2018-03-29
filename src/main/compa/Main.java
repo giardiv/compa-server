@@ -7,12 +7,24 @@ import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
+import main.compa.App.Container;
 
 public class Main extends AbstractVerticle{
 	
 	public static void main(String... args) {
 		Container.getInstance().run();
 	}
+
+
+
+
+
+
+
+
+
+
+
 
 	private static void test(){
 			

@@ -1,14 +1,18 @@
-package main.compa;
+package main.compa.App;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServer;
+import io.vertx.core.http.HttpServerResponse;
+import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
+import main.compa.Controller.LocationController;
 
 public class Container extends AbstractVerticle{
 
     private static Container INSTANCE = new Container();
+
     private Router router;
 
     private Container(){ }
@@ -29,11 +33,23 @@ public class Container extends AbstractVerticle{
 
         server.requestHandler(router::accept).listen(8080);
         router.route().handler(BodyHandler.create());
+
+        Route route1 = router.get("/some/path/").handler(routingContext -> {
+
+            HttpServerResponse response = routingContext.response();
+            //response.write("route1\n");
+            routingContext.response().putHeader("content-type", "application/json").end("{}");
+        });
+
         this.lunchController();
     }
 
     public void lunchController(){
-        LocationController locationController = new LocationController(this.router);
+        LocationController locationController = new LocationController();
+    }
+
+    public Router getRouter(){
+        return this.router;
     }
 
     // TODO: Service manager
