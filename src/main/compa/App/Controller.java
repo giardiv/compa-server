@@ -17,8 +17,8 @@ public class Controller {
         this.prefix = prefix;
         this.routes = new ArrayList<Route>();
     }
-    protected void registerRoute(HttpMethod method, String route, Handler<RoutingContext> handler){
-        routes.add(this.getRouter().route(method, prefix + route).handler(handler));
+    protected void registerRoute(HttpMethod method, String route, Handler<RoutingContext> handler, String produces){
+        routes.add(this.getRouter().route(method, prefix + route).produces(produces).handler(handler));
     }
 
     // TODO: Create service manager
@@ -26,7 +26,8 @@ public class Controller {
         return Container.getInstance().getRouter();
     }
 
-    protected Datastore getDataStore(){
-        return Container.getInstance().getDataStore();
+    protected ModelManager getManager(){
+        return Container.getInstance().getModelManager();
     }
+
 }

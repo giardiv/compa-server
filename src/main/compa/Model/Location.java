@@ -1,6 +1,6 @@
 package main.compa.Model;
 
-import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.Json;
 import org.bson.types.ObjectId;
 import org.mongodb.morphia.annotations.*;
 
@@ -17,7 +17,15 @@ public class Location {
 
     private double longitude;
 
-    public JsonArray getJsonArray(){
-        return new JsonArray().add(latitude).add(longitude);
+    public Location(){}
+
+    public Location(double lat, double lng){
+        latitude = lat;
+        longitude = lng;
     }
+
+    public String toJSON(){
+        return Json.encodePrettily(this); //uses standard objectMapper
+    }
+
 }
