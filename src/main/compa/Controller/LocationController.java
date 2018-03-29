@@ -6,6 +6,7 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
+import main.compa.App.Container;
 import main.compa.Location;
 import main.compa.App.Controller;
 
@@ -37,14 +38,8 @@ public class LocationController extends Controller {
     }
 
     private void handleGetAllLocation(RoutingContext routingContext){
-        HttpServerResponse response = routingContext.response();
-        response.write("route3");
-
-        // Now end the response
-        routingContext.response().end();
-
-        //JsonArray arr = new JsonArray();
-        //for (Location location: this.locations){arr.add(location.getJsonArray());}
-        //routingContext.response().putHeader("content-type", "application/json").end(arr.encodePrettily());
+        JsonArray arr = new JsonArray();
+        for (Location location: this.locations){arr.add(location.getJsonArray());}
+        routingContext.response().putHeader("content-type", "application/json").end(arr.encodePrettily());
     }
 }

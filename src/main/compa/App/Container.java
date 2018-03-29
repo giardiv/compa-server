@@ -34,13 +34,6 @@ public class Container extends AbstractVerticle{
         server.requestHandler(router::accept).listen(8080);
         router.route().handler(BodyHandler.create());
 
-        Route route1 = router.get("/some/path/").handler(routingContext -> {
-
-            HttpServerResponse response = routingContext.response();
-            //response.write("route1\n");
-            routingContext.response().putHeader("content-type", "application/json").end("{}");
-        });
-
         this.lunchController();
     }
 
