@@ -5,8 +5,10 @@ import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServer;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
+import main.compa.Controller.AuthenticationController;
 import main.compa.Controller.LocationController;
 import main.compa.Model.Location;
+import main.compa.Model.User;
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.Morphia;
 
@@ -17,7 +19,10 @@ public class Container {
     private Datastore datastore;
     private ModelManager modelManager;
 
-    private Container(){ }
+    private static final String MODEL_DIRECTORY = "main.compa.Model";
+    private static final String DB_NAME = "compa";
+
+    private Container(){}
 
     public static Container getInstance(){
         return instance;
@@ -36,15 +41,18 @@ public class Container {
         router.route().handler(BodyHandler.create());
 
         final Morphia morphia = new Morphia();
-        morphia.mapPackage("main.compa.Model"); //constant?
-        datastore = morphia.createDatastore(new MongoClient(), "compa"); //constant?
+        morphia.mapPackage(MODEL_DIRECTORY);
+        datastore = morphia.createDatastore(new MongoClient(), DB_NAME);
         datastore.ensureIndexes();
         
         this.launchController();
+
+        datastore.save(new User("test", "test"));
     }
 
     public void launchController(){
         LocationController locationController = new LocationController();
+        AuthenticationController authenticationController = new AuthenticationController();
     }
 
     public Router getRouter(){

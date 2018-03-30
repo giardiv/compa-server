@@ -17,6 +17,11 @@ public class Controller {
         this.prefix = prefix;
         this.routes = new ArrayList<Route>();
     }
+
+    public Controller() {
+        this.prefix = "";
+    }
+
     protected void registerRoute(HttpMethod method, String route, Handler<RoutingContext> handler, String produces){
         routes.add(this.getRouter().route(method, prefix + route).produces(produces).handler(handler));
     }

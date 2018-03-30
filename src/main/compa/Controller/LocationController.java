@@ -1,5 +1,6 @@
 package main.compa.Controller;
 
+import com.google.gson.Gson;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.Json;
 import io.vertx.ext.web.RoutingContext;
@@ -38,11 +39,11 @@ public class LocationController extends Controller {
     private void get(RoutingContext routingContext){
         String id = routingContext.request().getParam("id");
         Location location =  this.getManager().findLocationById(id);
-        routingContext.response().end(location.toString()); //fix toJson
+        routingContext.response().end(new Gson().toJson(location));
 	}
 
     private void getAll(RoutingContext routingContext){
-    	 routingContext.response().end(Json.encodePrettily(testData()));
+    	 routingContext.response().end(new Gson().toJson(this.getManager().allLocations()));
     }
     
    
