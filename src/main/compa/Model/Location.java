@@ -24,6 +24,18 @@ public class Location {
         longitude = lng;
     }
 
+    public ObjectId getId() {
+        return id;
+    }
+
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public double getLongitude() {
+        return longitude;
+    }
+
     public String toJSON(){
         return Json.encodePrettily(this); //uses standard objectMapper
     }
