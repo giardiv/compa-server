@@ -47,7 +47,7 @@ public class Container {
         
         this.launchController();
 
-        datastore.save(new User("test", "test"));
+        datastore.save(new User("test", "test", null));
     }
 
     public void launchController(){

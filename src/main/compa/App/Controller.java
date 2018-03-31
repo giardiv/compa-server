@@ -19,11 +19,14 @@ public class Controller {
     }
 
     public Controller() {
-        this.prefix = "";
+        this("");
     }
 
     protected void registerRoute(HttpMethod method, String route, Handler<RoutingContext> handler, String produces){
-        routes.add(this.getRouter().route(method, prefix + route).produces(produces).handler(handler));
+        this.routes
+                .add(this.getRouter().route(method,prefix + route)
+                    .produces(produces)
+                        .handler(handler));
     }
 
     // TODO: Create service manager

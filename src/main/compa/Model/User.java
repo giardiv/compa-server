@@ -23,7 +23,11 @@ public class User {
     @Reference
     private List<Location> locations;
 
-    public User(String login, String password){
+    public User(){
+
+    }
+
+    public User(String login, String password, String token){
         this.login = login;
         this.password = password; //TO CHANGE
         //token to null when first registrating?
