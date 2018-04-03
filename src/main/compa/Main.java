@@ -12,7 +12,7 @@ import main.compa.App.Container;
 public class Main extends AbstractVerticle{
 	
 	public static void main(String... args) {
-		Container.getInstance().run();
+		new Container().run();
 	}
 
 

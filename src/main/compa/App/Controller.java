@@ -8,34 +8,25 @@ import io.vertx.ext.web.RoutingContext;
 import org.mongodb.morphia.Datastore;
 
 import java.util.ArrayList;
+import java.util.List;
 
-public class Controller {
+public abstract class Controller {
     private String prefix;
-    private ArrayList<Route> routes;
+    private List<Route> routes;
+    private Router router;
 
-    public Controller(String prefix){
+    public Controller(String prefix, Router router){
         this.prefix = prefix;
-        this.routes = new ArrayList<Route>();
+        this.routes = new ArrayList<>();
+        this.router = router;
     }
 
-    public Controller() {
-        this("");
+    public Controller(Router router) {
+        this("", router);
     }
 
     protected void registerRoute(HttpMethod method, String route, Handler<RoutingContext> handler, String produces){
-        this.routes
-                .add(this.getRouter().route(method,prefix + route)
-                    .produces(produces)
-                        .handler(handler));
-    }
-
-    // TODO: Create service manager
-    protected Router getRouter(){
-        return Container.getInstance().getRouter();
-    }
-
-    protected ModelManager getManager(){
-        return Container.getInstance().getModelManager();
+        this.routes.add(router.route(method,prefix + route).produces(produces).handler(handler));
     }
 
 }

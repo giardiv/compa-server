@@ -1,13 +1,13 @@
 package main.compa.daos;
 
-import main.compa.App.Container;
 import main.compa.Model.Location;
-import main.compa.mongodb.AbstractDAO;
+import main.compa.App.AbstractDAO;
+import org.mongodb.morphia.Datastore;
 
 public class LocationDAO extends AbstractDAO {
 
-    public LocationDAO(){
-        super(Location.class, Container.getInstance().getDataStore());
+    public LocationDAO(Datastore ds){
+        super(Location.class, ds);
     }
 
 }

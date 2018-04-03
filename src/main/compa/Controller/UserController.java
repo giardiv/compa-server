@@ -2,21 +2,23 @@ package main.compa.Controller;
 
 import com.google.gson.Gson;
 import io.vertx.core.http.HttpMethod;
+import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import main.compa.App.Container;
 import main.compa.App.Controller;
+import main.compa.App.ModelManager;
 import main.compa.Model.User;
 import main.compa.daos.UserDAO;
 import org.apache.commons.lang3.RandomStringUtils;
 
-public class AuthenticationController extends Controller {
+public class UserController extends Controller {
 
     private UserDAO userDAO;
 
-    public AuthenticationController(){
-        super();
+    public UserController(Router router, ModelManager modelManager){
+        super(router);
         this.registerRoute(HttpMethod.POST, "/login", this::login, "application/json");
-        userDAO = (UserDAO) Container.getInstance().getModelManager().getDAO(User.class);
+        userDAO = (UserDAO) modelManager.getDAO(User.class);
     }
 
     private void login(RoutingContext routingContext){

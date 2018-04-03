@@ -1,4 +1,4 @@
-package main.compa.mongodb;
+package main.compa.App;
 
 import com.mongodb.MongoClient;
 import org.mongodb.morphia.Datastore;
@@ -11,7 +11,7 @@ public class MongoUtil {
     private static final String HOST = "localhost";
     private static final int PORT = 27017;
 
-    private static Datastore datastore;
+    private Datastore datastore;
 
     public MongoUtil(){
         final Morphia morphia = new Morphia();
