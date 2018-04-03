@@ -8,13 +8,48 @@ import io.vertx.core.http.HttpServerResponse;
 import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
 import main.compa.App.Container;
+import main.compa.App.Controller;
+import main.compa.App.ModelManager;
+import main.compa.App.ControllerFactory;
+import main.compa.Controller.LocationController;
+import main.compa.Controller.UserController;
+import org.mongodb.morphia.mapping.MappingException;
+import org.mongodb.morphia.utils.ReflectionUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Main extends AbstractVerticle{
 	
 	public static void main(String... args) {
-		new Container().run();
-	}
 
+		/*ControllerFactory cf = (Router router, ModelManager modelManager) -> {
+			List<Controller> list = new ArrayList<>();
+			list.add(new LocationController(router, modelManager));
+			list.add( new UserController(router, modelManager));
+			return list;
+		};*/
+
+		ControllerFactory cf2 = (Router router, ModelManager modelManager) -> {
+            List<Controller> list = new ArrayList<>();
+
+            try {
+                for (Class clazz : ReflectionUtils.getClasses("main.compa.Controller")) {
+                    Object c = clazz.getDeclaredConstructor(Router.class, ModelManager.class)
+                            .newInstance(router, modelManager);
+                    list.add((Controller) c );
+                }
+
+                return list;
+
+            } catch (Exception e) {
+                System.err.println("pb controller");
+                return null;
+            }
+        };
+
+		new Container().run(cf2);
+	}
 
 	private static void test(){
 			
