@@ -16,16 +16,6 @@ public class Main extends AbstractVerticle{
 	}
 
 
-
-
-
-
-
-
-
-
-
-
 	private static void test(){
 			
 		Vertx vertx = Vertx.vertx();
