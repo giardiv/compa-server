@@ -57,7 +57,7 @@ public class Main extends AbstractVerticle{
 						System.err.println("no dao for class " + clazz.toString() + ", used custom" );
 						daos.put(clazz, new CustomDAO<>(clazz, ds));
 					}
- 
+
 				}
 
 				return daos;

@@ -1,5 +1,6 @@
 package main.compa.models;
 
+import com.google.gson.annotations.Expose;
 import org.bson.types.ObjectId;
 import org.mongodb.morphia.annotations.*;
 
@@ -10,11 +11,12 @@ import java.util.List;
 @Indexes({
         @Index(value = "login", fields = @Field("login"), unique = true),
 })
-public class User {
+public class User implements JSONisable{
 
     @Id
     private ObjectId id;
 
+    @Expose
     private String login;
     private String password;
     private String token;

@@ -1,5 +1,8 @@
 package main.compa.models;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.annotations.Expose;
 import io.vertx.core.json.Json;
 import org.bson.types.ObjectId;
 import org.mongodb.morphia.annotations.*;
@@ -9,12 +12,14 @@ import org.mongodb.morphia.annotations.*;
         @Index(value = "latitude", fields = @Field("latitude")),
         @Index(value = "longitude", fields = @Field("longitude"))
 })
-public class Location {
+public class Location implements JSONisable {
     @Id
     private ObjectId id;
 
+    @Expose
     private double latitude;
 
+    @Expose
     private double longitude;
 
     public Location(){}
@@ -34,10 +39,6 @@ public class Location {
 
     public double getLongitude() {
         return longitude;
-    }
-
-    public String toJSON(){
-        return Json.encodePrettily(this); //uses standard objectMapper
     }
 
 }
