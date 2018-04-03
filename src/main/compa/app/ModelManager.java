@@ -14,10 +14,8 @@ public class ModelManager {
 
     Map<Class, BasicDAO> daos;
 
-    public ModelManager(Datastore ds){
-        daos = new HashMap<>();
-        daos.put(Location.class, new LocationDAO(ds));
-        daos.put(User.class, new UserDAO(ds));
+    public ModelManager(Datastore ds, DAOFactory df){
+        daos = df.getDAOS(ds);
     }
 
     public BasicDAO getDAO(Class classs){

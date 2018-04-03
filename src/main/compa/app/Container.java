@@ -14,15 +14,14 @@ public class Container {
     private MongoUtil mongoUtil;
     private List<Controller> controllers;
 
-    public void run(ControllerFactory cf){
+    public void run(ControllerFactory cf, DAOFactory daoFactory){
         Vertx vertx = Vertx.vertx();
         HttpServer server = vertx.createHttpServer();
         router = Router.router(vertx);
         mongoUtil = new MongoUtil();
-        modelManager = new ModelManager(mongoUtil.getDatastore());
+        modelManager = new ModelManager(mongoUtil.getDatastore(), daoFactory);
         server.requestHandler(router::accept).listen(8080);
         router.route().handler(BodyHandler.create());
-
         controllers = cf.getControllers(router, modelManager);
 
         //mongoUtil.getDatastore().save(new User("test", "test", null));

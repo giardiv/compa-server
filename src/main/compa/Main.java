@@ -7,14 +7,19 @@ import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
-import main.compa.app.Container;
-import main.compa.app.Controller;
-import main.compa.app.ModelManager;
-import main.compa.app.ControllerFactory;
+import main.compa.app.*;
+import main.compa.daos.LocationDAO;
+import main.compa.daos.UserDAO;
+import main.compa.models.Location;
+import main.compa.models.User;
+import org.mongodb.morphia.Datastore;
+import org.mongodb.morphia.dao.BasicDAO;
 import org.mongodb.morphia.utils.ReflectionUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Main extends AbstractVerticle{
 	
@@ -25,9 +30,48 @@ public class Main extends AbstractVerticle{
 			list.add(new LocationController(router, modelManager));
 			list.add( new UserController(router, modelManager));
 			return list;
-		};*/
+		};
 
-		ControllerFactory cf2 = (Router router, ModelManager modelManager) -> {
+		DAOFactory daoFactory = (Datastore ds) -> {
+            Map<Class, BasicDAO> daos = new HashMap<>();
+            daos.put(Location.class, new LocationDAO(ds));
+            daos.put(User.class, new UserDAO(ds));
+			return daos;
+        };*/
+
+
+		DAOFactory daoFactory = (Datastore ds) -> {
+			Map<Class, BasicDAO> daos = new HashMap<>();
+
+
+			try {
+				for (Class clazz : ReflectionUtils.getClasses("main.compa.models")) {
+
+					try{
+						String s = "main.compa.daos." + clazz.getSimpleName() + "DAO";
+						Class daoClass = Class.forName(s);
+						Object dao = daoClass.getDeclaredConstructor(Datastore.class).newInstance(ds);
+						daos.put(clazz, (CustomDAO) dao);
+					}
+					catch(ClassNotFoundException e){
+						System.err.println("no dao for class " + clazz.toString() + ", used custom" );
+						daos.put(clazz, new CustomDAO<>(clazz, ds));
+					}
+ 
+				}
+
+				return daos;
+
+			} catch (Exception e) {
+				System.err.println("pb daos");
+			}
+
+			return null;
+
+		};
+
+
+		ControllerFactory cf = (Router router, ModelManager modelManager) -> {
             List<Controller> list = new ArrayList<>();
 
             try {
@@ -41,11 +85,12 @@ public class Main extends AbstractVerticle{
 
             } catch (Exception e) {
                 System.err.println("pb controller");
+                e.printStackTrace();
                 return null;
             }
         };
 
-		new Container().run(cf2);
+		new Container().run(cf, daoFactory);
 	}
 
 	private static void test(){
