@@ -31,13 +31,12 @@ public class LocationController extends Controller {
     
     private void get(RoutingContext routingContext){
         String id = routingContext.request().getParam("id"); //if empty throw not found excep
-        Location location = (Location) locationDAO.get(new ObjectId(id));
-        routingContext.response().end(new Gson().toJson(location));
+        Location location = locationDAO.get(new ObjectId(id));
+        routingContext.response().end(location.toJSON());
 	}
 
     private void getAll(RoutingContext routingContext){
     	routingContext.response().end(new Gson().toJson(locationDAO.findAll()));
     }
 
-   
 }
