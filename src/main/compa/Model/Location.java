@@ -20,8 +20,8 @@ public class Location {
     public Location(){}
 
     public Location(double lat, double lng){
-        latitude = lat;
-        longitude = lng;
+        this.latitude = lat;
+        this.longitude = lng;
     }
 
     public ObjectId getId() {

@@ -9,6 +9,7 @@ import main.compa.Controller.AuthenticationController;
 import main.compa.Controller.LocationController;
 import main.compa.Model.Location;
 import main.compa.Model.User;
+import main.compa.mongodb.MongoUtil;
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.Morphia;
 
@@ -40,14 +41,15 @@ public class Container {
         server.requestHandler(router::accept).listen(8080);
         router.route().handler(BodyHandler.create());
 
-        final Morphia morphia = new Morphia();
+
+        /*final Morphia morphia = new Morphia();
         morphia.mapPackage(MODEL_DIRECTORY);
         datastore = morphia.createDatastore(new MongoClient(), DB_NAME);
         datastore.ensureIndexes();
-        
+        */
         this.launchController();
 
-        datastore.save(new User("test", "test", null));
+        MongoUtil.getInstance().save(new User("test", "test", null));
     }
 
     public void launchController(){

@@ -3,14 +3,15 @@ package main.compa.Model;
 import main.compa.App.Container;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.bson.types.ObjectId;
-import org.mongodb.morphia.annotations.Entity;
-import org.mongodb.morphia.annotations.Id;
-import org.mongodb.morphia.annotations.Reference;
+import org.mongodb.morphia.annotations.*;
 
 import java.util.List;
 
 
 @Entity("user")
+@Indexes({
+        @Index(value = "login", fields = @Field("login"), unique = true),
+})
 public class User {
 
     @Id
