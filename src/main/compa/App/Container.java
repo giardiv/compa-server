@@ -15,25 +15,20 @@ import org.mongodb.morphia.Morphia;
 
 public class Container {
 
-    private static Container instance = new Container();
+    private static Container instance;
     private Router router;
-    private Datastore datastore;
     private ModelManager modelManager;
-
-    private static final String MODEL_DIRECTORY = "main.compa.Model";
-    private static final String DB_NAME = "compa";
+    private MongoUtil mongoUtil;
 
     private Container(){}
 
     public static Container getInstance(){
+        if(instance == null)
+            instance = new Container();
         return instance;
     }
 
     public void run(){
-        Container.getInstance().start();
-    }
-
-    public void start(){
         Vertx vertx = Vertx.vertx();
         HttpServer server = vertx.createHttpServer();
         router = Router.router(vertx);
@@ -41,18 +36,13 @@ public class Container {
         server.requestHandler(router::accept).listen(8080);
         router.route().handler(BodyHandler.create());
 
-
-        /*final Morphia morphia = new Morphia();
-        morphia.mapPackage(MODEL_DIRECTORY);
-        datastore = morphia.createDatastore(new MongoClient(), DB_NAME);
-        datastore.ensureIndexes();
-        */
+        mongoUtil = new MongoUtil();
         this.launchController();
 
-        MongoUtil.getInstance().save(new User("test", "test", null));
+        //mongoUtil.getDatastore().save(new User("test", "test", null));
     }
 
-    public void launchController(){
+    private void launchController(){
         LocationController locationController = new LocationController();
         AuthenticationController authenticationController = new AuthenticationController();
     }
@@ -66,7 +56,7 @@ public class Container {
     }
 
     public Datastore getDataStore(){
-        return this.datastore;
+        return mongoUtil.getDatastore();
     }
     // TODO: Service manager
 }

@@ -1,18 +1,25 @@
 package main.compa.App;
 
 import main.compa.Model.Location;
-import org.bson.types.ObjectId;
+import main.compa.Model.User;
+import main.compa.daos.LocationDAO;
+import main.compa.daos.UserDAO;
+import org.mongodb.morphia.dao.BasicDAO;
 
-import java.util.List;
+import java.util.HashMap;
 
 public class ModelManager {
 
-    public Location findLocationById(String id){
-        return Container.getInstance().getDataStore().get(Location.class, new ObjectId(id));
+    HashMap<Class, BasicDAO> daos;
+
+    public ModelManager(){
+        daos = new HashMap<>();
+        daos.put(Location.class, new LocationDAO());
+        daos.put(User.class, new UserDAO());
     }
 
-    public List<Location> allLocations(){
-        return Container.getInstance().getDataStore().find(Location.class).asList();
+    public BasicDAO getDAO(Class classs){
+        return daos.get(classs);
     }
 
 }
