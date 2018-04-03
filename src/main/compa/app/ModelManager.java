@@ -1,7 +1,7 @@
-package main.compa.App;
+package main.compa.app;
 
-import main.compa.Model.Location;
-import main.compa.Model.User;
+import main.compa.models.Location;
+import main.compa.models.User;
 import main.compa.daos.LocationDAO;
 import main.compa.daos.UserDAO;
 import org.mongodb.morphia.Datastore;

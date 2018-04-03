@@ -1,4 +1,4 @@
-package main.compa.App;
+package main.compa.app;
 
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServer;

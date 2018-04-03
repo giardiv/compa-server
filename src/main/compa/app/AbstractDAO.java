@@ -1,4 +1,4 @@
-package main.compa.App;
+package main.compa.app;
 
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.dao.BasicDAO;

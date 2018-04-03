@@ -1,13 +1,12 @@
-package main.compa.Controller;
+package main.compa.controllers;
 
 import com.google.gson.Gson;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
-import main.compa.App.Container;
-import main.compa.App.Controller;
-import main.compa.App.ModelManager;
-import main.compa.Model.User;
+import main.compa.app.Controller;
+import main.compa.app.ModelManager;
+import main.compa.models.User;
 import main.compa.daos.UserDAO;
 import org.apache.commons.lang3.RandomStringUtils;
 
@@ -29,6 +28,7 @@ public class UserController extends Controller {
         routingContext.response().end(new Gson().toJson(content));
     }
 
+    //TODO MOVE IT ELSEWHERE
     private String checkAuth(String login, String password){
             User user = userDAO.getByLoginAndPassword(login, password);
             if(user == null)

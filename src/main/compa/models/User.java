@@ -1,11 +1,8 @@
-package main.compa.Model;
+package main.compa.models;
 
-import main.compa.App.Container;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.bson.types.ObjectId;
 import org.mongodb.morphia.annotations.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 

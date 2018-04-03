@@ -1,7 +1,7 @@
 package main.compa.daos;
 
-import main.compa.Model.User;
-import main.compa.App.AbstractDAO;
+import main.compa.models.User;
+import main.compa.app.AbstractDAO;
 import org.bson.types.ObjectId;
 import org.mongodb.morphia.Datastore;
 
