@@ -3,6 +3,7 @@ package main.compa.Controller;
 import com.google.gson.Gson;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.Json;
+import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.core.json.JsonArray;
 import main.compa.App.Container;
@@ -22,13 +23,13 @@ public class LocationController extends Controller {
 
     private LocationDAO locationDAO;
 
-    public LocationController(){
-        super(PREFIX);
+    public LocationController(Router router, ModelManager modelManager){
+        super(PREFIX, router);
         this.registerRoute(HttpMethod.POST, "/", this::newInstance, "application/json");
         this.registerRoute(HttpMethod.GET, "/", this::getAll, "application/json");
         this.registerRoute(HttpMethod.GET, "/:id", this::get, "application/json");
 
-        locationDAO = (LocationDAO) Container.getInstance().getModelManager().getDAO(Location.class);
+        locationDAO = (LocationDAO) modelManager.getDAO(Location.class);
     }
 
     private void newInstance(RoutingContext routingContext){
