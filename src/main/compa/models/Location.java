@@ -1,4 +1,4 @@
-package main.compa.Model;
+package main.compa.models;
 
 import io.vertx.core.json.Json;
 import org.bson.types.ObjectId;

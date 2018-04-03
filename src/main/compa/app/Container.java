@@ -1,13 +1,10 @@
-package main.compa.App;
+package main.compa.app;
 
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServer;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
-import main.compa.Controller.UserController;
-import main.compa.Controller.LocationController;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class Container {
@@ -17,18 +14,15 @@ public class Container {
     private MongoUtil mongoUtil;
     private List<Controller> controllers;
 
-    public void run(){
+    public void run(ControllerFactory cf, DAOFactory daoFactory){
         Vertx vertx = Vertx.vertx();
         HttpServer server = vertx.createHttpServer();
         router = Router.router(vertx);
         mongoUtil = new MongoUtil();
-        modelManager = new ModelManager(mongoUtil.getDatastore());
+        modelManager = new ModelManager(mongoUtil.getDatastore(), daoFactory);
         server.requestHandler(router::accept).listen(8080);
         router.route().handler(BodyHandler.create());
-
-        controllers = new ArrayList<>();
-        controllers.add(new LocationController(router, modelManager));
-        controllers.add( new UserController(router, modelManager));
+        controllers = cf.getControllers(router, modelManager);
 
         //mongoUtil.getDatastore().save(new User("test", "test", null));
     }

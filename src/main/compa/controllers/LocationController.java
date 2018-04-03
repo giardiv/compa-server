@@ -1,21 +1,14 @@
-package main.compa.Controller;
+package main.compa.controllers;
 
 import com.google.gson.Gson;
 import io.vertx.core.http.HttpMethod;
-import io.vertx.core.json.Json;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
-import io.vertx.core.json.JsonArray;
-import main.compa.App.Container;
-import main.compa.App.ModelManager;
-import main.compa.Model.Location;
-import main.compa.App.Controller;
+import main.compa.app.ModelManager;
+import main.compa.models.Location;
+import main.compa.app.Controller;
 import main.compa.daos.LocationDAO;
 import org.bson.types.ObjectId;
-import org.mongodb.morphia.query.Query;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class LocationController extends Controller {
 

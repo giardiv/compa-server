@@ -1,11 +1,10 @@
-package main.compa.App;
+package main.compa.app;
 
 import io.vertx.core.Handler;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
-import org.mongodb.morphia.Datastore;
 
 import java.util.ArrayList;
 import java.util.List;

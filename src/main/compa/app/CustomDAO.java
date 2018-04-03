@@ -1,13 +1,13 @@
-package main.compa.App;
+package main.compa.app;
 
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.dao.BasicDAO;
 
 import java.util.List;
 
-public abstract class AbstractDAO<T, K> extends BasicDAO<T, K> {
+public class CustomDAO<T, K> extends BasicDAO<T, K> {
 
-    public AbstractDAO(Class entityClass, Datastore ds) {
+    public CustomDAO(Class entityClass, Datastore ds) {
         super(entityClass, ds);
     }
 
