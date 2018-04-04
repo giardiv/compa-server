@@ -10,25 +10,25 @@ import java.util.List;
 
 public class Container {
 
-    private final static String HOST = "localhost";
-    private final static int PORT = 8080;
+    private final static String SERVER_HOST = "localhost";
+    private final static int SERVER_PORT = 8080;
     private Router router;
     private ModelManager modelManager;
     private MongoUtil mongoUtil;
     private List<Controller> controllers;
 
-    public void run(ControllerFactory cf, DAOFactory daoFactory){
+    public void run(ClassFinder cf){
         Vertx vertx = Vertx.vertx();
 
         HttpServerOptions options = new HttpServerOptions();
-        options.setHost(HOST);
-        options.setPort(PORT);
+        options.setHost(SERVER_HOST);
+        options.setPort(SERVER_PORT);
 
         HttpServer server = vertx.createHttpServer(options);
         router = Router.router(vertx);
-        mongoUtil = new MongoUtil();
+        mongoUtil = new MongoUtil(cf.getModelDirectory());
 
-        modelManager = new ModelManager(daoFactory.getDAOS(mongoUtil.getDatastore()));
+        modelManager = new ModelManager(cf.getDAOs(mongoUtil.getDatastore()));
         server.requestHandler(router::accept);
         server.listen();
 
