@@ -6,17 +6,16 @@ import org.mongodb.morphia.Morphia;
 
 public class MongoUtil {
 
-    private static final String MODEL_DIRECTORY = "main.compa.models";
     private static final String DB_NAME = "compa";
-    private static final String HOST = "localhost";
-    private static final int PORT = 27017;
+    private static final String DB_HOST = "localhost";
+    private static final int DB_PORT = 27017;
 
     private Datastore datastore;
 
-    public MongoUtil(){
+    public MongoUtil(String modelDirectory){
         final Morphia morphia = new Morphia();
-        morphia.mapPackage(MODEL_DIRECTORY);
-        datastore = morphia.createDatastore(new MongoClient(HOST, PORT), DB_NAME);
+        morphia.mapPackage(modelDirectory);
+        datastore = morphia.createDatastore(new MongoClient(DB_HOST, DB_PORT), DB_NAME);
         datastore.ensureIndexes();
     }
 

@@ -25,72 +25,8 @@ public class Main extends AbstractVerticle{
 	
 	public static void main(String... args) {
 
-		/*ControllerFactory cf = (Router router, ModelManager modelManager) -> {
-			List<controllers> list = new ArrayList<>();
-			list.add(new LocationController(router, modelManager));
-			list.add( new UserController(router, modelManager));
-			return list;
-		};
-
-		DAOFactory daoFactory = (Datastore ds) -> {
-            Map<Class, BasicDAO> daos = new HashMap<>();
-            daos.put(Location.class, new LocationDAO(ds));
-            daos.put(User.class, new UserDAO(ds));
-			return daos;
-        };*/
-
-
-		DAOFactory daoFactory = (Datastore ds) -> {
-			Map<Class, BasicDAO> daos = new HashMap<>();
-
-
-			try {
-				for (Class clazz : ReflectionUtils.getClasses("main.compa.models")) {
-
-					try{
-						String s = "main.compa.daos." + clazz.getSimpleName() + "DAO";
-						Class daoClass = Class.forName(s);
-						Object dao = daoClass.getDeclaredConstructor(Datastore.class).newInstance(ds);
-						daos.put(clazz, (CustomDAO) dao);
-					}
-					catch(ClassNotFoundException e){
-						System.err.println("no dao for class " + clazz.toString() + ", used custom" );
-						daos.put(clazz, new CustomDAO<>(clazz, ds));
-					}
-
-				}
-
-				return daos;
-
-			} catch (Exception e) {
-				System.err.println("pb daos");
-			}
-
-			return null;
-
-		};
-
-
-		ControllerFactory cf = (Router router, ModelManager modelManager) -> {
-            List<Controller> list = new ArrayList<>();
-
-            try {
-                for (Class clazz : ReflectionUtils.getClasses("main.compa.controllers")) {
-                    Object c = clazz.getDeclaredConstructor(Router.class, ModelManager.class)
-                            .newInstance(router, modelManager);
-                    list.add((Controller) c );
-                }
-
-                return list;
-
-            } catch (Exception e) {
-                System.err.println("pb controller");
-                e.printStackTrace();
-                return null;
-            }
-        };
-
-		new Container().run(cf, daoFactory);
+		ClassFinder cf = new ClassFinder();
+		new Container().run(cf);
 	}
 
 	private static void test(){
