@@ -5,9 +5,9 @@ import org.mongodb.morphia.dao.BasicDAO;
 
 import java.util.List;
 
-public class CustomDAO<T, K> extends BasicDAO<T, K> {
+public class DAO<T, K> extends BasicDAO<T, K> {
 
-    public CustomDAO(Class entityClass, Datastore ds) {
+    public DAO(Class entityClass, Datastore ds) {
         super(entityClass, ds);
     }
 

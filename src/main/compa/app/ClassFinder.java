@@ -35,11 +35,11 @@ public class ClassFinder {
 
             try{
                 Class<?> daoClass = Class.forName(DAO_DIRECTORY + "." + clazz.getSimpleName() + "DAO");
-                daos.put(clazz, (CustomDAO)  daoClass.getDeclaredConstructor(Datastore.class).newInstance(ds));
+                daos.put(clazz, (DAO)  daoClass.getDeclaredConstructor(Datastore.class).newInstance(ds));
             }
             catch(ClassNotFoundException e){
                 System.err.println("no dao for class " + clazz.toString() + ", used custom" );
-                daos.put(clazz, new CustomDAO<>(clazz, ds));
+                daos.put(clazz, new DAO<>(clazz, ds));
             } catch(NoSuchMethodException e){} catch(IllegalAccessException e){}
                 catch(InstantiationException e){} catch(InvocationTargetException e){}
         }

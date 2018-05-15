@@ -21,6 +21,9 @@ public class User implements JSONisable{
     private String password;
     private String token;
 
+    @Expose
+    private List<Friendship> friendships;
+
     @Reference
     private List<Location> locations;
 
@@ -36,5 +39,4 @@ public class User implements JSONisable{
     public void setToken(String token){
         this.token = token;
     }
-
 }
