@@ -21,7 +21,7 @@ public class UserController extends Controller {
         super(PREFIX, router);
         this.registerRoute(HttpMethod.GET, "/", this::getAll, "application/json");
         this.registerRoute(HttpMethod.POST, "/login", this::login, "application/json");
-        this.registerRoute(HttpMethod.POST, "/register", this::register, "application/json");
+        this.registerRoute(HttpMethod.POST, "/", this::register, "application/json");
         userDAO = (UserDAO) modelManager.getDAO(User.class);
     }
 
@@ -45,7 +45,14 @@ public class UserController extends Controller {
         return token;
     }
 
-    // Return 200 ; 418
+    /**
+     * @api {post} /user Add a new user
+     * @apiName Register
+     * @apiGroup User
+     *
+     * @apiUse UserAlreadyExist
+     * @apiUse PasswordTooShort
+     */
     private void register(RoutingContext routingContext){
         // TODO : manage null values > return bad request
         String login = routingContext.request().getParam("login");
@@ -58,11 +65,21 @@ public class UserController extends Controller {
         }
     }
 
+    /**
+     * @api {get} /user Get all users
+     * @apiName GetUsers
+     * @apiGroup User
+     */
     // Return 200
     private void getAll(RoutingContext routingContext){
         routingContext.response().end(new Gson().toJson(userDAO.findAll()));
     }
 
+    /**
+     * @api {get} /user/:id Request User information
+     * @apiName GetUser
+     * @apiGroup User
+     */
     // Return 200 ; 404
     private void getUser(RoutingContext routingContext){
         routingContext.response().end();
