@@ -19,6 +19,8 @@ public class User implements JSONisable{
     @Expose
     private String login;
     private String password;
+
+    // TODO: Array of Token objects
     private String token;
 
     @Expose
@@ -30,10 +32,9 @@ public class User implements JSONisable{
     public User(){
     }
 
-    public User(String login, String password, String token){
+    public User(String login, String password){
         this.login = login;
-        this.password = password; //TO CHANGE
-        //token to null when first registrating?
+        this.password = password;
     }
 
     public void setToken(String token){

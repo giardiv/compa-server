@@ -1,18 +1,20 @@
 package main.compa.models;
 
 import com.google.gson.annotations.Expose;
-import javafx.util.Pair;
 import org.bson.types.ObjectId;
 import org.mongodb.morphia.annotations.*;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 @Entity("friendship")
 @Indexes({
-        @Index(value = "login", fields = @Field("login"), unique = true),
+       // @Index(value = "login", fields = @Field("login"), unique = true),
 })
 public class Friendship implements JSONisable{
-    private enum Status{
+    @Embedded
+    enum Status{
         PENDING,
         ACCEPTED,
         REUSED,
@@ -21,12 +23,16 @@ public class Friendship implements JSONisable{
 
     @Id
     private ObjectId id;
+
     @Expose
-    private Pair<Status, Date> status;
+    //@Embedded
+    //private Map<Date, Status> status;
+    private Status status;
 
     @Expose
     @Reference
     private User friendLeft;
+
     @Expose
     @Reference
     private User friendRight;
@@ -34,16 +40,17 @@ public class Friendship implements JSONisable{
     public Friendship(){}
 
     public Friendship(User a, User b){
-        this.status = new Pair<>(Status.PENDING, new Date());
+        this.status = Status.PENDING; //new HashMap<Date, Status>();
+        //this.status.put(new Date(), Status.PENDING);
         this.friendLeft = a;
         this.friendRight = b;
     }
 
     public boolean isAccepted(){
-        return this.getStatus().getKey() == Status.ACCEPTED;
+        return true;//this.getStatus().getKey() == Status.ACCEPTED;
     }
 
-    public Pair<Status, Date> getStatus(){
+    public Status getStatus(){ ///Map<Date, Status> getStatus(){
         return this.status;
     }
 }
