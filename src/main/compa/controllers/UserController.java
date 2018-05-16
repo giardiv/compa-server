@@ -84,4 +84,8 @@ public class UserController extends Controller {
     private void getUser(RoutingContext routingContext){
         routingContext.response().end();
     }
+
+    private void getFriendships(RoutingContext routingContext){
+
+    }
 }
