@@ -1,10 +1,9 @@
 package main.compa.exception;
 
-import com.google.gson.annotations.Expose;
 import javafx.util.Pair;
-import main.compa.models.JSONisable;
+import main.compa.app.Exception;
 
-public class RegisterException extends Exception implements JSONisable
+public class RegisterException extends Exception
 {
     /**
      * @apiDefine UserAlreadyExist
@@ -18,12 +17,7 @@ public class RegisterException extends Exception implements JSONisable
      */
     public static final Pair<Integer, String> PASSWORD_TOO_SHORT = new Pair<>(1002, "I'm sure you can do better, gimme a real password");
 
-    @Expose
-    private Integer code;
-
-    public RegisterException(Pair<Integer, String> message)
-    {
-        super(message.getValue());
-        this.code = message.getKey();
+    public RegisterException(Pair<Integer, String> message) {
+        super(message);
     }
 }

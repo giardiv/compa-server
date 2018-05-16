@@ -31,6 +31,7 @@ public class Container {
         modelManager = new ModelManager(cf.getDAOs(mongoUtil.getDatastore()));
         server.requestHandler(router::accept);
         server.listen();
+        // TODO: make it async 👉 https://github.com/vert-x3/vertx-examples/blob/master/core-examples/src/main/java/io/vertx/example/core/execblocking/ExecBlockingExample.java
 
         router.route().handler(BodyHandler.create());
         controllers = cf.getControllers(router, modelManager);

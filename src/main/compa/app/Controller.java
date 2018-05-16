@@ -27,5 +27,4 @@ public abstract class Controller {
     protected void registerRoute(HttpMethod method, String route, Handler<RoutingContext> handler, String produces){
         this.routes.add(router.route(method,prefix + route).produces(produces).handler(handler));
     }
-
 }

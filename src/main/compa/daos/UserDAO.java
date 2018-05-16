@@ -19,7 +19,7 @@ public class UserDAO extends DAO<User, ObjectId> {
                 filter("password", password).get();
     }
 
-    public void addUser(String login, String password) throws RegisterException {
+    public User addUser(String login, String password) throws RegisterException {
         User user = this.createQuery().filter("login", login).get();
         if(password.length() < this.PASSWORD_MIN_LENGTH)
             throw new RegisterException(RegisterException.PASSWORD_TOO_SHORT);
@@ -29,5 +29,7 @@ public class UserDAO extends DAO<User, ObjectId> {
         user = new User(login, password);
 
         this.save(user);
+
+        return user;
     }
 }

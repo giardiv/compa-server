@@ -4,6 +4,7 @@ import com.google.gson.annotations.Expose;
 import org.bson.types.ObjectId;
 import org.mongodb.morphia.annotations.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -20,8 +21,9 @@ public class User implements JSONisable{
     private String login;
     private String password;
 
-    // TODO: Array of Token objects
-    private String token;
+    @Expose
+    @Reference
+    private List<Token> tokens;
 
     @Expose
     private List<Friendship> friendships;
@@ -35,9 +37,10 @@ public class User implements JSONisable{
     public User(String login, String password){
         this.login = login;
         this.password = password;
+        this.tokens = new ArrayList<>();
     }
 
-    public void setToken(String token){
-        this.token = token;
+    public void addToken(Token token){
+        this.tokens.add(token);
     }
 }
