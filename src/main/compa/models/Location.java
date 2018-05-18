@@ -1,9 +1,6 @@
 package main.compa.models;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
-import io.vertx.core.json.Json;
 import org.bson.types.ObjectId;
 import org.mongodb.morphia.annotations.*;
 
