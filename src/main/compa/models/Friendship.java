@@ -14,7 +14,7 @@ import java.util.Map;
 })
 public class Friendship implements JSONisable{
     @Embedded
-    enum Status{
+    enum Status {
         PENDING,
         ACCEPTED,
         REUSED,
@@ -44,6 +44,10 @@ public class Friendship implements JSONisable{
         //this.status.put(new Date(), Status.PENDING);
         this.friendLeft = a;
         this.friendRight = b;
+    }
+
+    public void setStatus(Status s){
+        this.status = s;
     }
 
     public boolean isAccepted(){

@@ -38,9 +38,20 @@ public class User implements JSONisable{
         this.login = login;
         this.password = password;
         this.tokens = new ArrayList<>();
+        this.locations = new ArrayList<>();
+        this.friendships = new ArrayList<>();
+    }
+
+    public void addLocation(Location l){
+        locations.add(l);
     }
 
     public void addToken(Token token){
         this.tokens.add(token);
     }
+
+    public void addFriendship(Friendship f){
+        friendships.add(f);
+    }
+    
 }

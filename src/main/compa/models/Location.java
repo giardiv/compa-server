@@ -4,6 +4,8 @@ import com.google.gson.annotations.Expose;
 import org.bson.types.ObjectId;
 import org.mongodb.morphia.annotations.*;
 
+import java.util.Date;
+
 @Entity("location")
 @Indexes({
         @Index(value = "latitude", fields = @Field("latitude")),
@@ -19,11 +21,19 @@ public class Location implements JSONisable {
     @Expose
     private double longitude;
 
+    @Expose
+    private Date date;
+
     public Location(){}
 
     public Location(double lat, double lng){
+        this(lat, lng, null);
+    }
+
+    public Location(double lat, double lng, Date date){
         this.latitude = lat;
         this.longitude = lng;
+        this.date = date;
     }
 
     public ObjectId getId() {
