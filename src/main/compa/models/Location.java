@@ -1,6 +1,7 @@
 package main.compa.models;
 
 import com.google.gson.annotations.Expose;
+import main.compa.app.JSONisable;
 import org.bson.types.ObjectId;
 import org.mongodb.morphia.annotations.*;
 
@@ -10,7 +11,10 @@ import org.mongodb.morphia.annotations.*;
         @Index(value = "longitude", fields = @Field("longitude"))
 })
 public class Location implements JSONisable {
+    static final long serialVersionUID = 42L;
+
     @Id
+    @Expose
     private ObjectId id;
 
     @Expose

@@ -6,10 +6,8 @@ import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import main.compa.app.Controller;
 import main.compa.app.ModelManager;
-import main.compa.models.Token;
 import main.compa.models.User;
 import main.compa.daos.UserDAO;
-import org.apache.commons.lang3.RandomStringUtils;
 import main.compa.exception.RegisterException;
 
 public class UserController extends Controller {
@@ -40,20 +38,22 @@ public class UserController extends Controller {
     private void login(RoutingContext routingContext){
         String login = routingContext.request().getParam("login");
         String password = routingContext.request().getParam("password");
-        Token token = checkAuth(login, password);
+        String token = checkAuth(login, password);
         Object content = token == null ? "error" : token; //TODO DEFINE STRUCTURE OF RETURNED JSON
         routingContext.response().end(new Gson().toJson(content));
     }
 
     //TODO MOVE IT ELSEWHERE
-    private Token checkAuth(String login, String password){
+    private String checkAuth(String login, String password){
         User user = userDAO.getByLoginAndPassword(login, password);
         if(user == null)
             return null;
 
-        Token token = new Token();
-        user.addToken(token);
-        return token;
+        //Token token = new Token();
+        //user.addToken(token);
+
+        return null;
+        //return token;
     }
 
     /**
@@ -75,10 +75,10 @@ public class UserController extends Controller {
         String password = routingContext.request().getParam("password");
         try {
             User user = userDAO.addUser(login, password);
-            Token token = new Token();
-            user.addToken(token);
+            //Token token = new Token();
+            //user.addToken(token);
             userDAO.save(user);
-            routingContext.response().end(new Gson().toJson(token));
+            routingContext.response().end(new Gson().toJson(user.getToken()));
         } catch (RegisterException e) {
             routingContext.response().setStatusCode(418).end(new Gson().toJson(e));
         }

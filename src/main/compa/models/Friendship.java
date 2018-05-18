@@ -1,18 +1,17 @@
 package main.compa.models;
 
 import com.google.gson.annotations.Expose;
+import main.compa.app.JSONisable;
 import org.bson.types.ObjectId;
 import org.mongodb.morphia.annotations.*;
-
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 @Entity("friendship")
 @Indexes({
        // @Index(value = "login", fields = @Field("login"), unique = true),
 })
-public class Friendship implements JSONisable{
+public class Friendship implements JSONisable {
+    static final long serialVersionUID = 42L;
+
     @Embedded
     enum Status{
         PENDING,
@@ -22,6 +21,7 @@ public class Friendship implements JSONisable{
     };
 
     @Id
+    @Expose
     private ObjectId id;
 
     @Expose
