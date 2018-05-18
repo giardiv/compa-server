@@ -6,6 +6,7 @@ import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import main.compa.app.Controller;
 import main.compa.app.ModelManager;
+import main.compa.app.ServiceManager;
 import main.compa.daos.FriendshipDAO;
 import main.compa.daos.UserDAO;
 import main.compa.exception.FriendshipException;
@@ -20,8 +21,8 @@ public class FriendshipController extends Controller {
     private UserDAO userDAO;
 
     // TODO: maybe create a service manager
-    public FriendshipController(Router router, ModelManager modelManager) {
-        super(PREFIX, router);
+    public FriendshipController(ServiceManager serviceManager, Router router, ModelManager modelManager) {
+        super(serviceManager, PREFIX, router);
         this.registerRoute(HttpMethod.POST, "/", this::addFriendship, "application/json");
         this.registerRoute(HttpMethod.GET, "/", this::getAll, "application/json");
 

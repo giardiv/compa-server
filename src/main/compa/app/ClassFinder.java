@@ -14,6 +14,7 @@ public class ClassFinder {
     private static final String MODEL_DIRECTORY = "main.compa.models";
     private static final String DAO_DIRECTORY = "main.compa.daos";
     private static final String CONTROLLER_DIRECTORY = "main.compa.controllers";
+    private static final String SERVICES_DIRECTORY = "main.compa.services";
 
     public String getModelDirectory(){
         return MODEL_DIRECTORY;
@@ -51,7 +52,7 @@ public class ClassFinder {
 
     }
 
-    public List<Controller> getControllers(Router router, ModelManager modelManager){
+    public List<Controller> getControllers(ServiceManager serviceManager, Router router, ModelManager modelManager){
 
         Set<Class<?>> classes = null;
 
@@ -67,7 +68,6 @@ public class ClassFinder {
         List<Controller> list = new ArrayList<>();
 
         for (Class<?> clazz : classes) {
-
             try {
                 list.add((Controller) clazz.getDeclaredConstructor(Router.class, ModelManager.class)
                         .newInstance(router, modelManager));
@@ -77,6 +77,19 @@ public class ClassFinder {
         }
 
         return list;
+    }
 
+    public Set<Class<?>> getServices(){
+        Set<Class<?>> classes = null;
+
+        try {
+            classes = ReflectionUtils.getClasses(SERVICES_DIRECTORY);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            System.err.println("problem getting classes from service directory");
+            return null;
+        }
+        return classes;
     }
 }

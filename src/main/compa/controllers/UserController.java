@@ -6,6 +6,7 @@ import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import main.compa.app.Controller;
 import main.compa.app.ModelManager;
+import main.compa.app.ServiceManager;
 import main.compa.models.User;
 import main.compa.daos.UserDAO;
 import main.compa.exception.RegisterException;
@@ -16,8 +17,8 @@ public class UserController extends Controller {
 
     private UserDAO userDAO;
 
-    public UserController(Router router, ModelManager modelManager){
-        super(PREFIX, router);
+    public UserController(ServiceManager serviceManager, Router router, ModelManager modelManager){
+        super(serviceManager, PREFIX, router);
         this.registerRoute(HttpMethod.GET, "/", this::getAll, "application/json");
         this.registerRoute(HttpMethod.POST, "/login", this::login, "application/json");
         this.registerRoute(HttpMethod.POST, "/register", this::register, "application/json");
