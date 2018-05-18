@@ -1,5 +1,4 @@
-package main.compa.app;
-
+package compa.app;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
@@ -12,12 +11,13 @@ public class Container {
 
     private final static String SERVER_HOST = "localhost";
     private final static int SERVER_PORT = 8080;
-    private Router router;
-    private ModelManager modelManager;
-    private MongoUtil mongoUtil;
-    private List<Controller> controllers;
+    private Router
+            router;
+    private main.compa.app.ModelManager modelManager;
+    private main.compa.app.MongoUtil mongoUtil;
+    private List<main.compa.app.Controller> controllers;
 
-    public void run(ClassFinder cf){
+    public void run(main.compa.app.ClassFinder cf){
         Vertx vertx = Vertx.vertx();
 
         HttpServerOptions options = new HttpServerOptions();
@@ -26,7 +26,7 @@ public class Container {
 
         HttpServer server = vertx.createHttpServer(options);
         router = Router.router(vertx);
-        mongoUtil = new MongoUtil(cf.getModelDirectory());
+        mongoUtil = new main.compa.app.MongoUtil(cf.getModelDirectory());
 
         modelManager = new ModelManager(cf.getDAOs(mongoUtil.getDatastore()));
         server.requestHandler(router::accept);
