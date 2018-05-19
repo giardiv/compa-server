@@ -30,6 +30,7 @@ public class ClassFinder {
             System.err.println("problem getting classes from model directory");
             return null;
         } catch (IOException e) {
+
             e.printStackTrace();
         }
 

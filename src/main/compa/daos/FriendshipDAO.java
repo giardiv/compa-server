@@ -1,14 +1,21 @@
 package main.compa.daos;
 
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBCollection;
+import com.mongodb.DBObject;
 import main.compa.app.DAO;
+import main.compa.app.DAO;
+import main.compa.app.MongoUtil;
 import main.compa.exception.FriendshipException;
 import main.compa.models.Friendship;
 import main.compa.models.User;
+import main.compa.models.Friendship;
 import org.bson.types.ObjectId;
 import org.mongodb.morphia.Datastore;
-import org.mongodb.morphia.query.Criteria;
-import org.mongodb.morphia.query.Query;
+import org.mongodb.morphia.query.*;
+import sun.rmi.server.UnicastServerRef;
 
+import javax.jws.soap.SOAPBinding;
 import java.util.List;
 
 public class FriendshipDAO extends DAO<Friendship, ObjectId> {
@@ -26,11 +33,20 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
     }
 
     public void addFriendship(User a, User b) throws FriendshipException {
+        System.out.println("In addFriendship");
         Friendship fs = this.getFriendshipByFriends(a, b);
-        if(fs != null)
+        String login_a = a.getLogin();
+
+        if(fs != null) {
             throw new FriendshipException(FriendshipException.FRIEND_ALREADY_EXIST);
+        }
         fs = new Friendship(a, b);
         this.save(fs);
+
+        Query<User> query = MongoUtil.getDatastore().find(User.class).field("login").equal(login_a);
+        UpdateOperations<User> update = MongoUtil.getDatastore().createUpdateOperations(User.class).set("friendships", fs);
+        MongoUtil.getDatastore().update(query, update);
+        System.out.println("Updated User friend");
     }
 
     public Friendship getFriendshipByFriends(User a, User b){

@@ -71,6 +71,7 @@ public class UserController extends Controller {
      * @apiSuccess {String} Token    Token is returned
      */
     private void register(RoutingContext routingContext){
+        System.out.println("In register");
         // TODO : manage null values > return bad request
         String login = routingContext.request().getParam("login");
         String password = routingContext.request().getParam("password");

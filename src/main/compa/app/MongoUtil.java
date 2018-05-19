@@ -10,7 +10,7 @@ public class MongoUtil {
     private static final String DB_HOST = "localhost";
     private static final int DB_PORT = 27017;
 
-    private Datastore datastore;
+    private static Datastore datastore;
 
     public MongoUtil(String modelDirectory){
         final Morphia morphia = new Morphia();
@@ -19,7 +19,7 @@ public class MongoUtil {
         datastore.ensureIndexes();
     }
 
-    public Datastore getDatastore() {
+    public static Datastore getDatastore() {
         return datastore;
     }
 

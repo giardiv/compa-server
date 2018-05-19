@@ -28,7 +28,7 @@ public class User implements JSONisable {
     //@Reference
     private String token; //List<Token> tokens;
 
-    @Expose
+
     private List<Friendship> friendships;
 
     @Reference
@@ -40,7 +40,8 @@ public class User implements JSONisable {
     public User(String login, String password){
         this.login = login;
         this.password = password;
-        this.token = RandomStringUtils.random(16); //new ArrayList<>();
+        this.friendships = new ArrayList<>();
+        this.token = RandomStringUtils.random(16); 
     }
 
     public String getToken(){
@@ -49,5 +50,9 @@ public class User implements JSONisable {
 
     public void setToken(){
         this.token = RandomStringUtils.random(16);
+    }
+
+    public String getLogin() {
+        return login;
     }
 }
