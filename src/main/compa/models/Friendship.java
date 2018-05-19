@@ -9,8 +9,7 @@ import org.mongodb.morphia.annotations.*;
 @Indexes({
        // @Index(value = "login", fields = @Field("login"), unique = true),
 })
-public class Friendship implements JSONisable {
-    static final long serialVersionUID = 42L;
+public class Friendship {
 
     @Embedded
     enum Status {
@@ -21,15 +20,10 @@ public class Friendship implements JSONisable {
     };
 
     @Id
-    @Expose
     private ObjectId id;
 
-    @Expose
-    //@Embedded
-    //private Map<Date, Status> status;
     private Status status;
 
-    @Expose
     @Reference
     private User friendLeft;
 
