@@ -5,6 +5,7 @@ import main.compa.models.Friendship;
 import main.compa.models.Location;
 import main.compa.models.User;
 import org.mongodb.morphia.Datastore;
+import org.mongodb.morphia.query.UpdateOperations;
 
 import javax.jws.soap.SOAPBinding;
 import java.time.LocalDateTime;
@@ -17,15 +18,13 @@ public class FakeDataGenerator {
 
     public static void main(String... args){
         Main.main(args);
-        Datastore datastore = Main.c.getMongoUtil().getDatastore();
+        Datastore datastore = MongoUtil.getDatastore();
 
         datastore.getCollection(User.class).drop();
         datastore.getCollection(Location.class).drop();
         datastore.getCollection(Friendship.class).drop();
 
-        users = new ArrayList<>();
-        friendships = new ArrayList<>();
-
+        List<User> users = new ArrayList<>();
 
         Location cityTest = new Location(51.509865, -0.118092);
 
@@ -43,8 +42,8 @@ public class FakeDataGenerator {
                 LocalDateTime date = LocalDateTime.now().minus(offset, ChronoUnit.SECONDS);
 
                 Location l = new Location(
-                        baseLatitude + randomCoordinate(),
-                        baseLongitude + randomCoordinate(),
+                        baseLatitude + new Random().nextInt(140) * 0.0001,
+                        baseLongitude + new Random().nextInt(140) * 0.0001,
                         java.sql.Timestamp.valueOf(date));
 
                 datastore.save(l);
@@ -54,41 +53,27 @@ public class FakeDataGenerator {
             }
 
             users.add(u);
-
-        }
-
-
-        for(User u : users)
             datastore.save(u);
+        }
 
 
        Random r = new Random();
 
         for(int i = 0; i < userNb - 1; ++i){
-            //loop again? multiple friendships
+            User me = users.get(i);
             int min = i+1;
             int max = userNb - 1;
             int friendId = r.nextInt((max - min) + 1) + min;
-            User me = users.get(i);
             User other = users.get(friendId);
             Friendship f = new Friendship(me, other);
             me.addFriendship(f);
             other.addFriendship(f);
-            friendships.add(f);
+            datastore.save(f);
+            UpdateOperations ops = datastore.createUpdateOperations(User.class).addToSet("friendships", f);
+            datastore.update(me, ops);
+            datastore.update(other, ops);
         }
 
-        for(Friendship f : friendships)
-            datastore.save(f);
-
-
     }
-
-    private static List<User> users;
-    private static List<Friendship> friendships;
-    private static double randomCoordinate(){
-        return new Random().nextInt(140) * 0.0001;
-    }
-
-
 
 }

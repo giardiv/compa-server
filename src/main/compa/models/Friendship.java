@@ -51,4 +51,12 @@ public class Friendship {
     public Status getStatus(){ ///Map<Date, Status> getStatus(){
         return this.status;
     }
+
+    public User getFriendLeft() {
+        return friendLeft;
+    }
+
+    public User getFriendRight() {
+        return friendRight;
+    }
 }

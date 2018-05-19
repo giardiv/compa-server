@@ -5,6 +5,7 @@ import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
+import main.compa.models.User;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +19,6 @@ public abstract class Controller {
 
     public Controller(ServiceManager serviceManager, String prefix, Router router){
         this.serviceManager = serviceManager;
-
         this.prefix = prefix;
         this.routes = new ArrayList<>();
         this.router = router;

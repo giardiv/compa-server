@@ -6,8 +6,11 @@ import com.mongodb.DBObject;
 import main.compa.app.DAO;
 import main.compa.app.DAO;
 import main.compa.app.MongoUtil;
+import main.compa.dtos.LocationDTO;
+import main.compa.dtos.UserDTO;
 import main.compa.exception.FriendshipException;
 import main.compa.models.Friendship;
+import main.compa.models.Location;
 import main.compa.models.User;
 import main.compa.models.Friendship;
 import org.bson.types.ObjectId;
@@ -19,6 +22,7 @@ import javax.jws.soap.SOAPBinding;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public class FriendshipDAO extends DAO<Friendship, ObjectId> {
 
@@ -28,7 +32,7 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
         super(Friendship.class, ds);
     }
 
-    public List<Friendship> getFriendshipByUserId(String id){
+    public List<Friendship> getFriendshipsByUserId(String id){
         logger.log(Level.INFO, "Looking for {0}'s friends", id);
 
         Query<Friendship> query = this.createQuery();
@@ -39,7 +43,6 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
 
         return this.find(query).asList();
     }
-
 
     public Friendship addFriendship(User a, User b) throws FriendshipException {
         logger.log(Level.INFO, "Adding a friendship between {0} and {1}",
@@ -81,5 +84,20 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
                 new Object[]{a.getLogin(), b.getLogin(), friendship == null ? "not" : ""}); //mdr
 
         return friendship;
+    }
+
+
+    public UserDTO toDTO(Friendship friendship, User me){
+        return friendship.getFriendLeft().equals(me)
+                ? new UserDTO(friendship.getFriendRight())
+                : new UserDTO(friendship.getFriendLeft());
+    }
+
+    public List<UserDTO> toDTO(List<Friendship> friendships, User me){
+        return friendships.stream().map(x ->
+                    x.getFriendLeft().equals(me)
+                    ? new UserDTO(x.getFriendRight())
+                    : new UserDTO(x.getFriendLeft()))
+                .collect(Collectors.toList());
     }
 }

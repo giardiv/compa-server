@@ -72,4 +72,9 @@ public class User {
     public ObjectId getId() {
         return id;
     }
+
+    @Override
+    public boolean equals(Object obj){
+        return this.id.toString().equals(((User) obj).id.toString());
+    }
 }
