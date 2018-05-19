@@ -1,37 +1,22 @@
 package main.compa.controllers;
 
 import com.google.gson.GsonBuilder;
-import com.mongodb.BasicDBObject;
-import com.mongodb.DBCollection;
-import com.mongodb.DBObject;
-import com.mongodb.DBCursor;
-import main.compa.app.*;
 import com.google.gson.Gson;
+import main.compa.app.Container;
 import main.compa.daos.FriendshipDAO;
 import main.compa.daos.UserDAO;
 import main.compa.dtos.UserDTO;
 import main.compa.exception.FriendshipException;
 import io.vertx.core.http.HttpMethod;
-import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import main.compa.app.Controller;
-import main.compa.app.ModelManager;
-import main.compa.app.ServiceManager;
-import main.compa.daos.FriendshipDAO;
-import main.compa.daos.UserDAO;
-import main.compa.exception.FriendshipException;
-import main.compa.exception.RegisterException;
 import main.compa.models.Friendship;
 import main.compa.models.User;
-import main.compa.models.Friendship;
-import main.compa.models.User;
-import org.mongodb.morphia.query.UpdateOperations;
 
-import javax.management.Query;
 import java.util.List;
 
 public class FriendshipController extends Controller {
-    private static final String PREFIX = "/friend";
+    private static final String PREFIX = "/friendship";
 
     private FriendshipDAO friendshipDAO;
     private UserDAO userDAO;
@@ -39,24 +24,26 @@ public class FriendshipController extends Controller {
     Gson gson = new GsonBuilder().setPrettyPrinting().create();
     //TODO CHANGE AUTH TOKEN TO THE HEADER AND NOT THE BODY
 
-    public FriendshipController(ServiceManager serviceManager, Router router, ModelManager modelManager) {
-        super(serviceManager, PREFIX, router);
-        this.registerRoute(HttpMethod.POST, "/", this::addFriendship, "application/json");
-        this.registerRoute(HttpMethod.GET, "/getFriend", this::getFriends, "application/json");
+    public FriendshipController(Container container) {
+        super(PREFIX, container);
+        this.registerRoute(HttpMethod.POST, "/request", this::requestFriendship, "application/json");
+        this.registerRoute(HttpMethod.POST, "/response", this::respondToRequest, "application/json");
+        this.registerRoute(HttpMethod.GET, "/friend_list", this::getFriends, "application/json");
+        this.registerRoute(HttpMethod.GET, "/pending", this::getPendingFriendships, "application/json");
 
-        friendshipDAO = (FriendshipDAO) modelManager.getDAO(Friendship.class);
-        userDAO = (UserDAO) modelManager.getDAO(User.class);
+        friendshipDAO = (FriendshipDAO) container.getDAO(Friendship.class);
+        userDAO = (UserDAO) container.getDAO(User.class);
     }
 
     /**
      * @api {post} /friendship Add a new friendship
-     * @apiName AddFriendship
+     * @apiName Request Friendship
      * @apiGroup Friendship
      * @apiParam {String} friend_id : the id of the user you want to become friends with
      * @apiParam {String} token : your auth token
      * @apiUse FriendshipAlreadyExist
      */
-    private void addFriendship(RoutingContext routingContext) {
+    private void requestFriendship(RoutingContext routingContext) {
         String[] params = {"friend_id", "token"};
 
         if(!this.checkParams(routingContext, params)){
@@ -136,6 +123,19 @@ public class FriendshipController extends Controller {
             List<Friendship> friendships = friendshipDAO.getFriendshipsByUser(me);
             List<UserDTO> friends = friendshipDAO.toDTO(friendships, me);
             routingContext.response().end(gson.toJson(friends));
+            return;
+        }
+    }
+
+    private void respondToRequest(RoutingContext routingContext){
+
+    }
+
+    private void getPendingFriendships(RoutingContext routingContext){
+        String[] params = {"token"};
+
+        if(!this.checkParams(routingContext, params)){
+            routingContext.response().end("missing parameter"); //TODO FORMAT
             return;
         }
     }

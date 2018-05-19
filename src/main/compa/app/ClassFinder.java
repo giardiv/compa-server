@@ -15,19 +15,19 @@ public class ClassFinder {
     private static final String MODEL_DIRECTORY = "main.compa.models";
     private static final String DAO_DIRECTORY = "main.compa.daos";
     private static final String CONTROLLER_DIRECTORY = "main.compa.controllers";
-    private static final String SERVICES_DIRECTORY = "main.compa.services";
+    private static final String SERVICE_DIRECTORY = "main.compa.services";
 
     public String getModelDirectory(){
         return MODEL_DIRECTORY;
     }
 
-    public Map<Class, BasicDAO> getDAOs(Datastore ds){
+    public Map<Class, DAO> getDAOs(Datastore ds){
 
         try {
             Set<Class<?>> classes = ReflectionUtils.getClasses(MODEL_DIRECTORY);
             classes = classes.stream().filter(x -> x.getEnclosingClass() == null).collect(Collectors.toSet());
 
-            Map<Class, BasicDAO> daos = new HashMap<>();
+            Map<Class, DAO> daos = new HashMap<>();
 
             for (Class clazz : classes) {
 
@@ -54,7 +54,7 @@ public class ClassFinder {
 
     }
 
-    public List<Controller> getControllers(ServiceManager serviceManager, Router router, ModelManager modelManager){
+    public List<Controller> getControllers(Container container){
 
         try {
             Set<Class<?>>  classes = ReflectionUtils.getClasses(CONTROLLER_DIRECTORY);
@@ -64,8 +64,8 @@ public class ClassFinder {
 
             for (Class<?> clazz : classes) {
                 try {
-                    list.add((Controller) clazz.getDeclaredConstructor(ServiceManager.class, Router.class, ModelManager.class)
-                            .newInstance(serviceManager, router, modelManager));
+                    list.add((Controller) clazz.getDeclaredConstructor(Container.class)
+                            .newInstance(container));
                 } catch(NoSuchMethodException | IllegalAccessException |
                         InstantiationException | InvocationTargetException e){
                     System.err.println(e.getMessage());
@@ -81,7 +81,7 @@ public class ClassFinder {
 
     }
 
-    public Set<Class<?>> getServices(){
+    public Map<Class, Service> getServices(Container container){
 
         /*
             UGLY FIX : reflection also returns anonymous inner classes...
@@ -91,8 +91,24 @@ public class ClassFinder {
         */
 
         try {
-            Set<Class<?>>  classes = ReflectionUtils.getClasses(SERVICES_DIRECTORY);
-            return classes.stream().filter(x -> x.getEnclosingClass() == null).collect(Collectors.toSet());
+            Set<Class<?>>  classes = ReflectionUtils.getClasses(SERVICE_DIRECTORY);
+            classes = classes.stream().filter(x -> x.getEnclosingClass() == null).collect(Collectors.toSet());
+
+            Map<Class, Service> services = new HashMap<>();
+
+            for (Class clazz : classes) {
+
+                try{
+                    services.put(clazz, (Service)  clazz.getDeclaredConstructor(Container.class).newInstance(container));
+                }
+                catch(NoSuchMethodException | IllegalAccessException
+                        | InstantiationException | InvocationTargetException e){
+                    System.err.println(e.getMessage());
+                }
+            }
+
+            return services;
+
         } catch (IOException | ClassNotFoundException e) {
             System.err.println("problem getting classes from service directory");
             return null;

@@ -2,6 +2,8 @@ package main.compa.app;
 
 import io.vertx.core.Handler;
 import io.vertx.core.http.HttpMethod;
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.http.HttpServerResponse;
 import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
@@ -11,25 +13,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class Controller {
-    private ServiceManager serviceManager;
 
     private String prefix;
-    private List<Route> routes;
-    private Router router;
+    private Container container;
 
-    public Controller(ServiceManager serviceManager, String prefix, Router router){
-        this.serviceManager = serviceManager;
+    public Controller(String prefix, Container container){
         this.prefix = prefix;
-        this.routes = new ArrayList<>();
-        this.router = router;
+        this.container = container;
     }
 
     protected void registerRoute(HttpMethod method, String route, Handler<RoutingContext> handler, String produces){
-        this.routes.add(router.route(method,prefix + route).produces(produces).handler(handler));
+        container.getRouter().route(method,prefix + route).produces(produces).handler(handler);
     }
 
-    private Service get(String name){
-        return serviceManager.get(name);
+    protected Service get(String name){
+        return container.getServices().get(name);
     }
 
     public boolean checkParams(RoutingContext context, String[] mandatoryParams){
@@ -38,4 +36,6 @@ public abstract class Controller {
                 return false;
         return true;
     }
+
+
 }

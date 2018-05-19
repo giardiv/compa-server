@@ -3,8 +3,8 @@ package main.compa.app;
 import com.google.gson.annotations.Expose;
 import javafx.util.Pair;
 
-public class Exception extends java.lang.Exception implements JSONisable {
-    @Expose
+public class Exception extends java.lang.Exception {
+
     private Integer code;
 
     public Exception(){}

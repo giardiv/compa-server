@@ -4,9 +4,8 @@ import com.google.gson.Gson;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
+import main.compa.app.Container;
 import main.compa.app.Controller;
-import main.compa.app.ModelManager;
-import main.compa.app.ServiceManager;
 import main.compa.models.User;
 import main.compa.daos.UserDAO;
 import main.compa.exception.RegisterException;
@@ -17,11 +16,11 @@ public class UserController extends Controller {
 
     private UserDAO userDAO;
 
-    public UserController(ServiceManager serviceManager, Router router, ModelManager modelManager){
-        super(serviceManager, PREFIX, router);
+    public UserController(Container container){
+        super(PREFIX, container);
         this.registerRoute(HttpMethod.POST, "/login", this::login, "application/json");
         this.registerRoute(HttpMethod.POST, "/register", this::register, "application/json");
-        userDAO = (UserDAO) modelManager.getDAO(User.class);
+        userDAO = (UserDAO) container.getDAO(User.class);
     }
 
     /**
