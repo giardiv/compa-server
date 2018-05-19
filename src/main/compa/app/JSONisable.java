@@ -9,6 +9,6 @@ import java.lang.reflect.Type;
 
 public interface JSONisable {
     default String toJSON(){
-        return GsonService.getInstance().getGsonBuilder().excludeFieldsWithoutExposeAnnotation().create().toJson(this);
+        return GsonService.getInstance().getGsonBuilder().create().toJson(this);
     }
 }
