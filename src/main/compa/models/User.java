@@ -34,7 +34,7 @@ public class User {
         this.password = password;
         this.locations = new ArrayList<>();
         this.friendships = new ArrayList<>();
-        this.token = RandomStringUtils.random(16);
+        this.setToken();
     }
 
     public void addLocation(Location l){
@@ -46,7 +46,7 @@ public class User {
     }
 
     public void setToken(){
-        this.token = RandomStringUtils.random(16);
+        this.token = RandomStringUtils.randomAscii(16);
     }
 
     public String getLogin() {

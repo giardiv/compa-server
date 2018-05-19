@@ -1,5 +1,6 @@
 package main.compa.controllers;
 
+import com.google.gson.GsonBuilder;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
@@ -35,6 +36,7 @@ public class FriendshipController extends Controller {
     private FriendshipDAO friendshipDAO;
     private UserDAO userDAO;
 
+    Gson gson = new GsonBuilder().setPrettyPrinting().create();
     //TODO CHANGE AUTH TOKEN TO THE HEADER AND NOT THE BODY
 
     public FriendshipController(ServiceManager serviceManager, Router router, ModelManager modelManager) {
@@ -76,11 +78,16 @@ public class FriendshipController extends Controller {
             return;
         }
 
+        if(friend.equals(me)){
+            routingContext.response().end("you can't befriend yourself"); //TODO FORMAT
+            return;
+        }
+
         try {
             friendshipDAO.addFriendship(me, friend);
-            routingContext.response().end();
+            routingContext.response().end("you are now friends"); //TODO FORMAT
         } catch (FriendshipException e) {
-            routingContext.response().setStatusCode(418).end(new Gson().toJson(e));
+            routingContext.response().setStatusCode(418).end(gson.toJson(e));
         }
     }
 
@@ -119,16 +126,16 @@ public class FriendshipController extends Controller {
                 return;
             }
             else{
-                List<Friendship> friendships = friendshipDAO.getFriendshipsByUserId(other.id.toString());
+                List<Friendship> friendships = friendshipDAO.getFriendshipsByUser(other);
                 List<UserDTO> friends = friendshipDAO.toDTO(friendships, other);
-                routingContext.response().end(new Gson().toJson(friends));
+                routingContext.response().end(gson.toJson(friends));
                 return;
             }
         }
         else{
-            List<Friendship> friendships = friendshipDAO.getFriendshipsByUserId(me.id.toString());
+            List<Friendship> friendships = friendshipDAO.getFriendshipsByUser(me);
             List<UserDTO> friends = friendshipDAO.toDTO(friendships, me);
-            routingContext.response().end(new Gson().toJson(friends));
+            routingContext.response().end(gson.toJson(friends));
             return;
         }
     }
