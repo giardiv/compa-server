@@ -84,6 +84,17 @@ public class ClassFinder {
 
         try {
             classes = ReflectionUtils.getClasses(SERVICES_DIRECTORY);
+            for(Class c : classes)
+                if(c.getEnclosingClass() != null)
+                    classes.remove(c);
+
+            /*
+                UGLY FIX : reflection also returns anonymous inner classes...
+                GsonService instanciates a JsonSerializer in itself and redefines a method
+                considered as a class redefinition so it's returned as one of the classes of the
+                service package. Therefore, we have to check whether the class is enclosed in another
+             */
+
         } catch (IOException e) {
             e.printStackTrace();
         } catch (ClassNotFoundException e) {

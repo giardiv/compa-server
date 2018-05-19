@@ -9,25 +9,26 @@ import java.util.Map;
 import java.util.Set;
 
 public class ServiceManager {
-    private Map services;
+    private Map<String, Service> services;
 
     public ServiceManager(Set<Class<?>> classes) {
-        services = new HashMap<String, Service>();
+        services = new HashMap<>();
 
-        Service g = new GsonService();
         for(Class<?> clazz : classes){
-            System.out.println(clazz.getSimpleName());
-            try{
-                services.put(clazz.getSimpleName(), (Service) clazz.getDeclaredConstructor().newInstance());
+
+            try {
+                services.put(clazz.getSimpleName(),
+                        (Service) clazz.getDeclaredConstructor().newInstance());
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
             } catch (InstantiationException e) {
                 e.printStackTrace();
-            } catch (NoSuchMethodException e) {
-                e.printStackTrace();
             } catch (InvocationTargetException e) {
                 e.printStackTrace();
             }
+
         }
     }
 

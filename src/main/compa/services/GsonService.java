@@ -8,11 +8,10 @@ import org.bson.types.ObjectId;
 
 import java.lang.reflect.Type;
 
-public class GsonService implements Service{
+public class GsonService implements Service {
     GsonBuilder gb = new GsonBuilder();
 
-    public GsonService()
-    {
+    public GsonService() {
         JsonSerializer<ObjectId> serializer = new JsonSerializer<ObjectId>() {
             public JsonElement serialize(ObjectId src, Type typeOfSrc, JsonSerializationContext context) {
                 // #memories
