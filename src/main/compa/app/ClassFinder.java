@@ -21,7 +21,9 @@ public class ClassFinder {
         return MODEL_DIRECTORY;
     }
 
-    public Map<Class, DAO> getDAOs(Datastore ds){
+    public Map<Class, DAO> getDAOs(Container container){
+
+        Datastore ds = container.getMongoUtil().getDatastore();
 
         try {
             Set<Class<?>> classes = ReflectionUtils.getClasses(MODEL_DIRECTORY);

@@ -10,6 +10,7 @@ import io.vertx.ext.web.RoutingContext;
 import main.compa.app.Controller;
 import main.compa.models.Friendship;
 import main.compa.models.User;
+import main.compa.services.AuthenticationService;
 import main.compa.services.GsonService;
 
 import java.util.List;
@@ -19,8 +20,6 @@ public class FriendshipController extends Controller {
 
     private FriendshipDAO friendshipDAO;
     private UserDAO userDAO;
-
-    //TODO CHANGE AUTH TOKEN TO THE HEADER AND NOT THE BODY
 
     public FriendshipController(Container container) {
         super(PREFIX, container);
@@ -38,21 +37,21 @@ public class FriendshipController extends Controller {
      * @apiName Request Friendship
      * @apiGroup Friendship
      * @apiParam {String} friend_id : the id of the user you want to become friends with
-     * @apiParam {String} token : your auth token
      * @apiUse FriendshipAlreadyExist
      */
     private void requestFriendship(RoutingContext routingContext) {
-        String[] params = {"friend_id", "token"};
-
-        if(!this.checkParams(routingContext, params)){
-            routingContext.response().end("missing parameter"); //TODO FORMAT
-            return;
-        }
-
-        User me = userDAO.findOne("token", routingContext.request().getParam("token"));
+        User me = ((AuthenticationService) this.get(AuthenticationService.class))
+                .checkAuth(routingContext.request());
 
         if(me == null){
             routingContext.response().end("can't find authenticated user"); //TODO FORMAT
+            return;
+        }
+
+        String[] params = {"friend_id"};
+
+        if(!this.checkParams(routingContext, params)){
+            routingContext.response().end("missing parameter"); //TODO FORMAT
             return;
         }
 
@@ -81,21 +80,21 @@ public class FriendshipController extends Controller {
      * @api {get} /friends Get the friends of the user
      * @apiName GetFriendship
      * @apiGroup Friendship
-     * @apiParam {String} token : auth token of person making the request
      * @apiParam {String} user_id : id of user whose friend list is request
      */
     private void getFriends(RoutingContext routingContext){
-        String[] params = {"user_id", "token"};
-
-        if(!this.checkParams(routingContext, params)) {
-            routingContext.response().end("missing param"); //TODO FORMAT
-            return;
-        }
-
-        User me = userDAO.findOne("token", routingContext.request().getParam("token"));
+        User me = ((AuthenticationService) this.get(AuthenticationService.class))
+                .checkAuth(routingContext.request());
 
         if(me == null){
             routingContext.response().end("can't find authenticated user"); //TODO FORMAT
+            return;
+        }
+
+        String[] params = {"user_id"};
+
+        if(!this.checkParams(routingContext, params)) {
+            routingContext.response().end("missing param"); //TODO FORMAT
             return;
         }
 
@@ -134,7 +133,16 @@ public class FriendshipController extends Controller {
     }
 
     private void getPendingFriendships(RoutingContext routingContext){
-        String[] params = {"token"};
+
+        User me = ((AuthenticationService) this.get(AuthenticationService.class))
+                .checkAuth(routingContext.request());
+
+        if(me == null){
+            routingContext.response().end("can't find authenticated user"); //TODO FORMAT
+            return;
+        }
+
+        String[] params = {};
 
         if(!this.checkParams(routingContext, params)){
             routingContext.response().end("missing parameter"); //TODO FORMAT

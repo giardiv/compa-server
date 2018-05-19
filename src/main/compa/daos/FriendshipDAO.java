@@ -33,6 +33,15 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
     }
 
     public List<Friendship> getFriendshipsByUser(User user){
+
+        /*vertx.executeBlocking({ future ->
+                // Call some blocking API that takes a significant amount of time to return
+                def result = someAPI.blockingMethod("hello")
+                future.complete(result)
+        }, { res ->
+                println("The result is: ${res.result()}")
+        })*/
+
         logger.log(Level.INFO, "Looking for {0}'s friends", user.getLogin());
 
         Query<Friendship> query = this.createQuery();
@@ -85,7 +94,6 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
 
         return friendship;
     }
-
 
     public UserDTO toDTO(Friendship friendship, User me){
         return friendship.getFriendLeft().equals(me)
