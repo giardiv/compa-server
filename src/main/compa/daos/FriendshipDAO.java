@@ -32,16 +32,17 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
         super(Friendship.class, ds);
     }
 
-    public List<Friendship> getFriendshipsByUserId(String id){
-        logger.log(Level.INFO, "Looking for {0}'s friends", id);
+    public List<Friendship> getFriendshipsByUser(User user){
+        logger.log(Level.INFO, "Looking for {0}'s friends", user.getLogin());
 
         Query<Friendship> query = this.createQuery();
         query.or(
-                query.criteria("friendLeft").equal(id),
-                query.criteria("friendRight").equal(id)
+                query.criteria("friendLeft").equal(user),
+                query.criteria("friendRight").equal(user)
         );
-
-        return this.find(query).asList();
+        List<Friendship> friendships = this.find(query).asList();
+        logger.log(Level.INFO, "Found {0} friends", friendships.size());
+        return friendships;
     }
 
     public Friendship addFriendship(User a, User b) throws FriendshipException {
@@ -59,10 +60,9 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
         fs = new Friendship(a, b);
         this.save(fs);
 
-        String login_a = a.getLogin();
-        Query<User> query = MongoUtil.getDatastore().find(User.class).field("login").equal(login_a);
-        UpdateOperations<User> update = MongoUtil.getDatastore().createUpdateOperations(User.class).set("friendships", fs);
-        MongoUtil.getDatastore().update(query, update);
+        UpdateOperations ops = getDatastore().createUpdateOperations(User.class).addToSet("friendships", fs);
+        getDatastore().update(a, ops);
+        getDatastore().update(b, ops);
 
         logger.log(Level.INFO, "Successfully added a friendship between {0} and {1}",
                 new Object[]{a.getLogin(), b.getLogin()});
