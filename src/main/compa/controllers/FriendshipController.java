@@ -40,7 +40,6 @@ public class FriendshipController extends Controller {
         this.registerRoute(HttpMethod.GET, "/", this::getAll, "application/json");
         this.registerRoute(HttpMethod.GET, "/getFriend", this::getFriends, "application/json");
 
-
         friendshipDAO = (FriendshipDAO) modelManager.getDAO(Friendship.class);
         userDAO = (UserDAO) modelManager.getDAO(User.class);
     }
@@ -55,9 +54,16 @@ public class FriendshipController extends Controller {
      * @apiUse FriendshipAlreadyExist
      */
     private void addFriendship(RoutingContext routingContext) {
+        String[] params = {"friend_id"};
+
+        if(!this.checkParams(routingContext, params)){
+            routingContext.response().end(); //TODO RETURN APPROPRIATE ERROR CODE & MSG
+        }
+
         String friendId = routingContext.request().getParam("friend_id");
-        User me = this.userDAO.findById("5affe51a210883070cbca779");
-        User friend = this.userDAO.findById(friendId);
+
+        User me = userDAO.findById("5affe51a210883070cbca779");
+        User friend = userDAO.findById(friendId);
 
         try {
             friendshipDAO.addFriendship(me, friend);

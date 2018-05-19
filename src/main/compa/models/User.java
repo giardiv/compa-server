@@ -1,7 +1,6 @@
 package main.compa.models;
 
-import com.google.gson.annotations.Expose;
-import main.compa.app.JSONisable;
+
 import org.apache.commons.lang3.RandomStringUtils;
 import org.bson.types.ObjectId;
 import org.mongodb.morphia.annotations.*;
@@ -14,22 +13,14 @@ import java.util.List;
 @Indexes({
         @Index(value = "login", fields = @Field("login"), unique = true),
 })
-public class User implements JSONisable {
-    static final long serialVersionUID = 42L;
+public class User {
 
     @Id
-    @Expose
     public ObjectId id;
 
-    @Expose
-    private String login;
-    private String password;
+    private String login, password, token, name;
 
-    @Expose
-    //@Reference
-    private String token; //List<Token> tokens;
-
-
+    @Reference
     private List<Friendship> friendships;
 
     @Reference
@@ -65,5 +56,20 @@ public class User implements JSONisable {
     public void addFriendship(Friendship f){
         friendships.add(f);
     }
-    
+
+    public List<Friendship> getFriendships() {
+        return friendships;
+    }
+
+    public List<Location> getLocations() {
+        return locations;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public ObjectId getId() {
+        return id;
+    }
 }

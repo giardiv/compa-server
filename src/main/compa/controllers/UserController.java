@@ -19,7 +19,6 @@ public class UserController extends Controller {
 
     public UserController(ServiceManager serviceManager, Router router, ModelManager modelManager){
         super(serviceManager, PREFIX, router);
-        this.registerRoute(HttpMethod.GET, "/", this::getAll, "application/json");
         this.registerRoute(HttpMethod.POST, "/login", this::login, "application/json");
         this.registerRoute(HttpMethod.POST, "/register", this::register, "application/json");
         userDAO = (UserDAO) modelManager.getDAO(User.class);
@@ -86,29 +85,4 @@ public class UserController extends Controller {
         }
     }
 
-    /**
-     * @api {get} /user Get all users
-     * @apiName GetUsers
-     * @apiGroup User
-     */
-    // Return 200
-    private void getAll(RoutingContext routingContext){
-        routingContext.response().end(new Gson().toJson(userDAO.findAll()));
-    }
-
-    /**
-     * @api {get} /user/:id Request User information
-     * @apiName GetUser
-     * @apiGroup User
-     *
-     * @apiParam {String} id       ID of the user
-     */
-    // Return 200 ; 404
-    private void getUser(RoutingContext routingContext){
-        routingContext.response().end();
-    }
-
-    private void getFriendships(RoutingContext routingContext){
-
-    }
 }

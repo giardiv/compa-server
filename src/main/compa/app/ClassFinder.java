@@ -8,6 +8,7 @@ import org.mongodb.morphia.utils.ReflectionUtils;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class ClassFinder {
 
@@ -22,86 +23,80 @@ public class ClassFinder {
 
     public Map<Class, BasicDAO> getDAOs(Datastore ds){
 
-        Set<Class<?>> classes = null;
-
         try {
-            classes = ReflectionUtils.getClasses(MODEL_DIRECTORY);
-        } catch (IOException e) {
+            Set<Class<?>> classes = ReflectionUtils.getClasses(MODEL_DIRECTORY);
+            classes = classes.stream().filter(x -> x.getEnclosingClass() == null).collect(Collectors.toSet());
+
+            Map<Class, BasicDAO> daos = new HashMap<>();
+
+            for (Class clazz : classes) {
+
+                try{
+                    Class<?> daoClass = Class.forName(DAO_DIRECTORY + "." + clazz.getSimpleName() + "DAO");
+                    daos.put(clazz, (DAO)  daoClass.getDeclaredConstructor(Datastore.class).newInstance(ds));
+                }
+                catch(ClassNotFoundException e){
+                    System.err.println("no dao for class " + clazz.toString() + ", used custom" );
+                    daos.put(clazz, new DAO<>(clazz, ds));
+                } catch(NoSuchMethodException | IllegalAccessException
+                        | InstantiationException | InvocationTargetException e){
+                    System.err.println(e.getMessage());
+                }
+            }
+
+            return daos;
+
+        } catch (IOException | ClassNotFoundException e) {
             System.err.println("problem getting classes from model directory");
             e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            System.err.println("problem getting classes from model directory");
+            return null;
         }
-
-        Map<Class, BasicDAO> daos = new HashMap<>();
-
-        for (Class clazz : classes) {
-
-            try{
-                Class<?> daoClass = Class.forName(DAO_DIRECTORY + "." + clazz.getSimpleName() + "DAO");
-                daos.put(clazz, (DAO)  daoClass.getDeclaredConstructor(Datastore.class).newInstance(ds));
-            }
-            catch(ClassNotFoundException e){
-                System.err.println("no dao for class " + clazz.toString() + ", used custom" );
-                daos.put(clazz, new DAO<>(clazz, ds));
-            } catch(NoSuchMethodException e){} catch(IllegalAccessException e){}
-                catch(InstantiationException e){} catch(InvocationTargetException e){}
-        }
-
-        return daos;
 
     }
 
     public List<Controller> getControllers(ServiceManager serviceManager, Router router, ModelManager modelManager){
 
-        Set<Class<?>> classes = null;
-
         try {
-            classes = ReflectionUtils.getClasses(CONTROLLER_DIRECTORY);
-        } catch (IOException e) {
-            System.err.println("problem getting classes from controller directory");
-            return null;
-        } catch (ClassNotFoundException e) {
+            Set<Class<?>>  classes = ReflectionUtils.getClasses(CONTROLLER_DIRECTORY);
+            classes = classes.stream().filter(x -> x.getEnclosingClass() == null).collect(Collectors.toSet());
+
+            List<Controller> list = new ArrayList<>();
+
+            for (Class<?> clazz : classes) {
+                try {
+                    list.add((Controller) clazz.getDeclaredConstructor(ServiceManager.class, Router.class, ModelManager.class)
+                            .newInstance(serviceManager, router, modelManager));
+                } catch(NoSuchMethodException | IllegalAccessException |
+                        InstantiationException | InvocationTargetException e){
+                    System.err.println(e.getMessage());
+                }
+            }
+
+            return list;
+
+        } catch (IOException | ClassNotFoundException e) {
             System.err.println("problem getting classes from controller directory");
             return null;
         }
 
-        List<Controller> list = new ArrayList<>();
-
-        for (Class<?> clazz : classes) {
-            try {
-                list.add((Controller) clazz.getDeclaredConstructor(Router.class, ModelManager.class)
-                        .newInstance(router, modelManager));
-            } catch(NoSuchMethodException e){} catch(IllegalAccessException e){}
-            catch(InstantiationException e){} catch(InvocationTargetException e){}
-
-        }
-
-        return list;
     }
 
     public Set<Class<?>> getServices(){
-        Set<Class<?>> classes = null;
+
+        /*
+            UGLY FIX : reflection also returns anonymous inner classes...
+            GsonService instanciates a JsonSerializer in itself and redefines a method
+            considered as a class redefinition so it's returned as one of the classes of the
+            service package. Therefore, we have to check whether the class is enclosed in another
+        */
 
         try {
-            classes = ReflectionUtils.getClasses(SERVICES_DIRECTORY);
-            for(Class c : classes)
-                if(c.getEnclosingClass() != null)
-                    classes.remove(c);
-
-            /*
-                UGLY FIX : reflection also returns anonymous inner classes...
-                GsonService instanciates a JsonSerializer in itself and redefines a method
-                considered as a class redefinition so it's returned as one of the classes of the
-                service package. Therefore, we have to check whether the class is enclosed in another
-             */
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
+            Set<Class<?>>  classes = ReflectionUtils.getClasses(SERVICES_DIRECTORY);
+            return classes.stream().filter(x -> x.getEnclosingClass() == null).collect(Collectors.toSet());
+        } catch (IOException | ClassNotFoundException e) {
             System.err.println("problem getting classes from service directory");
             return null;
         }
-        return classes;
+
     }
 }

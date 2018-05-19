@@ -31,4 +31,11 @@ public abstract class Controller {
     private Service get(String name){
         return serviceManager.get(name);
     }
+
+    public boolean checkParams(RoutingContext context, String[] mandatoryParams){
+        for(String s : mandatoryParams)
+            if(context.request().getParam(s) == null) //TODO CHECK IT ACTUALLY RETURNS NULL WHEN NON-EXISTENT...
+                return false;
+        return true;
+    }
 }
