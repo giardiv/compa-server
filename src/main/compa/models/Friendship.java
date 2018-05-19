@@ -13,7 +13,7 @@ public class Friendship implements JSONisable {
     static final long serialVersionUID = 42L;
 
     @Embedded
-    enum Status{
+    enum Status {
         PENDING,
         ACCEPTED,
         REUSED,
@@ -44,6 +44,10 @@ public class Friendship implements JSONisable {
         //this.status.put(new Date(), Status.PENDING);
         this.friendLeft = a;
         this.friendRight = b;
+    }
+
+    public void setStatus(Status s){
+        this.status = s;
     }
 
     public boolean isAccepted(){

@@ -26,12 +26,11 @@ public class ClassFinder {
 
         try {
             classes = ReflectionUtils.getClasses(MODEL_DIRECTORY);
+        } catch (IOException e) {
+            System.err.println("problem getting classes from model directory");
+            e.printStackTrace();
         } catch (ClassNotFoundException e) {
             System.err.println("problem getting classes from model directory");
-            return null;
-        } catch (IOException e) {
-
-            e.printStackTrace();
         }
 
         Map<Class, BasicDAO> daos = new HashMap<>();
@@ -60,7 +59,8 @@ public class ClassFinder {
         try {
             classes = ReflectionUtils.getClasses(CONTROLLER_DIRECTORY);
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("problem getting classes from controller directory");
+            return null;
         } catch (ClassNotFoundException e) {
             System.err.println("problem getting classes from controller directory");
             return null;

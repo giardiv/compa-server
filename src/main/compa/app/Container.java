@@ -46,5 +46,12 @@ public class Container {
         //mongoUtil.getDatastore().save(new User("test", "test", null));
     }
 
+    public ModelManager getModelManager() {
+        return modelManager;
+    }
+
+    public MongoUtil getMongoUtil(){
+        return mongoUtil;
+    }
     // TODO: Service manager
 }

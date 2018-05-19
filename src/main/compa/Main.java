@@ -21,12 +21,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Main extends AbstractVerticle{
-	
+public class Main {
+
+	public static Container c;
 	public static void main(String... args) {
 
 		ClassFinder cf = new ClassFinder();
-		new Container().run(cf);
+		c = new Container();
+		c.run(cf);
 	}
 
 	private static void test(){

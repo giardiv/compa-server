@@ -5,7 +5,7 @@ import main.compa.app.JSONisable;
 import org.bson.types.ObjectId;
 import org.mongodb.morphia.annotations.*;
 
-import java.time.LocalDateTime;
+
 import java.util.Date;
 
 @Entity("location")
@@ -27,14 +27,19 @@ public class Location implements JSONisable {
     private double longitude;
 
     @Expose
+
     private Date time;
 
     public Location(){}
 
     public Location(double lat, double lng){
+        this(lat, lng, null);
+    }
+
+    public Location(double lat, double lng, Date date){
         this.latitude = lat;
         this.longitude = lng;
-        this.time = new Date();
+        this.time = date;
     }
 
     public ObjectId getId() {

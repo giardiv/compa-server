@@ -17,6 +17,7 @@ public class Authenticator {
                 sb.append(Integer.toHexString(0xff & digested[i]));
             }
             return sb.toString();
+
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }

@@ -6,6 +6,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.bson.types.ObjectId;
 import org.mongodb.morphia.annotations.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -40,8 +41,13 @@ public class User implements JSONisable {
     public User(String login, String password){
         this.login = login;
         this.password = password;
+        this.locations = new ArrayList<>();
         this.friendships = new ArrayList<>();
-        this.token = RandomStringUtils.random(16); 
+        this.token = RandomStringUtils.random(16);
+    }
+
+    public void addLocation(Location l){
+        locations.add(l);
     }
 
     public String getToken(){
@@ -55,4 +61,9 @@ public class User implements JSONisable {
     public String getLogin() {
         return login;
     }
+
+    public void addFriendship(Friendship f){
+        friendships.add(f);
+    }
+    
 }
