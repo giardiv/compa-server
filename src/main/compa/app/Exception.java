@@ -2,7 +2,6 @@ package main.compa.app;
 
 import com.google.gson.annotations.Expose;
 import javafx.util.Pair;
-import main.compa.models.JSONisable;
 
 public class Exception extends java.lang.Exception implements JSONisable {
     @Expose

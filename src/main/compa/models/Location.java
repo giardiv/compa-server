@@ -1,8 +1,10 @@
 package main.compa.models;
 
 import com.google.gson.annotations.Expose;
+import main.compa.app.JSONisable;
 import org.bson.types.ObjectId;
 import org.mongodb.morphia.annotations.*;
+
 
 import java.util.Date;
 
@@ -12,7 +14,10 @@ import java.util.Date;
         @Index(value = "longitude", fields = @Field("longitude"))
 })
 public class Location implements JSONisable {
+    static final long serialVersionUID = 42L;
+
     @Id
+    @Expose
     private ObjectId id;
 
     @Expose
@@ -22,7 +27,8 @@ public class Location implements JSONisable {
     private double longitude;
 
     @Expose
-    private Date date;
+
+    private Date time;
 
     public Location(){}
 
@@ -33,7 +39,7 @@ public class Location implements JSONisable {
     public Location(double lat, double lng, Date date){
         this.latitude = lat;
         this.longitude = lng;
-        this.date = date;
+        this.time = date;
     }
 
     public ObjectId getId() {

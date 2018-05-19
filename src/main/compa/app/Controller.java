@@ -10,21 +10,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class Controller {
+    private ServiceManager serviceManager;
+
     private String prefix;
     private List<Route> routes;
     private Router router;
 
-    public Controller(String prefix, Router router){
+    public Controller(ServiceManager serviceManager, String prefix, Router router){
+        this.serviceManager = serviceManager;
+
         this.prefix = prefix;
         this.routes = new ArrayList<>();
         this.router = router;
     }
 
-    public Controller(Router router) {
-        this("", router);
-    }
-
     protected void registerRoute(HttpMethod method, String route, Handler<RoutingContext> handler, String produces){
         this.routes.add(router.route(method,prefix + route).produces(produces).handler(handler));
+    }
+
+    private Service get(String name){
+        return serviceManager.get(name);
     }
 }
