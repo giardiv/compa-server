@@ -26,8 +26,8 @@ public abstract class Controller {
         container.getRouter().route(method,prefix + route).produces(produces).handler(handler);
     }
 
-    protected Service get(String name){
-        return container.getServices().get(name);
+    protected Service get(Class service){
+        return container.getServices().get(service);
     }
 
     public boolean checkParams(RoutingContext context, String[] mandatoryParams){

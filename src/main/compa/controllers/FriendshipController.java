@@ -1,7 +1,5 @@
 package main.compa.controllers;
 
-import com.google.gson.GsonBuilder;
-import com.google.gson.Gson;
 import main.compa.app.Container;
 import main.compa.daos.FriendshipDAO;
 import main.compa.daos.UserDAO;
@@ -12,6 +10,7 @@ import io.vertx.ext.web.RoutingContext;
 import main.compa.app.Controller;
 import main.compa.models.Friendship;
 import main.compa.models.User;
+import main.compa.services.GsonService;
 
 import java.util.List;
 
@@ -21,7 +20,6 @@ public class FriendshipController extends Controller {
     private FriendshipDAO friendshipDAO;
     private UserDAO userDAO;
 
-    Gson gson = new GsonBuilder().setPrettyPrinting().create();
     //TODO CHANGE AUTH TOKEN TO THE HEADER AND NOT THE BODY
 
     public FriendshipController(Container container) {
@@ -74,6 +72,7 @@ public class FriendshipController extends Controller {
             friendshipDAO.addFriendship(me, friend);
             routingContext.response().end("you are now friends"); //TODO FORMAT
         } catch (FriendshipException e) {
+            GsonService gson = (GsonService) this.get(GsonService.class);
             routingContext.response().setStatusCode(418).end(gson.toJson(e));
         }
     }
@@ -107,7 +106,10 @@ public class FriendshipController extends Controller {
             return;
         }
 
+        GsonService gson = (GsonService) this.get(GsonService.class);
+
         if(!me.equals(other)){
+
             if(friendshipDAO.getFriendshipByFriends(me, other) == null){
                 routingContext.response().end("can't see this user's friends : you aren't friends"); //TODO FORMAT
                 return;
