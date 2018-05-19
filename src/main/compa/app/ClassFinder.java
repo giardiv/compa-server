@@ -14,6 +14,7 @@ public class ClassFinder {
     private static final String MODEL_DIRECTORY = "main.compa.models";
     private static final String DAO_DIRECTORY = "main.compa.daos";
     private static final String CONTROLLER_DIRECTORY = "main.compa.controllers";
+    private static final String SERVICES_DIRECTORY = "main.compa.services";
 
     public String getModelDirectory(){
         return MODEL_DIRECTORY;
@@ -25,9 +26,11 @@ public class ClassFinder {
 
         try {
             classes = ReflectionUtils.getClasses(MODEL_DIRECTORY);
-        } catch (IOException e) {
-            e.printStackTrace();
         } catch (ClassNotFoundException e) {
+            System.err.println("problem getting classes from model directory");
+            return null;
+        } catch (IOException e) {
+
             e.printStackTrace();
         }
 
@@ -50,7 +53,7 @@ public class ClassFinder {
 
     }
 
-    public List<Controller> getControllers(Router router, ModelManager modelManager){
+    public List<Controller> getControllers(ServiceManager serviceManager, Router router, ModelManager modelManager){
 
         Set<Class<?>> classes = null;
 
@@ -59,13 +62,13 @@ public class ClassFinder {
         } catch (IOException e) {
             e.printStackTrace();
         } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+            System.err.println("problem getting classes from controller directory");
+            return null;
         }
 
         List<Controller> list = new ArrayList<>();
 
         for (Class<?> clazz : classes) {
-
             try {
                 list.add((Controller) clazz.getDeclaredConstructor(Router.class, ModelManager.class)
                         .newInstance(router, modelManager));
@@ -75,6 +78,30 @@ public class ClassFinder {
         }
 
         return list;
+    }
 
+    public Set<Class<?>> getServices(){
+        Set<Class<?>> classes = null;
+
+        try {
+            classes = ReflectionUtils.getClasses(SERVICES_DIRECTORY);
+            for(Class c : classes)
+                if(c.getEnclosingClass() != null)
+                    classes.remove(c);
+
+            /*
+                UGLY FIX : reflection also returns anonymous inner classes...
+                GsonService instanciates a JsonSerializer in itself and redefines a method
+                considered as a class redefinition so it's returned as one of the classes of the
+                service package. Therefore, we have to check whether the class is enclosed in another
+             */
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            System.err.println("problem getting classes from service directory");
+            return null;
+        }
+        return classes;
     }
 }

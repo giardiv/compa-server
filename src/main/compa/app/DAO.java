@@ -17,6 +17,6 @@ public class DAO<T, K> extends BasicDAO<T, K> {
     }
 
     public T findById(String id) {
-        return this.findOne("_id", new ObjectId(id));
+        return this.findOne("id", new ObjectId(id));
     }
 }

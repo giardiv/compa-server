@@ -14,5 +14,4 @@ public class ModelManager {
     public BasicDAO getDAO(Class classs){
         return daos.get(classs);
     }
-
 }
