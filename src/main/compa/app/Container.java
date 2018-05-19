@@ -6,7 +6,10 @@ import io.vertx.core.http.HttpServerOptions;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
 
+import java.lang.Exception;
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
+import java.util.Set;
 
 public class Container {
 
@@ -16,8 +19,9 @@ public class Container {
     private ModelManager modelManager;
     private MongoUtil mongoUtil;
     private List<Controller> controllers;
+    private ServiceManager serviceManager;
 
-    public void run(ClassFinder cf){
+    public void run(ClassFinder cf) {
         Vertx vertx = Vertx.vertx();
 
         HttpServerOptions options = new HttpServerOptions();
@@ -33,8 +37,12 @@ public class Container {
         server.listen();
         // TODO: make it async 👉 https://github.com/vert-x3/vertx-examples/blob/master/core-examples/src/main/java/io/vertx/example/core/execblocking/ExecBlockingExample.java
 
+        Set<Class<?>> serviceClasses = cf.getServices();
+        serviceManager = new ServiceManager(serviceClasses);
+
         router.route().handler(BodyHandler.create());
-        controllers = cf.getControllers(router, modelManager);
+        // TODO: servicify router / modelManager
+        controllers = cf.getControllers(serviceManager, router, modelManager);
 
         //mongoUtil.getDatastore().save(new User("test", "test", null));
     }

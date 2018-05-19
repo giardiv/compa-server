@@ -5,9 +5,11 @@ import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import main.compa.app.ModelManager;
+import main.compa.app.ServiceManager;
 import main.compa.models.Location;
 import main.compa.app.Controller;
 import main.compa.daos.LocationDAO;
+import main.compa.services.GsonService;
 import org.bson.types.ObjectId;
 
 public class LocationController extends Controller {
@@ -16,8 +18,8 @@ public class LocationController extends Controller {
 
     private LocationDAO locationDAO;
 
-    public LocationController(Router router, ModelManager modelManager){
-        super(PREFIX, router);
+    public LocationController(ServiceManager serviceManager, Router router, ModelManager modelManager){
+        super(serviceManager, PREFIX, router);
         this.registerRoute(HttpMethod.POST, "/", this::newInstance, "application/json");
         this.registerRoute(HttpMethod.GET, "/", this::getAll, "application/json");
         this.registerRoute(HttpMethod.GET, "/:id", this::get, "application/json");
@@ -36,7 +38,6 @@ public class LocationController extends Controller {
 	}
 
     private void getAll(RoutingContext routingContext){
-    	routingContext.response().end(new Gson().toJson(locationDAO.findAll()));
+    	routingContext.response().end(GsonService.getInstance().getGsonBuilder().create().toJson(locationDAO.findAll()));
     }
-
 }

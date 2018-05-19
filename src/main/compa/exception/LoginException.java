@@ -8,5 +8,5 @@ public class LoginException extends Exception {
      * @apiDefine IncorrectCredentials
      * @apiError IncorrectCredentials Incorrect login or password
      */
-    public static final Pair<Integer, String> INCORRECT_CREDENTIALS = new Pair<>(1001, "WRONG !");
+    public static final Pair<Integer, String> INCORRECT_CREDENTIALS = new Pair<>(3001, "WRONG !");
 }
