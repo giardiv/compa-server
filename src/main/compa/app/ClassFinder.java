@@ -5,6 +5,7 @@ import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.dao.BasicDAO;
 import org.mongodb.morphia.utils.ReflectionUtils;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
@@ -24,9 +25,10 @@ public class ClassFinder {
 
         try {
             classes = ReflectionUtils.getClasses(MODEL_DIRECTORY);
-        } catch (Exception e) {
-            System.err.println("problem getting classes from model directory");
-            return null;
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
         }
 
         Map<Class, BasicDAO> daos = new HashMap<>();
@@ -54,9 +56,10 @@ public class ClassFinder {
 
         try {
             classes = ReflectionUtils.getClasses(CONTROLLER_DIRECTORY);
-        } catch (Exception e) {
-            System.err.println("problem getting classes from controller directory");
-            return null;
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
         }
 
         List<Controller> list = new ArrayList<>();

@@ -1,20 +1,20 @@
-package controllers;
+package main.compa.controllers;
 
-import app.Controller;
+import main.compa.app.Controller;
 import com.google.gson.Gson;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
-import models.Friendship;
-import models.Location;
-import models.User;
+import main.compa.models.Friendship;
+import main.compa.models.Location;
+import main.compa.models.User;
 
 import java.util.ArrayList;
 
-public class FakeControler extends Controller{
+public class FakeController extends Controller{
     private static final String PREFIX = "/fake";
 
-    public FakeControler(Router router) {
+    public FakeController(Router router) {
         super(PREFIX, router);
         this.registerRoute(HttpMethod.GET, "/friend", this::addFakeFriend, "application/json");
         this.registerRoute(HttpMethod.GET, "/user", this::getFakeUser, "application/json");
