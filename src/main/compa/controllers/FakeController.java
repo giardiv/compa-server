@@ -15,7 +15,7 @@ public class FakeController extends Controller{
     private static final String PREFIX = "/fake";
 
     public FakeController(Router router) {
-        super(PREFIX, router);
+        super(null, PREFIX, router);
         this.registerRoute(HttpMethod.GET, "/friend", this::addFakeFriend, "application/json");
         this.registerRoute(HttpMethod.GET, "/user", this::getFakeUser, "application/json");
         this.registerRoute(HttpMethod.GET, "/location/:id", this::getFakeLocation, "application/json");

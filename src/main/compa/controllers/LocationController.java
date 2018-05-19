@@ -6,11 +6,14 @@ import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import main.compa.app.ModelManager;
 import main.compa.app.ServiceManager;
+import main.compa.dtos.LocationDTO;
 import main.compa.models.Location;
 import main.compa.app.Controller;
 import main.compa.daos.LocationDAO;
 import main.compa.services.GsonService;
 import org.bson.types.ObjectId;
+
+import java.util.List;
 
 public class LocationController extends Controller {
 
@@ -34,10 +37,11 @@ public class LocationController extends Controller {
     private void get(RoutingContext routingContext){
         String id = routingContext.request().getParam("id"); //if empty throw not found excep
         Location location = locationDAO.get(new ObjectId(id));
-        routingContext.response().end(location.toJSON());
+        routingContext.response().end(locationDAO.toDTO(location).toJSON());
 	}
 
     private void getAll(RoutingContext routingContext){
-    	routingContext.response().end(GsonService.getInstance().getGsonBuilder().create().toJson(locationDAO.findAll()));
+        List<LocationDTO> list = locationDAO.toDTO(locationDAO.findAll());
+    	routingContext.response().end(new Gson().toJson(list));
     }
 }

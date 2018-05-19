@@ -17,48 +17,69 @@ import sun.rmi.server.UnicastServerRef;
 
 import javax.jws.soap.SOAPBinding;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class FriendshipDAO extends DAO<Friendship, ObjectId> {
+
+    Logger logger = Logger.getLogger("friendship_dao");
 
     public FriendshipDAO(Datastore ds){
         super(Friendship.class, ds);
     }
 
     public List<Friendship> getFriendshipByUserId(String id){
-        Criteria criteriaLeft = this.createQuery().criteria("friendLeft").equal(id);
-        Criteria criteriaRight = this.createQuery().criteria("friendRight").equal(id);
-        Query<Friendship> query =  this.createQuery();
-        query.or(new Criteria[]{criteriaLeft, criteriaRight});
+        logger.log(Level.INFO, "Looking for {0}'s friends", id);
+
+        Query<Friendship> query = this.createQuery();
+        query.or(
+                query.criteria("friendLeft").equal(id),
+                query.criteria("friendRight").equal(id)
+        );
+
         return this.find(query).asList();
     }
 
-    public void addFriendship(User a, User b) throws FriendshipException {
-        System.out.println("In addFriendship");
+
+    public Friendship addFriendship(User a, User b) throws FriendshipException {
+        logger.log(Level.INFO, "Adding a friendship between {0} and {1}",
+                new Object[]{a.getLogin(), b.getLogin()});
+
         Friendship fs = this.getFriendshipByFriends(a, b);
-        String login_a = a.getLogin();
 
         if(fs != null) {
+            logger.log(Level.WARNING, "Friendship between {0} and {1} already exists",
+                    new Object[]{a.getLogin(), b.getLogin()});
             throw new FriendshipException(FriendshipException.FRIEND_ALREADY_EXIST);
         }
+
         fs = new Friendship(a, b);
         this.save(fs);
 
+        String login_a = a.getLogin();
         Query<User> query = MongoUtil.getDatastore().find(User.class).field("login").equal(login_a);
         UpdateOperations<User> update = MongoUtil.getDatastore().createUpdateOperations(User.class).set("friendships", fs);
         MongoUtil.getDatastore().update(query, update);
-        System.out.println("Updated User friend");
+
+        logger.log(Level.INFO, "Successfully added a friendship between {0} and {1}",
+                new Object[]{a.getLogin(), b.getLogin()});
+
+        return fs;
+
     }
 
     public Friendship getFriendshipByFriends(User a, User b){
+        logger.log(Level.INFO, "Looking for friendship between {0} and {1}",
+                new Object[]{a.getLogin(), b.getLogin()});
+
         Friendship friendshipA =  this.createQuery().filter("friendLeft", a).filter("friendRight", b).get();
         Friendship friendshipB =  this.createQuery().filter("friendLeft", b).filter("friendRight", a).get();
-        if(friendshipA == null && friendshipB == null){
-            return null;
-        }
-        if(friendshipA != null){
-            return friendshipA;
-        } else {
-            return friendshipB;
-        }
+
+        Friendship friendship = friendshipA == null ? friendshipB : friendshipA;
+
+        logger.log(Level.INFO, "{0} and {1}'s friendship {3} found",
+                new Object[]{a.getLogin(), b.getLogin(), friendship == null ? "not" : ""}); //mdr
+
+        return friendship;
     }
 }

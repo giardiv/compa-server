@@ -8,6 +8,7 @@ import org.mongodb.morphia.utils.ReflectionUtils;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class ClassFinder {
 
@@ -26,6 +27,7 @@ public class ClassFinder {
 
         try {
             classes = ReflectionUtils.getClasses(MODEL_DIRECTORY);
+            classes = classes.stream().filter(x -> x.getEnclosingClass() == null).collect(Collectors.toSet());
         } catch (IOException e) {
             System.err.println("problem getting classes from model directory");
             e.printStackTrace();
@@ -58,6 +60,8 @@ public class ClassFinder {
 
         try {
             classes = ReflectionUtils.getClasses(CONTROLLER_DIRECTORY);
+            classes = classes.stream().filter(x -> x.getEnclosingClass() == null).collect(Collectors.toSet());
+
         } catch (IOException e) {
             System.err.println("problem getting classes from controller directory");
             return null;
@@ -85,10 +89,7 @@ public class ClassFinder {
 
         try {
             classes = ReflectionUtils.getClasses(SERVICES_DIRECTORY);
-            for(Class c : classes)
-                if(c.getEnclosingClass() != null)
-                    classes.remove(c);
-
+            classes = classes.stream().filter(x -> x.getEnclosingClass() == null).collect(Collectors.toSet());
             /*
                 UGLY FIX : reflection also returns anonymous inner classes...
                 GsonService instanciates a JsonSerializer in itself and redefines a method
