@@ -1,4 +1,10 @@
 package main.compa.app;
 
-public interface Service {
+public abstract class Service {
+
+    protected Container container;
+
+    public Service(Container container){
+        this.container = container;
+    }
 }

@@ -1,7 +1,6 @@
 package main.compa.models;
 
 import com.google.gson.annotations.Expose;
-import main.compa.app.JSONisable;
 import org.bson.types.ObjectId;
 import org.mongodb.morphia.annotations.*;
 
@@ -34,8 +33,7 @@ public class Friendship {
     public Friendship(){}
 
     public Friendship(User a, User b){
-        this.status = Status.PENDING; //new HashMap<Date, Status>();
-        //this.status.put(new Date(), Status.PENDING);
+        this.status = Status.PENDING;
         this.friendLeft = a;
         this.friendRight = b;
     }
