@@ -11,7 +11,7 @@ import org.mongodb.morphia.annotations.*;
 public class Friendship {
 
     @Embedded
-    enum Status {
+    public enum Status {
         PENDING,
         ACCEPTED,
         REUSED,

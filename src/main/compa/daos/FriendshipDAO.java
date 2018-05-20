@@ -41,6 +41,28 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
 
     }
 
+    public void getPendingFriendships(User me, Handler<AsyncResult<List<Friendship>>> resultHandler){
+
+        vertx.executeBlocking( future -> {
+
+            logger.log(Level.INFO, "Looking for {0}'s pending friendships", me.getLogin());
+            Query<Friendship> query = this.createQuery();
+            query.and(
+                    query.or(
+                            query.criteria("friendLeft").equal(me),
+                            query.criteria("friendRight").equal(me)
+                    ),
+                    query.criteria("status").equal(Friendship.Status.PENDING)
+            );
+
+            List<Friendship> friendships = this.find(query).asList();
+            logger.log(Level.INFO, "Found {0} friendship requests", friendships.size());
+            future.complete(friendships);
+
+        }, resultHandler);
+
+    }
+
     public void addFriendship(User a, User b, Handler<AsyncResult<Friendship>> resultHandler) {
 
         vertx.executeBlocking( future -> {
