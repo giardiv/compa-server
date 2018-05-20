@@ -2,15 +2,12 @@ package main.compa.app;
 
 import io.vertx.core.Handler;
 import io.vertx.core.http.HttpMethod;
-import io.vertx.core.http.HttpServerRequest;
-import io.vertx.core.http.HttpServerResponse;
-import io.vertx.ext.web.Route;
-import io.vertx.ext.web.Router;
+
 import io.vertx.ext.web.RoutingContext;
 import main.compa.models.User;
+import main.compa.services.AuthenticationService;
+import main.compa.services.GsonService;
 
-import java.util.ArrayList;
-import java.util.List;
 
 public abstract class Controller {
 
@@ -26,14 +23,36 @@ public abstract class Controller {
         container.getRouter().route(method,prefix + route).produces(produces).handler(handler);
     }
 
+    protected void registerAuthRoute(HttpMethod method, String route,
+                                     AuthenticatedHandler<User, RoutingContext> handler, String produces){
+
+        container.getRouter().route(method,prefix + route).produces(produces).handler(context -> {
+
+            ((AuthenticationService) this.get(AuthenticationService.class)).checkAuth(context.request(), res -> {
+
+                if(res.failed()){
+                    GsonService gson = (GsonService) this.get(GsonService.class);
+                    context.response().end(gson.toJson(res.cause()));
+                }
+                else{
+                    handler.handle(res.result(), context);
+                }
+            });
+
+        });
+
+    }
+
     protected Service get(Class service){
         return container.getServices().get(service);
     }
 
-    public boolean checkParams(RoutingContext context, String[] mandatoryParams){
+    public boolean checkParams(RoutingContext context, String... mandatoryParams){
         for(String s : mandatoryParams)
-            if(context.request().getParam(s) == null) //TODO CHECK IT ACTUALLY RETURNS NULL WHEN NON-EXISTENT...
+            if(context.request().getParam(s) == null){
+                System.out.println(s);
                 return false;
+            }
         return true;
     }
 

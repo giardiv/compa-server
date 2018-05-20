@@ -18,6 +18,7 @@ public class FakeDataGenerator {
 
     public static void main(String... args){
         Main.main(args);
+
         Datastore datastore = Main.c.getMongoUtil().getDatastore();
 
         datastore.getCollection(User.class).drop();

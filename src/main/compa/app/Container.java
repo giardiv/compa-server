@@ -21,10 +21,10 @@ public class Container {
     private MongoUtil mongoUtil;
     private List<Controller> controllers;
     private Map<Class, Service> services;
+    private Vertx vertx;
 
     public void run(ClassFinder cf) {
-        Vertx vertx = Vertx.vertx();
-
+        vertx = Vertx.vertx();
         HttpServerOptions options = new HttpServerOptions();
         options.setHost(SERVER_HOST);
         options.setPort(SERVER_PORT);
@@ -33,8 +33,9 @@ public class Container {
         router = Router.router(vertx);
         mongoUtil = new MongoUtil(cf.getModelDirectory());
 
-        controllers = cf.getControllers(this);
+
         daos = cf.getDAOs(this);
+        controllers = cf.getControllers(this);
         services = cf.getServices(this);
 
         server.requestHandler(router::accept);
@@ -63,4 +64,7 @@ public class Container {
         return mongoUtil;
     }
 
+    public Vertx getVertx() {
+        return vertx;
+    }
 }

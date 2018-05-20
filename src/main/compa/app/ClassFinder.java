@@ -23,8 +23,6 @@ public class ClassFinder {
 
     public Map<Class, DAO> getDAOs(Container container){
 
-        Datastore ds = container.getMongoUtil().getDatastore();
-
         try {
             Set<Class<?>> classes = ReflectionUtils.getClasses(MODEL_DIRECTORY);
             classes = classes.stream().filter(x -> x.getEnclosingClass() == null).collect(Collectors.toSet());
@@ -35,11 +33,11 @@ public class ClassFinder {
 
                 try{
                     Class<?> daoClass = Class.forName(DAO_DIRECTORY + "." + clazz.getSimpleName() + "DAO");
-                    daos.put(clazz, (DAO)  daoClass.getDeclaredConstructor(Datastore.class).newInstance(ds));
+                    daos.put(clazz, (DAO)  daoClass.getDeclaredConstructor(Container.class).newInstance(container));
                 }
                 catch(ClassNotFoundException e){
                     System.err.println("no dao for class " + clazz.toString() + ", used custom" );
-                    daos.put(clazz, new DAO<>(clazz, ds));
+                    daos.put(clazz, new DAO<>(clazz, container));
                 } catch(NoSuchMethodException | IllegalAccessException
                         | InstantiationException | InvocationTargetException e){
                     System.err.println(e.getMessage());
@@ -70,7 +68,7 @@ public class ClassFinder {
                             .newInstance(container));
                 } catch(NoSuchMethodException | IllegalAccessException |
                         InstantiationException | InvocationTargetException e){
-                    System.err.println(e.getMessage());
+                    e.printStackTrace();
                 }
             }
 

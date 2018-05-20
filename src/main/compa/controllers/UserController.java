@@ -1,6 +1,9 @@
 package main.compa.controllers;
 
 import com.google.gson.Gson;
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Future;
+import io.vertx.core.Handler;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
@@ -9,6 +12,7 @@ import main.compa.app.Controller;
 import main.compa.models.User;
 import main.compa.daos.UserDAO;
 import main.compa.exception.RegisterException;
+import main.compa.services.GsonService;
 
 public class UserController extends Controller {
 
@@ -37,22 +41,15 @@ public class UserController extends Controller {
     private void login(RoutingContext routingContext){
         String login = routingContext.request().getParam("login");
         String password = routingContext.request().getParam("password");
-        String token = checkAuth(login, password);
-        Object content = token == null ? "error" : token; //TODO DEFINE STRUCTURE OF RETURNED JSON
-        routingContext.response().end(new Gson().toJson(content));
-    }
 
-    //TODO MOVE IT ELSEWHERE
-    private String checkAuth(String login, String password){
-        User user = userDAO.getByLoginAndPassword(login, password);
-        if(user == null)
-            return null;
+        userDAO.getByLoginAndPassword(login, password, res -> {
+            User u = res.result();
+            String token = u.getToken();
+            Object content = token == null ? "error" : token; //TODO DEFINE STRUCTURE OF RETURNED JSON
+            routingContext.response().end(new Gson().toJson(content));
+        });
 
-        //Token token = new Token();
-        //user.addToken(token);
 
-        return null;
-        //return token;
     }
 
     /**
@@ -69,19 +66,28 @@ public class UserController extends Controller {
      * @apiSuccess {String} Token    Token is returned
      */
     private void register(RoutingContext routingContext){
-        System.out.println("In register");
-        // TODO : manage null values > return bad request
+
+        GsonService gson = (GsonService) this.get(GsonService.class);
+
+        if(!this.checkParams(routingContext, "login", "password")) {
+            routingContext.response().end("missing param"); //TODO FORMAT
+            return;
+        }
+
         String login = routingContext.request().getParam("login");
         String password = routingContext.request().getParam("password");
-        try {
-            User user = userDAO.addUser(login, password);
-            //Token token = new Token();
-            //user.addToken(token);
-            userDAO.save(user);
-            routingContext.response().end(new Gson().toJson(user.getToken()));
-        } catch (RegisterException e) {
-            routingContext.response().setStatusCode(418).end(new Gson().toJson(e));
-        }
+
+        userDAO.addUser(login, password, res -> {
+            if(res.failed()){
+                routingContext.response().end(gson.toJson(res.cause()));
+            }
+            else{
+                User user = res.result();
+                userDAO.save(user);
+                routingContext.response().end(gson.toJson(user.getToken()));
+            }
+        });
+
     }
 
 }

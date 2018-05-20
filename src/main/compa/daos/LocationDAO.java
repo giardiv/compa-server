@@ -1,5 +1,6 @@
 package main.compa.daos;
 
+import main.compa.app.Container;
 import main.compa.dtos.LocationDTO;
 import main.compa.models.Location;
 import main.compa.app.DAO;
@@ -11,8 +12,8 @@ import java.util.stream.Collectors;
 
 public class LocationDAO extends DAO<Location, ObjectId> {
 
-    public LocationDAO(Datastore ds){
-        super(Location.class, ds);
+    public LocationDAO(Container container){
+        super(Location.class, container);
     }
 
     public LocationDTO toDTO(Location location){

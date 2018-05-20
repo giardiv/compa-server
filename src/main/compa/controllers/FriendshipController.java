@@ -1,16 +1,15 @@
 package main.compa.controllers;
 
+import io.vertx.core.json.JsonArray;
 import main.compa.app.Container;
 import main.compa.daos.FriendshipDAO;
 import main.compa.daos.UserDAO;
 import main.compa.dtos.UserDTO;
-import main.compa.exception.FriendshipException;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.web.RoutingContext;
 import main.compa.app.Controller;
 import main.compa.models.Friendship;
 import main.compa.models.User;
-import main.compa.services.AuthenticationService;
 import main.compa.services.GsonService;
 
 import java.util.List;
@@ -23,57 +22,55 @@ public class FriendshipController extends Controller {
 
     public FriendshipController(Container container) {
         super(PREFIX, container);
-        this.registerRoute(HttpMethod.POST, "/request", this::requestFriendship, "application/json");
-        this.registerRoute(HttpMethod.POST, "/response", this::respondToRequest, "application/json");
-        this.registerRoute(HttpMethod.GET, "/friend_list", this::getFriends, "application/json");
-        this.registerRoute(HttpMethod.GET, "/pending", this::getPendingFriendships, "application/json");
+        this.registerAuthRoute(HttpMethod.POST, "/request", this::requestFriendship, "application/json");
+        this.registerAuthRoute(HttpMethod.POST, "/response", this::respondToRequest, "application/json");
+        this.registerAuthRoute(HttpMethod.GET, "/friend_list", this::getFriends, "application/json");
+        this.registerAuthRoute(HttpMethod.GET, "/pending", this::getPendingFriendships, "application/json");
 
         friendshipDAO = (FriendshipDAO) container.getDAO(Friendship.class);
         userDAO = (UserDAO) container.getDAO(User.class);
     }
 
     /**
-     * @api {post} /friendship Add a new friendship
+     * @api {post} /friendship/request Add a new friendship
      * @apiName Request Friendship
      * @apiGroup Friendship
      * @apiParam {String} friend_id : the id of the user you want to become friends with
      * @apiUse FriendshipAlreadyExist
      */
-    private void requestFriendship(RoutingContext routingContext) {
-        User me = ((AuthenticationService) this.get(AuthenticationService.class))
-                .checkAuth(routingContext.request());
+    private void requestFriendship(User me, RoutingContext routingContext) {
+        GsonService gson = (GsonService) this.get(GsonService.class);
 
-        if(me == null){
-            routingContext.response().end("can't find authenticated user"); //TODO FORMAT
-            return;
-        }
-
-        String[] params = {"friend_id"};
-
-        if(!this.checkParams(routingContext, params)){
+        if(!this.checkParams(routingContext, "friend_id")){
             routingContext.response().end("missing parameter"); //TODO FORMAT
             return;
         }
 
-        User friend = userDAO.findById(routingContext.request().getParam("friend_id"));
+        userDAO.findById(routingContext.request().getParam("friend_id"), res1 -> {
 
-        if(friend == null){
-            routingContext.response().end("can't find your friend"); //TODO FORMAT
-            return;
-        }
+            User friend = res1.result();
 
-        if(friend.equals(me)){
-            routingContext.response().end("you can't befriend yourself"); //TODO FORMAT
-            return;
-        }
+            if(friend == null){
+                routingContext.response().end("can't find your friend"); //TODO FORMAT
+                return;
+            }
 
-        try {
-            friendshipDAO.addFriendship(me, friend);
-            routingContext.response().end("you are now friends"); //TODO FORMAT
-        } catch (FriendshipException e) {
-            GsonService gson = (GsonService) this.get(GsonService.class);
-            routingContext.response().setStatusCode(418).end(gson.toJson(e));
-        }
+            if(friend.equals(me)){
+                routingContext.response().end("you can't befriend yourself"); //TODO FORMAT
+                return;
+            }
+
+            friendshipDAO.addFriendship(me, friend, res2 -> {
+                if(res2.failed()){
+                    routingContext.response().setStatusCode(418).end(gson.toJson(res2.cause()));
+                }
+                else{
+                    routingContext.response().end("you are now friends"); //TODO FORMAT
+                }
+            });
+        });
+
+
     }
 
     /**
@@ -82,72 +79,47 @@ public class FriendshipController extends Controller {
      * @apiGroup Friendship
      * @apiParam {String} user_id : id of user whose friend list is request
      */
-    private void getFriends(RoutingContext routingContext){
-        User me = ((AuthenticationService) this.get(AuthenticationService.class))
-                .checkAuth(routingContext.request());
+    private void getFriends(User me, RoutingContext routingContext){
 
-        if(me == null){
-            routingContext.response().end("can't find authenticated user"); //TODO FORMAT
-            return;
-        }
+        GsonService gson = (GsonService) this.get(GsonService.class);
 
-        String[] params = {"user_id"};
-
-        if(!this.checkParams(routingContext, params)) {
+        if(!this.checkParams(routingContext, "user_id")) {
             routingContext.response().end("missing param"); //TODO FORMAT
             return;
         }
 
-        User other = userDAO.findById(routingContext.request().getParam("user_id"));
-
-        if(other == null){
-            routingContext.response().end("can't find user whose friend list is requested"); //TODO FORMAT
-            return;
-        }
-
-        GsonService gson = (GsonService) this.get(GsonService.class);
-
-        if(!me.equals(other)){
-
-            if(friendshipDAO.getFriendshipByFriends(me, other) == null){
-                routingContext.response().end("can't see this user's friends : you aren't friends"); //TODO FORMAT
+        userDAO.findById(routingContext.request().getParam("user_id"), res -> {
+            User other = res.result();
+            if(other == null){
+                routingContext.response().end("can't find user whose friend list is requested"); //TODO FORMAT
                 return;
             }
-            else{
-                List<Friendship> friendships = friendshipDAO.getFriendshipsByUser(other);
-                List<UserDTO> friends = friendshipDAO.toDTO(friendships, other);
-                routingContext.response().end(gson.toJson(friends));
-                return;
-            }
-        }
-        else{
-            List<Friendship> friendships = friendshipDAO.getFriendshipsByUser(me);
-            List<UserDTO> friends = friendshipDAO.toDTO(friendships, me);
-            routingContext.response().end(gson.toJson(friends));
-            return;
-        }
-    }
 
-    private void respondToRequest(RoutingContext routingContext){
+            friendshipDAO.getFriendshipByFriends(me, other, res2 -> {
+                if(res2.result() == null){
+                    routingContext.response().end("can't see this user's friends : you aren't friends"); //TODO FORMAT
+                    return;
+                }
+                else {
+                    friendshipDAO.getFriendshipsByUser(other, res3 -> {
+                        List<Friendship> friendships = res3.result();
+                        List<UserDTO> friends = friendshipDAO.toDTO(friendships, other);
+                        routingContext.response().end(gson.toJson(friends));
+                        return;
+                    }); //also works if me.equals(other)
+                }
+            });
+
+        });
 
     }
 
-    private void getPendingFriendships(RoutingContext routingContext){
+    private void respondToRequest(User me, RoutingContext routingContext){
 
-        User me = ((AuthenticationService) this.get(AuthenticationService.class))
-                .checkAuth(routingContext.request());
+    }
 
-        if(me == null){
-            routingContext.response().end("can't find authenticated user"); //TODO FORMAT
-            return;
-        }
+    private void getPendingFriendships(User me, RoutingContext routingContext){
 
-        String[] params = {};
-
-        if(!this.checkParams(routingContext, params)){
-            routingContext.response().end("missing parameter"); //TODO FORMAT
-            return;
-        }
     }
 
 }
