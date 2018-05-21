@@ -1,4 +1,4 @@
-package main.compa.app;
+package compa.app;
 
 public abstract class Service {
 

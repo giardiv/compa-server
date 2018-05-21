@@ -1,4 +1,4 @@
-package main.compa.app;
+package compa.app;
 
 import com.mongodb.MongoClient;
 import org.mongodb.morphia.Datastore;

@@ -1,4 +1,4 @@
-package main.compa.app;
+package compa.app;
 
 import io.vertx.core.Vertx;
 import org.bson.types.ObjectId;

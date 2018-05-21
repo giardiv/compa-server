@@ -1,4 +1,4 @@
-package main.compa.controllers;
+package compa.controllers;
 
 import com.google.gson.Gson;
 import io.vertx.core.AsyncResult;
@@ -7,12 +7,12 @@ import io.vertx.core.Handler;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
-import main.compa.app.Container;
-import main.compa.app.Controller;
-import main.compa.models.User;
-import main.compa.daos.UserDAO;
-import main.compa.exception.RegisterException;
-import main.compa.services.GsonService;
+import compa.app.Container;
+import compa.app.Controller;
+import compa.models.User;
+import compa.daos.UserDAO;
+import compa.exception.RegisterException;
+import compa.services.GsonService;
 
 public class UserController extends Controller {
 

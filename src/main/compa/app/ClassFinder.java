@@ -1,4 +1,4 @@
-package main.compa.app;
+package compa.app;
 
 import io.vertx.ext.web.Router;
 import org.mongodb.morphia.Datastore;
@@ -12,10 +12,10 @@ import java.util.stream.Collectors;
 
 public class ClassFinder {
 
-    private static final String MODEL_DIRECTORY = "main.compa.models";
-    private static final String DAO_DIRECTORY = "main.compa.daos";
-    private static final String CONTROLLER_DIRECTORY = "main.compa.controllers";
-    private static final String SERVICE_DIRECTORY = "main.compa.services";
+    private static final String MODEL_DIRECTORY = "compa.models";
+    private static final String DAO_DIRECTORY = "compa.daos";
+    private static final String CONTROLLER_DIRECTORY = "compa.controllers";
+    private static final String SERVICE_DIRECTORY = "compa.services";
 
     public String getModelDirectory(){
         return MODEL_DIRECTORY;

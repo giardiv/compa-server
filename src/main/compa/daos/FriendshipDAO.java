@@ -1,13 +1,13 @@
-package main.compa.daos;
+package compa.daos;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
-import main.compa.app.Container;
-import main.compa.app.DAO;
-import main.compa.dtos.UserDTO;
-import main.compa.exception.FriendshipException;
-import main.compa.models.Friendship;
-import main.compa.models.User;
+import compa.app.Container;
+import compa.app.DAO;
+import compa.dtos.UserDTO;
+import compa.exception.FriendshipException;
+import compa.models.Friendship;
+import compa.models.User;
 import org.bson.types.ObjectId;
 import org.mongodb.morphia.query.*;
 import java.util.List;

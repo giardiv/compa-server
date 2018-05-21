@@ -1,8 +1,8 @@
-package main.compa.services;
+package compa.services;
 
 import com.google.gson.*;
-import main.compa.app.Container;
-import main.compa.app.Service;
+import compa.app.Container;
+import compa.app.Service;
 import org.bson.types.ObjectId;
 
 import java.lang.reflect.Type;

@@ -1,13 +1,13 @@
-package main.compa.controllers;
+package compa.controllers;
 
-import main.compa.app.Container;
-import main.compa.app.Controller;
+import compa.app.Container;
+import compa.app.Controller;
 import com.google.gson.Gson;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.web.RoutingContext;
-import main.compa.models.Friendship;
-import main.compa.models.Location;
-import main.compa.models.User;
+import compa.models.Friendship;
+import compa.models.Location;
+import compa.models.User;
 
 import java.util.ArrayList;
 
