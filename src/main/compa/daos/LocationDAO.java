@@ -1,8 +1,9 @@
-package main.compa.daos;
+package compa.daos;
 
-import main.compa.dtos.LocationDTO;
-import main.compa.models.Location;
-import main.compa.app.DAO;
+import compa.app.Container;
+import compa.dtos.LocationDTO;
+import compa.models.Location;
+import compa.app.DAO;
 import org.bson.types.ObjectId;
 import org.mongodb.morphia.Datastore;
 
@@ -11,8 +12,8 @@ import java.util.stream.Collectors;
 
 public class LocationDAO extends DAO<Location, ObjectId> {
 
-    public LocationDAO(Datastore ds){
-        super(Location.class, ds);
+    public LocationDAO(Container container){
+        super(Location.class, container);
     }
 
     public LocationDTO toDTO(Location location){

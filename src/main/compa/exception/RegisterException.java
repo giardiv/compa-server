@@ -1,7 +1,7 @@
-package main.compa.exception;
+package compa.exception;
 
 import javafx.util.Pair;
-import main.compa.app.Exception;
+import compa.app.Exception;
 
 public class RegisterException extends Exception
 {
@@ -13,7 +13,7 @@ public class RegisterException extends Exception
 
     /**
      * @apiDefine PasswordTooShort
-     * @apiError PasswordTooShort The password require at least {@value main.compa.daos.UserDAO#PASSWORD_MIN_LENGTH}
+     * @apiError PasswordTooShort The password require at least {@value compa.daos.UserDAO#PASSWORD_MIN_LENGTH}
      */
     public static final Pair<Integer, String> PASSWORD_TOO_SHORT = new Pair<>(1002, "I'm sure you can do better, gimme a real password");
 

@@ -1,4 +1,4 @@
-package main.compa.app;
+package compa.app;
 
 import com.mongodb.MongoClient;
 import org.mongodb.morphia.Datastore;
@@ -10,7 +10,7 @@ public class MongoUtil {
     private static final String DB_HOST = "localhost";
     private static final int DB_PORT = 27017;
 
-    private static Datastore datastore;
+    private Datastore datastore;
 
     public MongoUtil(String modelDirectory){
         final Morphia morphia = new Morphia();
@@ -19,7 +19,7 @@ public class MongoUtil {
         datastore.ensureIndexes();
     }
 
-    public static Datastore getDatastore() {
+    public Datastore getDatastore() {
         return datastore;
     }
 

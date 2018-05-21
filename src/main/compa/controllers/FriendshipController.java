@@ -1,94 +1,140 @@
-package main.compa.controllers;
+package compa.controllers;
 
-import com.mongodb.BasicDBObject;
-import com.mongodb.DBCollection;
-import com.mongodb.DBObject;
-import com.mongodb.DBCursor;
-import main.compa.app.*;
-import com.google.gson.Gson;
-import main.compa.daos.FriendshipDAO;
-import main.compa.daos.UserDAO;
-import main.compa.exception.FriendshipException;
+import io.vertx.core.json.JsonArray;
+import compa.app.Container;
+import compa.daos.FriendshipDAO;
+import compa.daos.UserDAO;
+import compa.dtos.UserDTO;
 import io.vertx.core.http.HttpMethod;
-import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
-import main.compa.app.Controller;
-import main.compa.app.ModelManager;
-import main.compa.app.ServiceManager;
-import main.compa.daos.FriendshipDAO;
-import main.compa.daos.UserDAO;
-import main.compa.exception.FriendshipException;
-import main.compa.exception.RegisterException;
-import main.compa.models.Friendship;
-import main.compa.models.User;
-import main.compa.models.Friendship;
-import main.compa.models.User;
-import org.mongodb.morphia.query.UpdateOperations;
+import compa.app.Controller;
+import compa.models.Friendship;
+import compa.models.User;
+import compa.services.GsonService;
 
-import javax.management.Query;
+import java.util.List;
 
 public class FriendshipController extends Controller {
-    private static final String PREFIX = "/friend";
+    private static final String PREFIX = "/friendship";
 
     private FriendshipDAO friendshipDAO;
     private UserDAO userDAO;
 
-    // TODO: maybe create a service manager
-    public FriendshipController(ServiceManager serviceManager, Router router, ModelManager modelManager) {
-        super(serviceManager, PREFIX, router);
-        this.registerRoute(HttpMethod.POST, "/", this::addFriendship, "application/json");
-        this.registerRoute(HttpMethod.GET, "/", this::getAll, "application/json");
-        this.registerRoute(HttpMethod.GET, "/getFriend", this::getFriends, "application/json");
+    //TODO PROBABLY RENAME THE USER VARIABLE NAMES IN THE FRIENDSHIP TO INDICATE WHO ASKED WHO
+    //FOR NOW : friendleft = the one who asked
 
-        friendshipDAO = (FriendshipDAO) modelManager.getDAO(Friendship.class);
-        userDAO = (UserDAO) modelManager.getDAO(User.class);
+    public FriendshipController(Container container) {
+        super(PREFIX, container);
+        this.registerAuthRoute(HttpMethod.POST, "/request", this::requestFriendship, "application/json");
+        this.registerAuthRoute(HttpMethod.POST, "/change", this::editFriendship, "application/json"); //PUT?
+        this.registerAuthRoute(HttpMethod.GET, "/friend_list", this::getFriends, "application/json");
+        this.registerAuthRoute(HttpMethod.GET, "/pending", this::getPendingFriendships, "application/json");
+
+        friendshipDAO = (FriendshipDAO) container.getDAO(Friendship.class);
+        userDAO = (UserDAO) container.getDAO(User.class);
     }
 
     /**
-     * @api {post} /friendship Add a new friendship
-     * @apiName AddFriendship
+     * @api {post} /friendship/request Add a new friendship
+     * @apiName Request Friendship
      * @apiGroup Friendship
-     *
-     * @apiParam {String} friend_id
-     *
+     * @apiParam {String} friend_id : the id of the user you want to become friends with
      * @apiUse FriendshipAlreadyExist
      */
-    private void addFriendship(RoutingContext routingContext) {
-        String[] params = {"friend_id"};
+    private void requestFriendship(User me, RoutingContext routingContext) {
+        GsonService gson = (GsonService) this.get(GsonService.class);
 
-        if(!this.checkParams(routingContext, params)){
-            routingContext.response().end(); //TODO RETURN APPROPRIATE ERROR CODE & MSG
+        if(!this.checkParams(routingContext, "friend_id")){
+            routingContext.response().end("missing parameter"); //TODO FORMAT
+            return;
         }
 
-        String friendId = routingContext.request().getParam("friend_id");
+        userDAO.findById(routingContext.request().getParam("friend_id"), res1 -> {
 
-        User me = userDAO.findById("5affe51a210883070cbca779");
-        User friend = userDAO.findById(friendId);
+            User friend = res1.result();
 
-        try {
-            friendshipDAO.addFriendship(me, friend);
-            routingContext.response().end();
-        } catch (FriendshipException e) {
-            routingContext.response().setStatusCode(418).end(new Gson().toJson(e));
-        }
+            if(friend == null){
+                routingContext.response().end("can't find your friend"); //TODO FORMAT
+                return;
+            }
+
+            if(friend.equals(me)){
+                routingContext.response().end("you can't befriend yourself"); //TODO FORMAT
+                return;
+            }
+
+            friendshipDAO.addFriendship(me, friend, res2 -> {
+                if(res2.failed()){
+                    routingContext.response().setStatusCode(418).end(gson.toJson(res2.cause()));
+                }
+                else{
+                    routingContext.response().end("you are now friends"); //TODO FORMAT
+                }
+            });
+        });
+
+
     }
 
     /**
-     *{get} /friends Get all friends
-     * @param routingContext
-     */
-    private void getFriends(RoutingContext routingContext){
-        String userId = routingContext.request().getParam("user_id");
-        String userToken = routingContext.request().getParam("user_tokens");
-        routingContext.response().end(new Gson().toJson(friendshipDAO.getFriendshipByUserId(userId)));
-    }
-
-    /**
-     * @api {get} /friendship Get all friendships
-     * @apiName GetFriendships
+     * @api {get} /friends Get the friends of the user
+     * @apiName GetFriendship
      * @apiGroup Friendship
+     * @apiParam {String} user_id : id of user whose friend list is request
      */
-    private void getAll(RoutingContext routingContext){
-        routingContext.response().end(new Gson().toJson(friendshipDAO.findAll()));
+    private void getFriends(User me, RoutingContext routingContext){
+
+        GsonService gson = (GsonService) this.get(GsonService.class);
+
+        if(!this.checkParams(routingContext, "user_id")) {
+            routingContext.response().end("missing param"); //TODO FORMAT
+            return;
+        }
+
+        userDAO.findById(routingContext.request().getParam("user_id"), res -> {
+            User other = res.result();
+            if(other == null){
+                routingContext.response().end("can't find user whose friend list is requested"); //TODO FORMAT
+                return;
+            }
+
+            friendshipDAO.getFriendshipByFriends(me, other, res2 -> {
+                Friendship friendship = res2.result();
+
+                if(friendship == null || friendship.getStatus() != Friendship.Status.ACCEPTED){
+                    routingContext.response().end("can't see this user's friends : you aren't friends"); //TODO FORMAT
+                    return;
+                }
+                else {
+
+                    friendshipDAO.getFriendshipsByUser(other, res3 -> {
+                        List<Friendship> friendships = res3.result();
+                        List<UserDTO> friends = friendshipDAO.toDTO(friendships, other);
+                        routingContext.response().end(gson.toJson(friends));
+                        return;
+                    }); //also works if me.equals(other)
+                }
+            });
+
+        });
+
     }
+
+    private void editFriendship(User me, RoutingContext routingContext){
+        GsonService gson = (GsonService) this.get(GsonService.class);
+
+        if(!this.checkParams(routingContext, "friendship_id", "status")){
+            routingContext.response().end("missing parameter"); //TODO FORMAT
+            return;
+        }
+
+
+    }
+
+    private void getPendingFriendships(User me, RoutingContext routingContext){
+        friendshipDAO.getPendingFriendships(me, res -> {
+            List<Friendship> friendships = res.result();
+        });
+    }
+
 }

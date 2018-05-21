@@ -1,9 +1,13 @@
-package main.compa.controllers;
+package compa.controllers;
 
 import com.google.gson.Gson;
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Future;
+import io.vertx.core.Handler;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
+
 import main.compa.app.*;
 import main.compa.models.Friendship;
 import main.compa.models.User;
@@ -14,19 +18,22 @@ import org.mongodb.morphia.query.UpdateOperations;
 
 import java.util.Date;
 
+import compa.services.GsonService;
+
+
 public class UserController extends Controller {
 
     private static final String PREFIX = "/user";
 
     private UserDAO userDAO;
 
-    public UserController(ServiceManager serviceManager, Router router, ModelManager modelManager){
-        super(serviceManager, PREFIX, router);
+    public UserController(Container container){
+        super(PREFIX, container);
         this.registerRoute(HttpMethod.POST, "/login", this::login, "application/json");
         this.registerRoute(HttpMethod.POST, "/register", this::register, "application/json");
-        this.registerRoute(HttpMethod.GET, "/updatePassword", this::updatePWD, "application/json");
+        this.registerRoute(HttpMethod.GET, "/updatePassword", this::updatePWD, "application/json"); //auth route probs
+        userDAO = (UserDAO) container.getDAO(User.class);
 
-        userDAO = (UserDAO) modelManager.getDAO(User.class);
     }
 
     /**
@@ -43,22 +50,15 @@ public class UserController extends Controller {
     private void login(RoutingContext routingContext){
         String login = routingContext.request().getParam("login");
         String password = routingContext.request().getParam("password");
-        String token = checkAuth(login, password);
-        Object content = token == null ? "error" : token; //TODO DEFINE STRUCTURE OF RETURNED JSON
-        routingContext.response().end(new Gson().toJson(content));
-    }
 
-    //TODO MOVE IT ELSEWHERE
-    private String checkAuth(String login, String password){
-        User user = userDAO.getByLoginAndPassword(login, password);
-        if(user == null)
-            return null;
+        userDAO.getByLoginAndPassword(login, password, res -> {
+            User u = res.result();
+            String token = u.getToken();
+            Object content = token == null ? "error" : token; //TODO DEFINE STRUCTURE OF RETURNED JSON
+            routingContext.response().end(new Gson().toJson(content));
+        });
 
-        //Token token = new Token();
-        //user.addToken(token);
 
-        return null;
-        //return token;
     }
 
     /**
@@ -75,24 +75,30 @@ public class UserController extends Controller {
      * @apiSuccess {String} Token    Token is returned
      */
     private void register(RoutingContext routingContext){
-        CipherSecurity cipherUtil = new CipherSecurity();
-        // TODO : manage null values > return bad request
+
         String login = routingContext.request().getParam("login");
         String password = routingContext.request().getParam("password");
+        CipherSecurity cipherUtil = new CipherSecurity();
         String encryptedString = cipherUtil.encrypt(password + String.valueOf(new Date().getTime()));
-        try {
-            User user = userDAO.addUser(login, encryptedString);
-            //Token token = new Token();
-            //user.addToken(token);
-            userDAO.save(user);
-            routingContext.response().end(new Gson().toJson(user.getToken()));
-        } catch (RegisterException e) {
-            routingContext.response().setStatusCode(418).end(new Gson().toJson(e));
-        }
+        
+        userDAO.addUser(login, password, res -> {
+            if(res.failed()){
+                routingContext.response().end(gson.toJson(res.cause()));
+            }
+            else{
+                User user = res.result();
+                userDAO.save(user);
+           
+                routingContext.response().end(gson.toJson(user.getToken()));
+            }
+        });
+
     }
 
 
     private void updatePWD(RoutingContext routingContext) {
+    
+        //to asyncify + some of the code needs to be moved in the dao
         CipherSecurity cipherUtil = new CipherSecurity();
 
         //TODO : change login to user_id

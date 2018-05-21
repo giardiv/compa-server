@@ -1,36 +1,72 @@
-package main.compa.daos;
+package compa.daos;
 
-import main.compa.dtos.UserDTO;
-import main.compa.exception.RegisterException;
-import main.compa.models.User;
-import main.compa.app.DAO;
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
+import compa.app.Container;
+import compa.exception.RegisterException;
+import compa.models.User;
+import compa.app.DAO;
 import org.bson.types.ObjectId;
-import org.mongodb.morphia.Datastore;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class UserDAO extends DAO<User, ObjectId> {
 
     public static final int PASSWORD_MIN_LENGTH = 8;
+    private Logger logger = Logger.getLogger("user_dao");
 
-    public UserDAO(Datastore ds){
-        super(User.class, ds);
+    public UserDAO(Container container){
+        super(User.class, container);
     }
 
-    public User getByLoginAndPassword(String login, String password){
-        return this.createQuery().filter("login", login).
-                filter("password", password).get();
+    public void getByLoginAndPassword(String login, String password, Handler<AsyncResult<User>> resultHandler){
+        vertx.executeBlocking( future -> {
+            future.complete(this.createQuery().filter("login", login).filter("password", password).get());
+        }, resultHandler);
     }
 
-    public User addUser(String login, String password) throws RegisterException {
-        User user = this.createQuery().filter("login", login).get();
+    public void addUser(String login, String password, Handler<AsyncResult<User>> resultHandler) {
 
-        if(password.length() < PASSWORD_MIN_LENGTH)
-            throw new RegisterException(RegisterException.PASSWORD_TOO_SHORT);
+        vertx.executeBlocking( future -> {
+            User user = this.createQuery().filter("login", login).get();
 
-        if(user != null)
-            throw new RegisterException(RegisterException.USER_ALREADY_EXIST);
+            if(password.length() < PASSWORD_MIN_LENGTH)
+                future.fail(new RegisterException(RegisterException.PASSWORD_TOO_SHORT));
 
-        user = new User(login, password);
-        this.save(user);
-        return user;
+            if(user != null)
+                future.fail(new RegisterException(RegisterException.USER_ALREADY_EXIST));
+
+            user = new User(login, password);
+            this.save(user);
+            future.complete(user);
+
+        }, resultHandler);
+
     }
+
+    public void findOne(String key, Object value, Handler<AsyncResult<User>> resultHandler){
+
+        vertx.executeBlocking( future -> {
+            logger.log(Level.INFO, "Looking for user by key {0} and value {1}", new Object[]{key, value});
+            User u = super.findOne(key, value);
+            logger.log(Level.INFO, "User {0} found", u == null ? "not" : "");
+            future.complete(u);
+
+        }, resultHandler);
+
+    }
+
+    public void findById(String id, Handler<AsyncResult<User>> resultHandler) {
+
+        vertx.executeBlocking( future -> {
+            logger.log(Level.INFO, "Looking for user {0}", id);
+            User u = super.findById(id);
+            logger.log(Level.INFO, "User {0} found", u == null ? "not" : "");
+            future.complete(u);
+        }, resultHandler);
+
+    }
+
+
 }

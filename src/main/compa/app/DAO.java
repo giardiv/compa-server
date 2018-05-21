@@ -1,5 +1,6 @@
-package main.compa.app;
+package compa.app;
 
+import io.vertx.core.Vertx;
 import org.bson.types.ObjectId;
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.dao.BasicDAO;
@@ -8,8 +9,11 @@ import java.util.List;
 
 public class DAO<T, K> extends BasicDAO<T, K> {
 
-    public DAO(Class entityClass, Datastore ds) {
-        super(entityClass, ds);
+    protected Vertx vertx;
+
+    public DAO(Class entityClass, Container container) {
+        super(entityClass, container.getMongoUtil().getDatastore());
+        this.vertx = container.getVertx();
     }
 
     public List<T> findAll(){

@@ -1,4 +1,4 @@
-package main.compa.models;
+package compa.models;
 
 
 import org.apache.commons.lang3.RandomStringUtils;
@@ -33,8 +33,8 @@ public class User {
         this.login = login;
         this.password = password;
         this.locations = new ArrayList<>();
-        this.friendships = null;
-        this.token = RandomStringUtils.random(16);
+        this.friendships = new ArrayList<>();
+        this.setToken();
     }
 
     public void addLocation(Location l){
@@ -46,7 +46,7 @@ public class User {
     }
 
     public void setToken(){
-        this.token = RandomStringUtils.random(16);
+        this.token = RandomStringUtils.randomAscii(16);
     }
 
     public String getLogin() {
@@ -71,5 +71,10 @@ public class User {
 
     public ObjectId getId() {
         return id;
+    }
+
+    @Override
+    public boolean equals(Object obj){
+        return this.id.toString().equals(((User) obj).id.toString());
     }
 }

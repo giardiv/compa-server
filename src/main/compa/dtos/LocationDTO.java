@@ -1,19 +1,17 @@
-package main.compa.dtos;
+package compa.dtos;
 
-import main.compa.app.JSONisable;
-import main.compa.models.Location;
+import compa.models.Location;
 
-import java.time.LocalDateTime;
+import java.text.SimpleDateFormat;
 
-public class LocationDTO implements JSONisable {
+public class LocationDTO {
 
     private double latitude, longitude;
-    private LocalDateTime datetime;
+    private String datetime;
 
     public LocationDTO(Location location){
         this.latitude = location.getLatitude();
         this.longitude = location.getLongitude();
-        this.datetime = new java.sql.Timestamp(
-                location.getDatetime().getTime()).toLocalDateTime();
+        this.datetime = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(location.getDatetime());
     }
 }
