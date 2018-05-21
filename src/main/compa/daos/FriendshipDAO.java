@@ -40,7 +40,6 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
         return this.find(query).asList();
     }
 
-
     public Friendship addFriendship(User a, User b) throws FriendshipException {
         logger.log(Level.INFO, "Adding a friendship between {0} and {1}",
                 new Object[]{a.getLogin(), b.getLogin()});

@@ -4,12 +4,15 @@ import com.google.gson.Gson;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
-import main.compa.app.Controller;
-import main.compa.app.ModelManager;
-import main.compa.app.ServiceManager;
+import main.compa.app.*;
+import main.compa.models.Friendship;
 import main.compa.models.User;
 import main.compa.daos.UserDAO;
 import main.compa.exception.RegisterException;
+import org.mongodb.morphia.query.Query;
+import org.mongodb.morphia.query.UpdateOperations;
+
+import java.util.Date;
 
 public class UserController extends Controller {
 
@@ -21,6 +24,8 @@ public class UserController extends Controller {
         super(serviceManager, PREFIX, router);
         this.registerRoute(HttpMethod.POST, "/login", this::login, "application/json");
         this.registerRoute(HttpMethod.POST, "/register", this::register, "application/json");
+        this.registerRoute(HttpMethod.GET, "/updatePassword", this::updatePWD, "application/json");
+
         userDAO = (UserDAO) modelManager.getDAO(User.class);
     }
 
@@ -70,12 +75,13 @@ public class UserController extends Controller {
      * @apiSuccess {String} Token    Token is returned
      */
     private void register(RoutingContext routingContext){
-        System.out.println("In register");
+        CipherSecurity cipherUtil = new CipherSecurity();
         // TODO : manage null values > return bad request
         String login = routingContext.request().getParam("login");
         String password = routingContext.request().getParam("password");
+        String encryptedString = cipherUtil.encrypt(password + String.valueOf(new Date().getTime()));
         try {
-            User user = userDAO.addUser(login, password);
+            User user = userDAO.addUser(login, encryptedString);
             //Token token = new Token();
             //user.addToken(token);
             userDAO.save(user);
@@ -83,6 +89,31 @@ public class UserController extends Controller {
         } catch (RegisterException e) {
             routingContext.response().setStatusCode(418).end(new Gson().toJson(e));
         }
+    }
+
+
+    private void updatePWD(RoutingContext routingContext) {
+        CipherSecurity cipherUtil = new CipherSecurity();
+
+        //TODO : change login to user_id
+        String login = routingContext.request().getParam("login");
+        String password = routingContext.request().getParam("password");
+        String encryptedPWD = cipherUtil.encrypt(password);
+
+        String newPwd = routingContext.request().getParam("NewPassword");
+        String encryptedNewPWD = cipherUtil.decrypt(newPwd);
+
+        Query<User> query = MongoUtil.getDatastore().find(User.class);
+        query.or(
+                query.criteria("login").equal(login),
+                query.criteria("password").equal(encryptedPWD)
+        );
+        if(query != null){
+            UpdateOperations<User> update = MongoUtil.getDatastore().createUpdateOperations(User.class).set("password", encryptedNewPWD);
+            MongoUtil.getDatastore().update(query, update);
+        }
+        System.out.println("query  : " + query);
+        routingContext.response().setStatusCode(418).end();
     }
 
 }

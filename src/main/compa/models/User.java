@@ -33,7 +33,7 @@ public class User {
         this.login = login;
         this.password = password;
         this.locations = new ArrayList<>();
-        this.friendships = new ArrayList<>();
+        this.friendships = null;
         this.token = RandomStringUtils.random(16);
     }
 
