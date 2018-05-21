@@ -97,7 +97,7 @@ public class UserController extends Controller {
 
         CipherSecurity cipherUtil = (CipherSecurity) this.get(CipherSecurity.class);
 
-        if(!this.checkParams(routingContext, "new_password")){
+        if(!this.checkParams(routingContext, "new_password")){ //TODO ADD ADDITIONAL CHECK: USER NEEDS TO GIVE CURRENT PASSWORD
             routingContext.response().end("missing param"); //TODO FORMAT
             return;
         }
