@@ -1,16 +1,16 @@
-package main.compa.controllers;
+package compa.controllers;
 
 import io.vertx.core.json.JsonArray;
-import main.compa.app.Container;
-import main.compa.daos.FriendshipDAO;
-import main.compa.daos.UserDAO;
-import main.compa.dtos.UserDTO;
+import compa.app.Container;
+import compa.daos.FriendshipDAO;
+import compa.daos.UserDAO;
+import compa.dtos.UserDTO;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.web.RoutingContext;
-import main.compa.app.Controller;
-import main.compa.models.Friendship;
-import main.compa.models.User;
-import main.compa.services.GsonService;
+import compa.app.Controller;
+import compa.models.Friendship;
+import compa.models.User;
+import compa.services.GsonService;
 
 import java.util.List;
 

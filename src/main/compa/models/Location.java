@@ -1,4 +1,4 @@
-package main.compa.models;
+package compa.models;
 
 import org.bson.types.ObjectId;
 import org.mongodb.morphia.annotations.*;

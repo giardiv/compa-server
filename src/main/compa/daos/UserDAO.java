@@ -1,11 +1,11 @@
-package main.compa.daos;
+package compa.daos;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
-import main.compa.app.Container;
-import main.compa.exception.RegisterException;
-import main.compa.models.User;
-import main.compa.app.DAO;
+import compa.app.Container;
+import compa.exception.RegisterException;
+import compa.models.User;
+import compa.app.DAO;
 import org.bson.types.ObjectId;
 
 import java.util.logging.Level;

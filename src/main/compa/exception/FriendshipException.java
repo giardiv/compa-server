@@ -1,6 +1,6 @@
-package main.compa.exception;
+package compa.exception;
 
-import main.compa.app.Exception;
+import compa.app.Exception;
 import javafx.util.Pair;
 
 public class FriendshipException extends Exception {

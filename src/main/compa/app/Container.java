@@ -1,16 +1,14 @@
-package main.compa.app;
+package compa.app;
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
-import org.mongodb.morphia.dao.BasicDAO;
 
-import java.lang.Exception;
-import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public class Container {
 
@@ -23,6 +21,12 @@ public class Container {
     private Map<Class, Service> services;
     private Vertx vertx;
 
+    private Handler<AsyncResult<HttpServer>> testHandler;
+
+    public Container(Handler<AsyncResult<HttpServer>> testHandler){
+        this.testHandler = testHandler;
+    }
+
     public void run(ClassFinder cf) {
         vertx = Vertx.vertx();
         HttpServerOptions options = new HttpServerOptions();
@@ -33,19 +37,20 @@ public class Container {
         router = Router.router(vertx);
         mongoUtil = new MongoUtil(cf.getModelDirectory());
 
-
         daos = cf.getDAOs(this);
         controllers = cf.getControllers(this);
         services = cf.getServices(this);
 
         server.requestHandler(router::accept);
-        server.listen();
-        // TODO: make it async 👉 https://github.com/vert-x3/vertx-examples/blob/master/core-examples/src/main/java/io/vertx/example/core/execblocking/ExecBlockingExample.java
 
+        if(testHandler != null)
+            server.listen(testHandler);
+        else
+            server.listen();
+
+        //TODO CHANGE THIS, ONLY FOR TESTING
 
         router.route().handler(BodyHandler.create());
-
-
     }
 
     public Map<Class, Service> getServices() {

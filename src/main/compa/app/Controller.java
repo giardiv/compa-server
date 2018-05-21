@@ -1,12 +1,12 @@
-package main.compa.app;
+package compa.app;
 
 import io.vertx.core.Handler;
 import io.vertx.core.http.HttpMethod;
 
 import io.vertx.ext.web.RoutingContext;
-import main.compa.models.User;
-import main.compa.services.AuthenticationService;
-import main.compa.services.GsonService;
+import compa.models.User;
+import compa.services.AuthenticationService;
+import compa.services.GsonService;
 
 
 public abstract class Controller {

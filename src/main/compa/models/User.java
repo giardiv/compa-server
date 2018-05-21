@@ -1,4 +1,4 @@
-package main.compa.models;
+package compa.models;
 
 
 import org.apache.commons.lang3.RandomStringUtils;

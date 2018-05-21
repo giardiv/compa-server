@@ -1,13 +1,13 @@
-package main.compa.controllers;
+package compa.controllers;
 
 import com.google.gson.Gson;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.web.RoutingContext;
-import main.compa.app.Container;
-import main.compa.dtos.LocationDTO;
-import main.compa.models.Location;
-import main.compa.app.Controller;
-import main.compa.daos.LocationDAO;
+import compa.app.Container;
+import compa.dtos.LocationDTO;
+import compa.models.Location;
+import compa.app.Controller;
+import compa.daos.LocationDAO;
 import org.bson.types.ObjectId;
 
 import java.util.List;

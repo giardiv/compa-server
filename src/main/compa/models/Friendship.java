@@ -1,4 +1,4 @@
-package main.compa.models;
+package compa.models;
 
 import com.google.gson.annotations.Expose;
 import org.bson.types.ObjectId;

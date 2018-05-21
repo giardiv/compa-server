@@ -1,13 +1,13 @@
-package main.compa.services;
+package compa.services;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.http.HttpServerRequest;
-import main.compa.app.Container;
-import main.compa.app.Service;
-import main.compa.daos.UserDAO;
-import main.compa.models.User;
+import compa.app.Container;
+import compa.app.Service;
+import compa.daos.UserDAO;
+import compa.models.User;
 
 public class AuthenticationService extends Service {
 

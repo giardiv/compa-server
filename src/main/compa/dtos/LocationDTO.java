@@ -1,6 +1,6 @@
-package main.compa.dtos;
+package compa.dtos;
 
-import main.compa.models.Location;
+import compa.models.Location;
 
 import java.text.SimpleDateFormat;
 

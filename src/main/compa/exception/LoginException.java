@@ -1,7 +1,7 @@
-package main.compa.exception;
+package compa.exception;
 
 import javafx.util.Pair;
-import main.compa.app.Exception;
+import compa.app.Exception;
 
 public class LoginException extends Exception {
     /**

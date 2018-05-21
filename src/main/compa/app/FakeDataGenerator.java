@@ -1,9 +1,9 @@
-package main.compa.app;
+package compa.app;
 
-import main.compa.Main;
-import main.compa.models.Friendship;
-import main.compa.models.Location;
-import main.compa.models.User;
+import compa.Main;
+import compa.models.Friendship;
+import compa.models.Location;
+import compa.models.User;
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.query.UpdateOperations;
 
@@ -16,17 +16,20 @@ import java.util.Random;
 
 public class FakeDataGenerator {
 
-    public static void main(String... args){
-        Main.main(args);
+    public static List<User> users;
 
-        Datastore datastore = Main.c.getMongoUtil().getDatastore();
+    public static void main(String... args){
+        ClassFinder cf = new ClassFinder();
+        Container c = new Container(null);
+        c.run(cf);
+
+        Datastore datastore = c.getMongoUtil().getDatastore();
 
         datastore.getCollection(User.class).drop();
         datastore.getCollection(Location.class).drop();
         datastore.getCollection(Friendship.class).drop();
 
-        List<User> users = new ArrayList<>();
-
+        users = new ArrayList<>();
         Location cityTest = new Location(51.509865, -0.118092);
 
         double baseLatitude = Math.round((cityTest.getLatitude() - 0.007)*1000)/1000;
