@@ -1,6 +1,8 @@
-package main.compa.app;
+package compa.services;
 
 import com.google.common.base.Charsets;
+import compa.app.Container;
+import compa.app.Service;
 import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,7 +13,7 @@ import java.lang.Exception;
 import java.util.Date;
 
 
-public class CipherSecurity {
+public class CipherSecurity extends Service {
 
     private final Logger log = LoggerFactory.getLogger(CipherSecurity.class);
 
@@ -19,33 +21,34 @@ public class CipherSecurity {
     public static final String KEY_ALGORITHM = "AES";
     public static final byte[] SECRET_KEY = "16BYTESSECRETKEY".getBytes(Charsets.UTF_8); // exactly 16 bytes to not use JCE (Java Cryptography Extension)
 
+    public CipherSecurity(Container container){
+        super(container);
+    }
+
     public String decrypt(String encryptedInput) {
-        Cipher cipher = null;
-        String mdpDecrypt = null;
         try {
-            cipher = Cipher.getInstance(CIPHER_ALGORITHM);
+            Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM);
             cipher.init(Cipher.DECRYPT_MODE, new SecretKeySpec(SECRET_KEY, KEY_ALGORITHM));
             cipher.init(Cipher.DECRYPT_MODE, new SecretKeySpec(SECRET_KEY, KEY_ALGORITHM));
-            mdpDecrypt = new String(cipher.doFinal(Base64.decodeBase64(encryptedInput)), Charsets.UTF_8);
+            return new String(cipher.doFinal(Base64.decodeBase64(encryptedInput)), Charsets.UTF_8);
         } catch (Exception e) {
             e.printStackTrace();
+            return null;
         }
-        return mdpDecrypt;
     }
 
     public String encrypt(String str) {
-        String mdpEncrypt = "";
         try {
             Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM);
             cipher.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(SECRET_KEY, KEY_ALGORITHM));
-            mdpEncrypt = Base64.encodeBase64URLSafeString(cipher.doFinal(str.getBytes(Charsets.UTF_8)));
+            return Base64.encodeBase64URLSafeString(cipher.doFinal(str.getBytes(Charsets.UTF_8)));
         } catch (Exception e) {
             e.printStackTrace();
+            return null;
         }
-        return mdpEncrypt;
     }
 
-    public static void main(String[] args) {
+   /* public static void main(String[] args) {
         CipherSecurity cipherUtil = new CipherSecurity();
         // Encryption
         String encryptedString = cipherUtil.encrypt("password" + String.valueOf(new Date().getTime()));
@@ -53,5 +56,5 @@ public class CipherSecurity {
         System.out.println("Avant déchiffrement : " + encryptedString);
         String s = cipherUtil.decrypt(encryptedString);
         System.out.println("Après déchiffrement : " + s);
-    }
+    }*/
 }

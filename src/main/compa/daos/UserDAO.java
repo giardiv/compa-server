@@ -1,5 +1,6 @@
 package compa.daos;
 
+import compa.app.MongoUtil;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import compa.app.Container;
@@ -7,6 +8,7 @@ import compa.exception.RegisterException;
 import compa.models.User;
 import compa.app.DAO;
 import org.bson.types.ObjectId;
+import org.mongodb.morphia.query.UpdateOperations;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -64,6 +66,16 @@ public class UserDAO extends DAO<User, ObjectId> {
             User u = super.findById(id);
             logger.log(Level.INFO, "User {0} found", u == null ? "not" : "");
             future.complete(u);
+        }, resultHandler);
+
+    }
+
+    public void updatePassword(User user, String newPassword, Handler<AsyncResult<User>> resultHandler ){
+
+        vertx.executeBlocking( future -> {
+            UpdateOperations<User> update = this.createUpdateOperations().set("password", newPassword);
+            this.getDatastore().update(user, update);
+            future.complete(user);
         }, resultHandler);
 
     }
