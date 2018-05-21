@@ -7,12 +7,19 @@ import io.vertx.core.Handler;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
-import compa.app.Container;
-import compa.app.Controller;
-import compa.models.User;
-import compa.daos.UserDAO;
-import compa.exception.RegisterException;
+
+import main.compa.app.*;
+import main.compa.models.Friendship;
+import main.compa.models.User;
+import main.compa.daos.UserDAO;
+import main.compa.exception.RegisterException;
+import org.mongodb.morphia.query.Query;
+import org.mongodb.morphia.query.UpdateOperations;
+
+import java.util.Date;
+
 import compa.services.GsonService;
+
 
 public class UserController extends Controller {
 
@@ -24,7 +31,9 @@ public class UserController extends Controller {
         super(PREFIX, container);
         this.registerRoute(HttpMethod.POST, "/login", this::login, "application/json");
         this.registerRoute(HttpMethod.POST, "/register", this::register, "application/json");
+        this.registerRoute(HttpMethod.GET, "/updatePassword", this::updatePWD, "application/json"); //auth route probs
         userDAO = (UserDAO) container.getDAO(User.class);
+
     }
 
     /**
@@ -67,16 +76,11 @@ public class UserController extends Controller {
      */
     private void register(RoutingContext routingContext){
 
-        GsonService gson = (GsonService) this.get(GsonService.class);
-
-        if(!this.checkParams(routingContext, "login", "password")) {
-            routingContext.response().end("missing param"); //TODO FORMAT
-            return;
-        }
-
         String login = routingContext.request().getParam("login");
         String password = routingContext.request().getParam("password");
-
+        CipherSecurity cipherUtil = new CipherSecurity();
+        String encryptedString = cipherUtil.encrypt(password + String.valueOf(new Date().getTime()));
+        
         userDAO.addUser(login, password, res -> {
             if(res.failed()){
                 routingContext.response().end(gson.toJson(res.cause()));
@@ -84,10 +88,38 @@ public class UserController extends Controller {
             else{
                 User user = res.result();
                 userDAO.save(user);
+           
                 routingContext.response().end(gson.toJson(user.getToken()));
             }
         });
 
+    }
+
+
+    private void updatePWD(RoutingContext routingContext) {
+    
+        //to asyncify + some of the code needs to be moved in the dao
+        CipherSecurity cipherUtil = new CipherSecurity();
+
+        //TODO : change login to user_id
+        String login = routingContext.request().getParam("login");
+        String password = routingContext.request().getParam("password");
+        String encryptedPWD = cipherUtil.encrypt(password);
+
+        String newPwd = routingContext.request().getParam("NewPassword");
+        String encryptedNewPWD = cipherUtil.decrypt(newPwd);
+
+        Query<User> query = MongoUtil.getDatastore().find(User.class);
+        query.or(
+                query.criteria("login").equal(login),
+                query.criteria("password").equal(encryptedPWD)
+        );
+        if(query != null){
+            UpdateOperations<User> update = MongoUtil.getDatastore().createUpdateOperations(User.class).set("password", encryptedNewPWD);
+            MongoUtil.getDatastore().update(query, update);
+        }
+        System.out.println("query  : " + query);
+        routingContext.response().setStatusCode(418).end();
     }
 
 }
