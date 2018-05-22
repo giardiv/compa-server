@@ -58,29 +58,35 @@ public abstract class Controller {
 
     }
 
-    private String checkParam(String param, String name) throws ParameterException {
+    private String checkParam(RoutingContext context, String mandatoryParam, HttpMethod method) throws ParameterException {
+        String  param;
+        if(method == HttpMethod.POST) {
+            param = context.request().getFormAttribute(mandatoryParam);
+        } else {
+            param = context.request().getParam(mandatoryParam);
+        }
         if(param == null){
-            System.out.println(param);
-            throw new ParameterException(ParameterException.PARAM_REQUIRED, name);
+            throw new ParameterException(ParameterException.PARAM_REQUIRED, mandatoryParam, method.toString());
         }
         return param;
     }
 
-    protected int getParam(RoutingContext context, String mandatoryParam) throws ParameterException {
-        System.out.println(mandatoryParam);
-        System.out.println(context.request().getParam("login"));
-        String param = checkParam(context.request().getParam(mandatoryParam), mandatoryParam);
-        int value;
-        try {
-            value = Integer.parseInt(param);
-        } catch (NumberFormatException e){
-            throw new ParameterException(ParameterException.PARAM_WRONG_FORMAT, param, Integer.class.toString());
+    protected Object getParam(RoutingContext context, String mandatoryParam, boolean required, HttpMethod method, Class type) throws ParameterException {
+        if(required) {
+            String param = checkParam(context, mandatoryParam, method);
+            Object value = null;
+            try {
+                if(type == Integer.class) {
+                    value = Integer.parseInt(param);
+                } else if (type == String.class) {
+                    value = param;
+                }
+            } catch (NumberFormatException e) {
+                throw new ParameterException(ParameterException.PARAM_WRONG_FORMAT, param, Integer.class.toString());
+            }
+            return value;
+        } else {
+            return null;
         }
-        return value;
     }
-
-    protected String getParam(){
-        return "";
-    }
-
 }

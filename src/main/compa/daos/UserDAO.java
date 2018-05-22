@@ -29,22 +29,24 @@ public class UserDAO extends DAO<User, ObjectId> {
     }
 
     public void addUser(String login, String password, Handler<AsyncResult<User>> resultHandler) {
-
         vertx.executeBlocking( future -> {
             User user = this.createQuery().filter("login", login).get();
 
-            if(password.length() < PASSWORD_MIN_LENGTH)
+            if(password.length() < PASSWORD_MIN_LENGTH) {
                 future.fail(new RegisterException(RegisterException.PASSWORD_TOO_SHORT));
+                return;
+            }
 
-            if(user != null)
+            if(user != null) {
                 future.fail(new RegisterException(RegisterException.USER_ALREADY_EXIST));
+                return;
+            }
 
             user = new User(login, password);
             this.save(user);
             future.complete(user);
 
         }, resultHandler);
-
     }
 
     public void findOne(String key, Object value, Handler<AsyncResult<User>> resultHandler){

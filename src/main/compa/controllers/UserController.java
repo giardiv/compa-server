@@ -95,39 +95,34 @@ public class UserController extends Controller {
         
         //userDAO.addUser(login, encryptedPassword, res -> {
 
-        System.out.println(routingContext.request().getParam("login"));
         GsonService gson = (GsonService) this.get(GsonService.class);
 
-        int test;
+        String login = null;
+        String password = null;
         try {
-            test = this.getParam(routingContext, "login");
+            login = (String) this.getParam(routingContext, "login", true, HttpMethod.POST, String.class);
+            password = (String) this.getParam(routingContext, "password", true, HttpMethod.POST, String.class);
         } catch (ParameterException e) {
             routingContext.response().setStatusCode(400).end(gson.toJson(e));
+            return;
         }
-        //String login = routingContext.request().getParam("login");
-
-        //if(!this.checkParams(routingContext, "login", "password")) {
-        //    routingContext.response().end("missing param"); //TODO FORMAT
-        //    return;
-        //}
-
-        String login = routingContext.request().getParam("login");
-        String password = routingContext.request().getParam("password");
-
+        System.out.println(login);
+        System.out.println(password);
 
         userDAO.addUser(login, password, res -> { //end
             if(res.failed()){
+                System.out.println("fail");
                 routingContext.response().end(gson.toJson(res.cause()));
-            }
-            else{
+                return;
+            } else {
+                System.out.println("ok");
                 User user = res.result();
                 userDAO.save(user);
-           
                 routingContext.response().end(gson.toJson(user.getToken()));
+                return;
             }
         });
     }
-
 
     private void updatePassword(User me, RoutingContext routingContext) {
 
@@ -145,7 +140,5 @@ public class UserController extends Controller {
             User u = res.result();
             routingContext.response().end("updated"); //TODO FORMAT
         });
-
     }
-
 }
