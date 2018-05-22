@@ -64,7 +64,7 @@ public class UserDAO extends DAO<User, ObjectId> {
         vertx.executeBlocking( future -> {
             logger.log(Level.INFO, "Looking for user {0}", id);
             User u = super.findById(id);
-            logger.log(Level.INFO, "User {0} found", u == null ? "not" : "");
+            logger.log(Level.INFO, "User {0}found", u == null ? "not " : "");
             future.complete(u);
         }, resultHandler);
 

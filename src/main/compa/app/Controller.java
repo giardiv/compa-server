@@ -49,8 +49,7 @@ public abstract class Controller {
 
     public boolean checkParams(RoutingContext context, String... mandatoryParams){
         for(String s : mandatoryParams)
-            if(context.request().getParam(s) == null){
-                System.out.println(s);
+            if(context.request().getParam(s) == null && context.request().getFormAttribute(s) == null){
                 return false;
             }
         return true;

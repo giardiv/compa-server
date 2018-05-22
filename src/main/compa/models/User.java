@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-@Entity("user")
+@Entity(value = "user", noClassnameStored = true)
 @Indexes({
         @Index(value = "login", fields = @Field("login"), unique = true),
 })

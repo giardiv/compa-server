@@ -6,7 +6,7 @@ import org.mongodb.morphia.annotations.*;
 
 import java.util.Date;
 
-@Entity("location")
+@Entity(value ="location", noClassnameStored = true)
 @Indexes({
         @Index(value = "latitude", fields = @Field("latitude")),
         @Index(value = "longitude", fields = @Field("longitude"))
