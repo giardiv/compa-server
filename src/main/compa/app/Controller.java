@@ -1,9 +1,11 @@
 package compa.app;
 
+import com.google.gson.JsonObject;
 import compa.exception.ParameterException;
 import io.vertx.core.Handler;
 import io.vertx.core.http.HttpMethod;
 
+import io.vertx.core.json.JsonArray;
 import io.vertx.ext.web.RoutingContext;
 import compa.models.User;
 import compa.services.AuthenticationService;
@@ -34,8 +36,7 @@ public abstract class Controller {
                 if(res.failed()){
                     GsonService gson = (GsonService) this.get(GsonService.class);
                     context.response().end(gson.toJson(res.cause()));
-                }
-                else{
+                } else {
                     handler.handle(res.result(), context);
                 }
             });
@@ -58,31 +59,27 @@ public abstract class Controller {
 
     }
 
-    private String checkParam(RoutingContext context, String mandatoryParam, HttpMethod method) throws ParameterException {
-        String  param;
-        if(method == HttpMethod.POST) {
-            param = context.request().getFormAttribute(mandatoryParam);
-        } else {
-            param = context.request().getParam(mandatoryParam);
-        }
-        if(param == null){
-            throw new ParameterException(ParameterException.PARAM_REQUIRED, mandatoryParam, method.toString());
-        }
-        return param;
+    protected enum paramMethod {
+        JSON,
+        GET
     }
 
-    protected Object getParam(RoutingContext context, String mandatoryParam, boolean required, HttpMethod method, Class type) throws ParameterException {
+    protected Object getParam(RoutingContext context, String mandatoryParam, boolean required, paramMethod method, Class type) throws ParameterException {
         if(required) {
-            String param = checkParam(context, mandatoryParam, method);
-            Object value = null;
+            Object value = context.getBodyAsJson().getValue(mandatoryParam);
+            if(value == null){
+                throw new ParameterException(ParameterException.PARAM_REQUIRED, mandatoryParam, method.toString());
+            }
             try {
                 if(type == Integer.class) {
-                    value = Integer.parseInt(param);
+                    value = Integer.parseInt((String) value);
                 } else if (type == String.class) {
-                    value = param;
+                    value = (String) value;
+                } else {
+                    System.err.println("Unaccepted class : " + type.toString());
                 }
             } catch (NumberFormatException e) {
-                throw new ParameterException(ParameterException.PARAM_WRONG_FORMAT, param, Integer.class.toString());
+                throw new ParameterException(ParameterException.PARAM_WRONG_FORMAT, (String) value, Integer.class.toString());
             }
             return value;
         } else {

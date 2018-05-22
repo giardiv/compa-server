@@ -1,6 +1,7 @@
 package compa.daos;
 
 import compa.app.MongoUtil;
+import compa.services.AuthenticationService;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import compa.app.Container;
@@ -24,11 +25,20 @@ public class UserDAO extends DAO<User, ObjectId> {
 
     public void getByLoginAndPassword(String login, String password, Handler<AsyncResult<User>> resultHandler){
         vertx.executeBlocking( future -> {
-            future.complete(this.createQuery().filter("login", login).filter("password", password).get());
+            User u = this.createQuery().filter("login", login).get();
+            if(u == null){
+                future.complete(null);
+                return;
+            }
+            String encPassword = AuthenticationService.encrypt(password, u.getSalt().getBytes());
+            if(u.isPassword(encPassword))
+                future.complete(this.createQuery().filter("login", login).filter("password", password).get());
+            else
+                future.complete(null);
         }, resultHandler);
     }
 
-    public void addUser(String login, String password, Handler<AsyncResult<User>> resultHandler) {
+    public void addUser(String login, String password, String salt, Handler<AsyncResult<User>> resultHandler) {
         vertx.executeBlocking( future -> {
             User user = this.createQuery().filter("login", login).get();
 
@@ -72,10 +82,10 @@ public class UserDAO extends DAO<User, ObjectId> {
 
     }
 
-    public void updatePassword(User user, String newPassword, Handler<AsyncResult<User>> resultHandler ){
+    public void updatePassword(User user, String newEncryptedPassword, Handler<AsyncResult<User>> resultHandler ){
 
         vertx.executeBlocking( future -> {
-            UpdateOperations<User> update = this.createUpdateOperations().set("password", newPassword);
+            UpdateOperations<User> update = this.createUpdateOperations().set("password", newEncryptedPassword);
             this.getDatastore().update(user, update);
             future.complete(user);
         }, resultHandler);

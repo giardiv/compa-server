@@ -18,7 +18,7 @@ public class User {
     @Id
     public ObjectId id;
 
-    private String login, password, token, name;
+    private String login, password, token, name, salt;
 
     @Reference
     private List<Friendship> friendships;
@@ -71,6 +71,12 @@ public class User {
 
     public ObjectId getId() {
         return id;
+    }
+
+    public String getSalt() { return salt; }
+
+    public boolean isPassword(String password) {
+        return this.password == password;
     }
 
     @Override

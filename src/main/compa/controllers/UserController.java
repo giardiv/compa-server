@@ -2,13 +2,11 @@ package compa.controllers;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import compa.services.CipherSecurity;
+import compa.exception.LoginException;
+import compa.services.AuthenticationService;
+import compa.helpers.CipherSecurity;
 import compa.exception.ParameterException;
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Future;
-import io.vertx.core.Handler;
 import io.vertx.core.http.HttpMethod;
-import io.vertx.core.json.Json;
 import io.vertx.ext.web.RoutingContext;
 
 import compa.app.*;
@@ -20,7 +18,7 @@ import compa.services.GsonService;
 
 public class UserController extends Controller {
 
-    private static final String PREFIX = "/user";
+    private static final String PREFIX = "";
 
     private UserDAO userDAO;
 
@@ -30,7 +28,6 @@ public class UserController extends Controller {
         this.registerRoute(HttpMethod.POST, "/register", this::register, "application/json");
         this.registerAuthRoute(HttpMethod.PUT, "/updatePassword", this::updatePassword, "application/json"); //auth route probs
         userDAO = (UserDAO) container.getDAO(User.class);
-
     }
 
     /**
@@ -45,30 +42,35 @@ public class UserController extends Controller {
      */
     // Return 200 ; 418
     private void login(RoutingContext routingContext){
-        String login = routingContext.request().getParam("login");
-        String password = routingContext.request().getParam("password");
-        System.out.println(routingContext.request().params().toString());
+        GsonService gson = (GsonService) this.get(GsonService.class);
+
+        String login = null;
+        String password = null;
+        try {
+            login = (String) this.getParam(routingContext, "login", true, paramMethod.JSON, String.class);
+            password = (String) this.getParam(routingContext, "password", true, paramMethod.JSON, String.class);
+        } catch (ParameterException e) {
+            routingContext.response().setStatusCode(400).end(gson.toJson(e));
+            return;
+        }
 
         userDAO.getByLoginAndPassword(login, password, res -> {
             // TODO: first check if user exist
             User u = res.result();
             JsonObject content = new JsonObject();
             if(u != null){
-                String token = u.getToken();
-                if(token == null){
-                    content.addProperty("error", "invalid");
-                }
-                else{
-                    content.addProperty("token", token);
-                }
+                u.setToken();
+                routingContext.response().end(
+                        new Gson().toJson(
+                                AuthenticationService.getJsonFromToken(u.getToken())));
             }
             else{
                 content.addProperty("error", "invalid");
+                routingContext.response().setStatusCode(400).end(
+                        new Gson().toJson(
+                                new LoginException(LoginException.INCORRECT_CREDENTIALS)));
             }
-            routingContext.response().end(new Gson().toJson(content));
         });
-
-
     }
 
     /**
@@ -85,40 +87,35 @@ public class UserController extends Controller {
      * @apiSuccess {String} Token    Token is returned
      */
     private void register(RoutingContext routingContext){
-
-        //GsonService gson = (GsonService) this.get(GsonService.class);
-
-        //String login = routingContext.request().getParam("login");
-        //String password = routingContext.request().getParam("password");
-        //CipherSecurity cipherUtil = (CipherSecurity) this.get(CipherSecurity.class);
-        //String encryptedPassword = cipherUtil.encrypt(password);
-        
-        //userDAO.addUser(login, encryptedPassword, res -> {
-
+        AuthenticationService AS = (AuthenticationService) this.get(AuthenticationService.class);
         GsonService gson = (GsonService) this.get(GsonService.class);
 
-        String login = null;
+        String  login = null;
         String password = null;
         try {
-            login = (String) this.getParam(routingContext, "login", true, HttpMethod.POST, String.class);
-            password = (String) this.getParam(routingContext, "password", true, HttpMethod.POST, String.class);
+            login = (String) this.getParam(routingContext, "login", true, paramMethod.JSON, String.class);
+            password = (String) this.getParam(routingContext, "password", true, paramMethod.JSON, String.class);
         } catch (ParameterException e) {
             routingContext.response().setStatusCode(400).end(gson.toJson(e));
             return;
         }
-        System.out.println(login);
-        System.out.println(password);
 
-        userDAO.addUser(login, password, res -> { //end
+        // TODO
+        byte[] salt = AuthenticationService.getSalt();
+        String encryptedPassword = AuthenticationService.encrypt(password, salt);
+        System.out.println(encryptedPassword);
+
+        userDAO.addUser(login, password, salt.toString(), res -> {
             if(res.failed()){
+                // TODO: log
                 System.out.println("fail");
                 routingContext.response().end(gson.toJson(res.cause()));
                 return;
             } else {
+                // TODO: log
                 System.out.println("ok");
                 User user = res.result();
-                userDAO.save(user);
-                routingContext.response().end(gson.toJson(user.getToken()));
+                routingContext.response().end(gson.toJson(AS.getJsonFromToken(user.getToken())));
                 return;
             }
         });
@@ -126,7 +123,7 @@ public class UserController extends Controller {
 
     private void updatePassword(User me, RoutingContext routingContext) {
 
-        CipherSecurity cipherUtil = (CipherSecurity) this.get(CipherSecurity.class);
+        //CipherSecurity cipherUtil = (CipherSecurity) this.get(CipherSecurity.class);
 
         if(!this.checkParams(routingContext, "new_password")){ //TODO ADD ADDITIONAL CHECK: USER NEEDS TO GIVE CURRENT PASSWORD
             routingContext.response().end("missing param"); //TODO FORMAT
@@ -134,7 +131,7 @@ public class UserController extends Controller {
         }
 
         String newPassword = routingContext.request().getParam("new_password");
-        String encryptedNewPassword = cipherUtil.encrypt(newPassword);
+        String encryptedNewPassword = "";//cipherUtil.encrypt(newPassword);
 
         userDAO.updatePassword(me, encryptedNewPassword, res -> {
             User u = res.result();
