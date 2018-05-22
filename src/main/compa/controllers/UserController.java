@@ -1,8 +1,10 @@
 package compa.controllers;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import compa.services.CipherSecurity;
 import io.vertx.core.http.HttpMethod;
+import io.vertx.core.json.Json;
 import io.vertx.ext.web.RoutingContext;
 
 import compa.app.*;
@@ -42,11 +44,21 @@ public class UserController extends Controller {
         String login = routingContext.request().getParam("login");
         String password = routingContext.request().getParam("password");
 
-
         userDAO.getByLoginAndPassword(login, password, res -> {
             User u = res.result();
-            String token = u.getToken();
-            Object content = token == null ? "error" : token; //TODO DEFINE STRUCTURE OF RETURNED JSON
+            JsonObject content = new JsonObject();
+            if(u != null){
+                String token = u.getToken();
+                if(token == null){
+                    content.addProperty("error", "invalid");
+                }
+                else{
+                    content.addProperty("token", token);
+                }
+            }
+            else{
+                content.addProperty("error", "invalid");
+            }
             routingContext.response().end(new Gson().toJson(content));
         });
 
