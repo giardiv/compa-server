@@ -79,6 +79,4 @@ public class UserDAO extends DAO<User, ObjectId> {
         }, resultHandler);
 
     }
-
-
 }

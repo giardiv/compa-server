@@ -1,5 +1,6 @@
 package compa.app;
 
+import compa.exception.ParameterException;
 import io.vertx.core.Handler;
 import io.vertx.core.http.HttpMethod;
 
@@ -47,13 +48,39 @@ public abstract class Controller {
         return container.getServices().get(service);
     }
 
-    public boolean checkParams(RoutingContext context, String... mandatoryParams){
-        for(String s : mandatoryParams)
-            if(context.request().getParam(s) == null && context.request().getFormAttribute(s) == null){
+    // Sarah
+    public boolean checkParams(RoutingContext context, String... mandatoryParams) {
+        for (String s : mandatoryParams)
+            if (context.request().getParam(s) == null && context.request().getFormAttribute(s) == null) {
                 return false;
             }
         return true;
+
     }
 
+    private String checkParam(String param, String name) throws ParameterException {
+        if(param == null){
+            System.out.println(param);
+            throw new ParameterException(ParameterException.PARAM_REQUIRED, name);
+        }
+        return param;
+    }
+
+    protected int getParam(RoutingContext context, String mandatoryParam) throws ParameterException {
+        System.out.println(mandatoryParam);
+        System.out.println(context.request().getParam("login"));
+        String param = checkParam(context.request().getParam(mandatoryParam), mandatoryParam);
+        int value;
+        try {
+            value = Integer.parseInt(param);
+        } catch (NumberFormatException e){
+            throw new ParameterException(ParameterException.PARAM_WRONG_FORMAT, param, Integer.class.toString());
+        }
+        return value;
+    }
+
+    protected String getParam(){
+        return "";
+    }
 
 }

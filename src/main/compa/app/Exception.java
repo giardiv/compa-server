@@ -3,15 +3,17 @@ package compa.app;
 import com.google.gson.annotations.Expose;
 import javafx.util.Pair;
 
+import java.text.MessageFormat;
+
 public class Exception extends java.lang.Exception {
 
     private Integer code;
 
     public Exception(){}
 
-    public Exception(Pair<Integer, String> message)
+    public Exception(Pair<Integer, String> message, String... values)
     {
-        super(message.getValue());
+        super(MessageFormat.format(message.getValue(), values));
         this.code = message.getKey();
     }
 }

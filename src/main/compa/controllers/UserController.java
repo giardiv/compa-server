@@ -3,6 +3,10 @@ package compa.controllers;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import compa.services.CipherSecurity;
+import compa.exception.ParameterException;
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Future;
+import io.vertx.core.Handler;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.Json;
 import io.vertx.ext.web.RoutingContext;
@@ -43,8 +47,10 @@ public class UserController extends Controller {
     private void login(RoutingContext routingContext){
         String login = routingContext.request().getParam("login");
         String password = routingContext.request().getParam("password");
+        System.out.println(routingContext.request().params().toString());
 
         userDAO.getByLoginAndPassword(login, password, res -> {
+            // TODO: first check if user exist
             User u = res.result();
             JsonObject content = new JsonObject();
             if(u != null){
@@ -79,14 +85,37 @@ public class UserController extends Controller {
      * @apiSuccess {String} Token    Token is returned
      */
     private void register(RoutingContext routingContext){
+
+        //GsonService gson = (GsonService) this.get(GsonService.class);
+
+        //String login = routingContext.request().getParam("login");
+        //String password = routingContext.request().getParam("password");
+        //CipherSecurity cipherUtil = (CipherSecurity) this.get(CipherSecurity.class);
+        //String encryptedPassword = cipherUtil.encrypt(password);
+        
+        //userDAO.addUser(login, encryptedPassword, res -> {
+
+        System.out.println(routingContext.request().getParam("login"));
         GsonService gson = (GsonService) this.get(GsonService.class);
+
+        int test;
+        try {
+            test = this.getParam(routingContext, "login");
+        } catch (ParameterException e) {
+            routingContext.response().setStatusCode(400).end(gson.toJson(e));
+        }
+        //String login = routingContext.request().getParam("login");
+
+        //if(!this.checkParams(routingContext, "login", "password")) {
+        //    routingContext.response().end("missing param"); //TODO FORMAT
+        //    return;
+        //}
 
         String login = routingContext.request().getParam("login");
         String password = routingContext.request().getParam("password");
-        CipherSecurity cipherUtil = (CipherSecurity) this.get(CipherSecurity.class);
-        String encryptedPassword = cipherUtil.encrypt(password);
-        
-        userDAO.addUser(login, encryptedPassword, res -> {
+
+
+        userDAO.addUser(login, password, res -> { //end
             if(res.failed()){
                 routingContext.response().end(gson.toJson(res.cause()));
             }
@@ -97,7 +126,6 @@ public class UserController extends Controller {
                 routingContext.response().end(gson.toJson(user.getToken()));
             }
         });
-
     }
 
 
