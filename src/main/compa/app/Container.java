@@ -35,6 +35,9 @@ public class Container {
 
         HttpServer server = vertx.createHttpServer(options);
         router = Router.router(vertx);
+
+        router.route().handler(BodyHandler.create());
+
         mongoUtil = new MongoUtil(cf.getModelDirectory());
 
         daos = cf.getDAOs(this);
@@ -50,7 +53,6 @@ public class Container {
 
         //TODO CHANGE THIS, ONLY FOR TESTING
 
-        router.route().handler(BodyHandler.create());
     }
 
     public Map<Class, Service> getServices() {

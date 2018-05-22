@@ -8,10 +8,6 @@ import io.vertx.ext.web.RoutingContext;
 import compa.app.*;
 import compa.models.User;
 import compa.daos.UserDAO;
-import org.mongodb.morphia.query.Query;
-import org.mongodb.morphia.query.UpdateOperations;
-
-import java.util.Date;
 
 import compa.services.GsonService;
 
@@ -103,7 +99,7 @@ public class UserController extends Controller {
         }
 
         String newPassword = routingContext.request().getParam("new_password");
-        String encryptedNewPassword = cipherUtil.decrypt(newPassword);
+        String encryptedNewPassword = cipherUtil.encrypt(newPassword);
 
         userDAO.updatePassword(me, encryptedNewPassword, res -> {
             User u = res.result();

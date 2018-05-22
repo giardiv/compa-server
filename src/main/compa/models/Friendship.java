@@ -4,7 +4,7 @@ import com.google.gson.annotations.Expose;
 import org.bson.types.ObjectId;
 import org.mongodb.morphia.annotations.*;
 
-@Entity("friendship")
+@Entity(value = "friendship", noClassnameStored = true)
 @Indexes({
        // @Index(value = "login", fields = @Field("login"), unique = true),
 })
