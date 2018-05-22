@@ -16,13 +16,13 @@ import compa.daos.UserDAO;
 import compa.services.GsonService;
 
 
-public class UserController extends Controller {
+public class AuthController extends Controller {
 
     private static final String PREFIX = "";
 
     private UserDAO userDAO;
 
-    public UserController(Container container){
+    public AuthController(Container container){
         super(PREFIX, container);
         this.registerRoute(HttpMethod.POST, "/login", this::login, "application/json");
         this.registerRoute(HttpMethod.POST, "/register", this::register, "application/json");
