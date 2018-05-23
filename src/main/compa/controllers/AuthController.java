@@ -1,11 +1,8 @@
 package compa.controllers;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import compa.exception.LoginException;
 import compa.exception.RegisterException;
 import compa.services.AuthenticationService;
-import compa.helpers.CipherSecurity;
 import compa.exception.ParameterException;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.web.RoutingContext;
@@ -13,9 +10,6 @@ import io.vertx.ext.web.RoutingContext;
 import compa.app.*;
 import compa.models.User;
 import compa.daos.UserDAO;
-
-import compa.services.GsonService;
-
 
 public class AuthController extends Controller {
 
@@ -27,7 +21,7 @@ public class AuthController extends Controller {
         super(PREFIX, container);
         this.registerRoute(HttpMethod.POST, "/login", this::login, "application/json");
         this.registerRoute(HttpMethod.POST, "/register", this::register, "application/json");
-        this.registerAuthRoute(HttpMethod.PUT, "/updatePassword", this::updatePassword, "application/json"); //auth route probs
+        this.registerAuthRoute(HttpMethod.PUT, "/updatePassword", this::updatePassword, "application/json");
         userDAO = (UserDAO) container.getDAO(User.class);
     }
 
@@ -58,6 +52,7 @@ public class AuthController extends Controller {
             User u = res.result();
             if(u != null){
                 u.setToken();
+                userDAO.save(u);
                 routingContext.response().end(
                         gson.toJson(
                                 AuthenticationService.getJsonFromToken(u.getToken())));
@@ -133,8 +128,10 @@ public class AuthController extends Controller {
      */
     private void updatePassword(User me, RoutingContext routingContext) {
         String password = null;
+        String newPassword = null;
         try {
-            password = (String) this.getParam(routingContext, "new_password", true, paramMethod.JSON, String.class);
+            newPassword = (String) this.getParam(routingContext, "new_password", true, paramMethod.JSON, String.class);
+            password = (String) this.getParam(routingContext, "password", true, paramMethod.JSON, String.class);
         } catch (ParameterException e) {
             routingContext.response().setStatusCode(400).end(gson.toJson(e));
             return;
@@ -145,14 +142,14 @@ public class AuthController extends Controller {
             return;
         }
 
-        if(!AuthenticationService.isAcceptablePassword(password)){
+        if(!AuthenticationService.isAcceptablePassword(newPassword)){
             routingContext.response().setStatusCode(400).end(
                     gson.toJson(
                             new RegisterException(compa.exception.RegisterException.PASSWORD_TOO_SHORT)));
             return;
         }
 
-        String encryptedNewPassword = AuthenticationService.encrypt(password, me.getSalt());
+        String encryptedNewPassword = AuthenticationService.encrypt(newPassword, me.getSalt());
 
         userDAO.updatePassword(me, encryptedNewPassword, res -> {
             User u = res.result();

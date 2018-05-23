@@ -1,5 +1,8 @@
 package compa.app;
 
+import com.google.gson.JsonElement;
+import compa.dtos.UserDTO;
+
 public abstract class Service {
 
     protected Container container;
