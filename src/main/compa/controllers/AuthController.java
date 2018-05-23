@@ -80,9 +80,11 @@ public class AuthController extends Controller {
     private void register(RoutingContext routingContext){
         String  login = null;
         String password = null;
+        String name = null;
         try {
             login = (String) this.getParam(routingContext, "login", true, paramMethod.JSON, String.class);
             password = (String) this.getParam(routingContext, "password", true, paramMethod.JSON, String.class);
+            name = (String) this.getParam(routingContext, "name", true, paramMethod.JSON, String.class);
         } catch (ParameterException e) {
             routingContext.response().setStatusCode(400).end(gson.toJson(e));
             return;
@@ -98,7 +100,7 @@ public class AuthController extends Controller {
         String salt = AuthenticationService.getSalt();
         String encryptedPassword = AuthenticationService.encrypt(password, salt);
 
-        userDAO.addUser(login, encryptedPassword, salt, res -> {
+        userDAO.addUser(login, name, encryptedPassword, salt, res -> {
             if(res.failed()){
                 // TODO: log
                 System.out.println("fail");

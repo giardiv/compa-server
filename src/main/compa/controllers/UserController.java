@@ -15,7 +15,7 @@ public class UserController extends Controller {
 
     public UserController(Container container){
         super(PREFIX, container);
-        this.registerAuthRoute(HttpMethod.PUT, "/", this::getProfile, "application/json");
+        this.registerAuthRoute(HttpMethod.GET, "/", this::getProfile, "application/json");
 
         userDAO = (UserDAO) container.getDAO(User.class);
     }

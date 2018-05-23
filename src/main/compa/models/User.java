@@ -14,6 +14,7 @@ import java.util.List;
         @Index(value = "login", fields = @Field("login"), unique = true),
 })
 public class User {
+    private final static int TOKEN_COUNT = 16;
 
     @Id
     public ObjectId id;
@@ -29,12 +30,13 @@ public class User {
     public User(){
     }
 
-    public User(String login, String password, String salt){
+    public User(String login, String name, String password, String salt){
         this.login = login;
         this.password = password;
         this.locations = new ArrayList<>();
         this.friendships = new ArrayList<>();
         this.salt = salt;
+        this.name = name;
         this.setToken();
     }
 
@@ -47,7 +49,7 @@ public class User {
     }
 
     public void setToken(){
-        this.token = RandomStringUtils.randomAscii(16);
+        this.token = RandomStringUtils.randomAscii(TOKEN_COUNT);
     }
 
     public String getLogin() {
