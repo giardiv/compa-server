@@ -43,6 +43,7 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
             if(status!=null){
                 query.or(query.criteria("status").equal(status));
             }
+
             List<Friendship> friendships = this.find(query).asList();
             logger.log(Level.INFO, "Found {0} friends", friendships.size());
             future.complete(friendships);
