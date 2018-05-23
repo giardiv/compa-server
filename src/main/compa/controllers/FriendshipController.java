@@ -44,10 +44,11 @@ public class FriendshipController extends Controller {
     private void requestFriendship(User me, RoutingContext routingContext) {
         GsonService gson = (GsonService) this.get(GsonService.class);
 
-        if(!this.checkParams(routingContext, "friend_id")){
-            routingContext.response().end("missing parameter"); //TODO FORMAT
-            return;
-        }
+        // TODO: to convert
+        //if(!this.checkParams(routingContext, "friend_id")){
+        //    routingContext.response().end("missing parameter"); //TODO FORMAT
+        //    return;
+        //}
 
         userDAO.findById(routingContext.request().getParam("friend_id"), res1 -> {
 
@@ -87,10 +88,11 @@ public class FriendshipController extends Controller {
 
         GsonService gson = (GsonService) this.get(GsonService.class);
 
-        if(!this.checkParams(routingContext, "user_id")) {
-            routingContext.response().end("missing param"); //TODO FORMAT
-            return;
-        }
+        // TODO: to convert
+        //if(!this.checkParams(routingContext, "user_id")) {
+       //     routingContext.response().end("missing param"); //TODO FORMAT
+        //    return;
+        //}
 
         userDAO.findById(routingContext.request().getParam("user_id"), res -> {
             User other = res.result();
@@ -135,7 +137,6 @@ public class FriendshipController extends Controller {
      * @apiParam {String} user_id : id of user whose friend list is request
      */
     private void getFriendshipsDTOuser(User me, RoutingContext routingContext){
-        System.out.println("In getFriendshipsDTOuser");
         GsonService gson = (GsonService) this.get(GsonService.class);
         String status = null;
 
@@ -157,7 +158,6 @@ public class FriendshipController extends Controller {
                     return;
                 });
             }
-
         });
 
     }

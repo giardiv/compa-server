@@ -2,6 +2,7 @@ package compa.daos;
 
 import compa.app.MongoUtil;
 import compa.dtos.UserDTO;
+import compa.services.AuthenticationService;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import compa.app.Container;
@@ -15,8 +16,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class UserDAO extends DAO<User, ObjectId> {
-
-    public static final int PASSWORD_MIN_LENGTH = 8;
     private Logger logger = Logger.getLogger("user_dao");
 
     public UserDAO(Container container){
@@ -25,27 +24,34 @@ public class UserDAO extends DAO<User, ObjectId> {
 
     public void getByLoginAndPassword(String login, String password, Handler<AsyncResult<User>> resultHandler){
         vertx.executeBlocking( future -> {
-            future.complete(this.createQuery().filter("login", login).filter("password", password).get());
+            User u = this.createQuery().filter("login", login).get();
+            if(u == null){
+                future.complete(null);
+                return;
+            }
+            String encPassword = AuthenticationService.encrypt(password, u.getSalt());
+            if(u.isPassword(encPassword)) {
+                future.complete(u);
+            } else {
+                future.complete(null);
+            }
         }, resultHandler);
     }
 
-    public void addUser(String login, String password, Handler<AsyncResult<User>> resultHandler) {
-
+    public void addUser(String login, String password, String salt, Handler<AsyncResult<User>> resultHandler) {
         vertx.executeBlocking( future -> {
             User user = this.createQuery().filter("login", login).get();
 
-            if(password.length() < PASSWORD_MIN_LENGTH)
-                future.fail(new RegisterException(RegisterException.PASSWORD_TOO_SHORT));
-
-            if(user != null)
+            if(user != null) {
                 future.fail(new RegisterException(RegisterException.USER_ALREADY_EXIST));
+                return;
+            }
 
-            user = new User(login, password);
+            user = new User(login, password, salt);
             this.save(user);
             future.complete(user);
 
         }, resultHandler);
-
     }
 
     public void findOne(String key, Object value, Handler<AsyncResult<User>> resultHandler){
@@ -71,24 +77,14 @@ public class UserDAO extends DAO<User, ObjectId> {
 
     }
 
-    public void updatePassword(User user, String newPassword, Handler<AsyncResult<User>> resultHandler ){
+    public void updatePassword(User user, String newEncryptedPassword, Handler<AsyncResult<User>> resultHandler ){
 
         vertx.executeBlocking( future -> {
-            UpdateOperations<User> update = this.createUpdateOperations().set("password", newPassword);
+            UpdateOperations<User> update = this.createUpdateOperations().set("password", newEncryptedPassword);
+            user.setToken();
             this.getDatastore().update(user, update);
             future.complete(user);
         }, resultHandler);
 
     }
-
-//    public UserDTO createDTO(User u){
-//        UserDTO uDTO = new UserDTO();
-//
-//        // Recopie des attributs "simples"
-//        uDTO.setId(u.getId());
-//        uDTO.setLogin(u.getLogin());
-//        uDTO.setPass(u.getPass());
-//        uDTO.setEmail(u.getEmail());
-//    }
-
 }

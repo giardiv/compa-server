@@ -6,7 +6,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 public class Authenticator {
-    public String encrypt(String rawPassword)  {
+    public String encrypt(String rawPassword) {
         try {
             MessageDigest md = MessageDigest.getInstance("md5");
             byte[] passBytes = rawPassword.getBytes();
