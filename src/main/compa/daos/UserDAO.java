@@ -12,8 +12,10 @@ import compa.app.DAO;
 import org.bson.types.ObjectId;
 import org.mongodb.morphia.query.UpdateOperations;
 
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public class UserDAO extends DAO<User, ObjectId> {
     private Logger logger = Logger.getLogger("user_dao");
@@ -81,10 +83,19 @@ public class UserDAO extends DAO<User, ObjectId> {
 
         vertx.executeBlocking( future -> {
             UpdateOperations<User> update = this.createUpdateOperations().set("password", newEncryptedPassword);
-            user.setToken();
             this.getDatastore().update(user, update);
+            user.setToken();
+            this.save(user);
             future.complete(user);
         }, resultHandler);
 
+    }
+
+    public UserDTO toDTO(User me){
+        return new UserDTO(me);
+    }
+
+    public List<UserDTO> toDTO(List<User> users){
+        return users.stream().map(UserDTO::new).collect(Collectors.toList());
     }
 }
