@@ -15,11 +15,13 @@ public class UserController extends Controller {
 
     public UserController(Container container){
         super(PREFIX, container);
-        this.registerAuthRoute(HttpMethod.PUT, "/:id", this::getProfile, "application/json");
+        this.registerAuthRoute(HttpMethod.GET, "/", this::getProfile, "application/json");
+
+        userDAO = (UserDAO) container.getDAO(User.class);
     }
 
     public void getProfile(User me, RoutingContext routingContext){
-        JsonElement tempEl = gson.toJsonTree(userDAO.toDTO(me));
+        JsonElement tempEl = this.gson.toJsonTree(userDAO.toDTO(me));
         //to do add friendships
         routingContext.response().end(gson.toJson(tempEl));
     }

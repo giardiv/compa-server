@@ -43,7 +43,7 @@ public class FakeDataGenerator {
         for(int i = 0; i < userNb; ++i){
             String salt = AuthenticationService.getSalt();
             String encPassword = AuthenticationService.encrypt("password" + i, salt);
-            User u = new User("user" + i, encPassword, salt.toString());
+            User u = new User("user" + i, "Name "+ i, encPassword, salt.toString());
             for(int j = 0; j < locationsPerUser; ++j){
 
                 LocalDateTime date = LocalDateTime.now().minus(offset, ChronoUnit.SECONDS);
