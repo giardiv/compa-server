@@ -18,7 +18,7 @@ public class User {
     @Id
     public ObjectId id;
 
-    private String login, password, token, name;
+    private String login, password, token, name, salt;
 
     @Reference
     private List<Friendship> friendships;
@@ -29,11 +29,12 @@ public class User {
     public User(){
     }
 
-    public User(String login, String password){
+    public User(String login, String password, String salt){
         this.login = login;
         this.password = password;
         this.locations = new ArrayList<>();
         this.friendships = new ArrayList<>();
+        this.salt = salt;
         this.setToken();
     }
 
@@ -71,6 +72,12 @@ public class User {
 
     public ObjectId getId() {
         return id;
+    }
+
+    public String getSalt() { return salt; }
+
+    public boolean isPassword(String password) {
+        return this.password.equals(password);
     }
 
     @Override

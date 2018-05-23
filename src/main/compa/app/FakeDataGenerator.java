@@ -4,6 +4,7 @@ import compa.Main;
 import compa.models.Friendship;
 import compa.models.Location;
 import compa.models.User;
+import compa.services.AuthenticationService;
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.query.UpdateOperations;
 
@@ -40,7 +41,9 @@ public class FakeDataGenerator {
         int locationsPerUser = 5;
 
         for(int i = 0; i < userNb; ++i){
-            User u = new User("user" + i, "password" + i);
+            String salt = AuthenticationService.getSalt();
+            String encPassword = AuthenticationService.encrypt("password" + i, salt);
+            User u = new User("user" + i, encPassword, salt.toString());
             for(int j = 0; j < locationsPerUser; ++j){
 
                 LocalDateTime date = LocalDateTime.now().minus(offset, ChronoUnit.SECONDS);
