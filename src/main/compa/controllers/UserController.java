@@ -23,6 +23,7 @@ public class UserController extends Controller {
         super(PREFIX, container);
         this.registerAuthRoute(HttpMethod.GET, "/:id", this::getProfile, "application/json");
         this.registerAuthRoute(HttpMethod.GET, "", this::getCurrentProfile, "application/json");
+        this.registerAuthRoute(HttpMethod.PUT, "", this::updateProfile, "application/json");
         this.registerAuthRoute(HttpMethod.PUT, "/ghostmode", this::setGhostMode, "application/json");
 
         userDAO = (UserDAO) container.getDAO(User.class);
@@ -94,5 +95,9 @@ public class UserController extends Controller {
         userDAO.setGhostMode(me, mode, res -> {
             routingContext.response().end();
         });
+    }
+
+    public void updateProfile(User me, RoutingContext routingContext){
+        // TODO
     }
 }
