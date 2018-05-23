@@ -1,6 +1,7 @@
 package compa.daos;
 
 import compa.app.MongoUtil;
+import compa.dtos.UserDTO;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import compa.app.Container;
@@ -80,5 +81,14 @@ public class UserDAO extends DAO<User, ObjectId> {
 
     }
 
+//    public UserDTO createDTO(User u){
+//        UserDTO uDTO = new UserDTO();
+//
+//        // Recopie des attributs "simples"
+//        uDTO.setId(u.getId());
+//        uDTO.setLogin(u.getLogin());
+//        uDTO.setPass(u.getPass());
+//        uDTO.setEmail(u.getEmail());
+//    }
 
 }

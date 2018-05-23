@@ -4,6 +4,8 @@ import com.google.gson.annotations.Expose;
 import org.bson.types.ObjectId;
 import org.mongodb.morphia.annotations.*;
 
+import java.util.Date;
+
 @Entity(value = "friendship", noClassnameStored = true)
 @Indexes({
        // @Index(value = "login", fields = @Field("login"), unique = true),
@@ -15,8 +17,11 @@ public class Friendship {
         PENDING,
         ACCEPTED,
         REUSED,
-        BLOCKED
+        BLOCKED,
+        BLOCKED_Asked,
+        BLOCKED_Asker
     };
+
 
     @Id
     private ObjectId id;
@@ -24,18 +29,25 @@ public class Friendship {
     private Status status;
 
     @Reference
-    private User friendLeft;
+    private User userAsker;
 
     @Expose
     @Reference
-    private User friendRight;
+    private User userAsked ;
+
+    private Date datetime;
+
 
     public Friendship(){}
-
     public Friendship(User a, User b){
+        this(a, b, null);
+    }
+
+    public Friendship(User a, User b, Date date){
         this.status = Status.PENDING;
-        this.friendLeft = a;
-        this.friendRight = b;
+        this.userAsker = a;
+        this.userAsked  = b;
+        this.datetime = date;
     }
 
     public void setStatus(Status s){
@@ -50,11 +62,15 @@ public class Friendship {
         return this.status;
     }
 
-    public User getFriendLeft() {
-        return friendLeft;
+    public User getUserAsker() {
+        return userAsker;
     }
 
-    public User getFriendRight() {
-        return friendRight;
+    public User getUserAsked () {
+        return userAsked ;
     }
+
+    public ObjectId getId() {return id;}
+
+    public void setId(ObjectId id) {this.id = id;}
 }

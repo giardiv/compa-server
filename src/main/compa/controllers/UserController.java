@@ -1,8 +1,11 @@
 package compa.controllers;
 
 import com.google.gson.Gson;
+import compa.dtos.UserDTO;
+import compa.models.Friendship;
 import compa.services.CipherSecurity;
 import io.vertx.core.http.HttpMethod;
+import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 
 import compa.app.*;
@@ -10,6 +13,8 @@ import compa.models.User;
 import compa.daos.UserDAO;
 
 import compa.services.GsonService;
+
+import java.util.List;
 
 
 public class UserController extends Controller {
@@ -88,7 +93,14 @@ public class UserController extends Controller {
 
     }
 
-
+    /**
+     * @api {post} /user/updatePassword Update password
+     * @apiName Register
+     * @apiGroup User
+     *
+     * @apiparam me
+     * @apiparam routingContext
+     */
     private void updatePassword(User me, RoutingContext routingContext) {
 
         CipherSecurity cipherUtil = (CipherSecurity) this.get(CipherSecurity.class);
@@ -107,5 +119,7 @@ public class UserController extends Controller {
         });
 
     }
+
+
 
 }

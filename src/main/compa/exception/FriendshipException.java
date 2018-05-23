@@ -10,6 +10,8 @@ public class FriendshipException extends Exception {
      */
     public static final Pair<Integer, String> FRIEND_ALREADY_EXIST = new Pair<>(2001, "You're already friends, go outside");
 
+    public static final Pair<Integer, String> FRIEND_NOT_EXIST = new Pair<>(2001, "You're already friends, go outside");
+
     public FriendshipException(Pair<Integer, String> message) {
         super(message);
     }

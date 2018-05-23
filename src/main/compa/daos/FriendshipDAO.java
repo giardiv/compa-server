@@ -1,5 +1,6 @@
 package compa.daos;
 
+import compa.dtos.FriendshipDTO;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import compa.app.Container;
@@ -23,16 +24,25 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
         super(Friendship.class, container);
     }
 
-    public void getFriendshipsByUser(User user, Handler<AsyncResult<List<Friendship>>> resultHandler){
+    /**
+     *
+     * @param status
+     * @param user
+     * @param resultHandler
+     */
+    public void getFriendshipsByUser(String status, User user, Handler<AsyncResult<List<Friendship>>> resultHandler){
 
         vertx.executeBlocking( future -> {
 
             logger.log(Level.INFO, "Looking for {0}'s friends", user.getLogin());
             Query<Friendship> query = this.createQuery();
             query.or(
-                    query.criteria("friendLeft").equal(user),
-                    query.criteria("friendRight").equal(user)
+                    query.criteria("userAsker").equal(user),
+                    query.criteria("userAsked").equal(user)
             );
+            if(status!=null){
+                query.or(query.criteria("status").equal(status));
+            }
             List<Friendship> friendships = this.find(query).asList();
             logger.log(Level.INFO, "Found {0} friends", friendships.size());
             future.complete(friendships);
@@ -49,8 +59,8 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
             Query<Friendship> query = this.createQuery();
             query.and(
                     query.or(
-                            query.criteria("friendLeft").equal(me),
-                            query.criteria("friendRight").equal(me)
+                            query.criteria("userAsker").equal(me),
+                            query.criteria("userAsked").equal(me)
                     ),
                     query.criteria("status").equal(Friendship.Status.PENDING)
             );
@@ -103,30 +113,45 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
             logger.log(Level.INFO, "Looking for friendship between {0} and {1}",
                     new Object[]{a.getLogin(), b.getLogin()});
 
-            Friendship friendshipA =  this.createQuery().filter("friendLeft", a).filter("friendRight", b).get();
-            Friendship friendshipB =  this.createQuery().filter("friendLeft", b).filter("friendRight", a).get();
+            Friendship friendshipA =  this.createQuery().filter("userAsker", a).filter("userAsked", b).get();
+            Friendship friendshipB =  this.createQuery().filter("userAsker", b).filter("userAsked", a).get();
 
             Friendship friendship = friendshipA == null ? friendshipB : friendshipA;
 
             logger.log(Level.INFO, "{0} and {1}'s friendship {3} found",
-                    new Object[]{a.getLogin(), b.getLogin(), friendship == null ? "not" : ""}); //mdr
+                    new Object[]{a.getLogin(), b.getLogin(), friendship == null ? "not" : ""}); //mdr ?
 
             future.complete(friendship);
         }, resultHandler);
 
     }
 
+
     public UserDTO toDTO(Friendship friendship, User me){
-        return friendship.getFriendLeft().equals(me)
-                ? new UserDTO(friendship.getFriendRight())
-                : new UserDTO(friendship.getFriendLeft());
+        return friendship.getUserAsker().equals(me)
+                ? new UserDTO(friendship.getUserAsked())
+                : new UserDTO(friendship.getUserAsker());
     }
 
     public List<UserDTO> toDTO(List<Friendship> friendships, User me){
         return friendships.stream().map(x ->
-                    x.getFriendLeft().equals(me)
-                    ? new UserDTO(x.getFriendRight())
-                    : new UserDTO(x.getFriendLeft()))
+                    x.getUserAsker().equals(me)
+                    ? new UserDTO(x.getUserAsked())
+                    : new UserDTO(x.getUserAsker()))
+                .collect(Collectors.toList());
+    }
+
+    public FriendshipDTO toFriendshipDTO(Friendship friendship, User me){
+        return friendship.getUserAsker().equals(me)
+                ? new FriendshipDTO(friendship, friendship.getUserAsked())
+                : new FriendshipDTO(friendship, friendship.getUserAsker());
+    }
+
+    public List<FriendshipDTO> toFriendshipDTO(List<Friendship> friendships, User me){
+        return friendships.stream().map(x ->
+                x.getUserAsker().equals(me)
+                        ? new FriendshipDTO(x,x.getUserAsked())
+                        : new FriendshipDTO(x,x.getUserAsker()))
                 .collect(Collectors.toList());
     }
 }

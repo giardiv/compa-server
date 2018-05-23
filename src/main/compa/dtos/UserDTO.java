@@ -18,5 +18,4 @@ public class UserDTO {
         Location loc = locs.size() > 0 ? locs.get(locs.size() - 1) : null;
         this.lastLocation = loc == null ? null : new LocationDTO(loc);
     }
-
 }

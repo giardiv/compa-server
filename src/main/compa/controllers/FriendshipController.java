@@ -1,5 +1,6 @@
 package compa.controllers;
 
+import compa.dtos.FriendshipDTO;
 import io.vertx.core.json.JsonArray;
 import compa.app.Container;
 import compa.daos.FriendshipDAO;
@@ -26,10 +27,9 @@ public class FriendshipController extends Controller {
     public FriendshipController(Container container) {
         super(PREFIX, container);
         this.registerAuthRoute(HttpMethod.POST, "/request", this::requestFriendship, "application/json");
-        this.registerAuthRoute(HttpMethod.POST, "/change", this::editFriendship, "application/json"); //PUT?
         this.registerAuthRoute(HttpMethod.GET, "/friend_list", this::getFriends, "application/json");
         this.registerAuthRoute(HttpMethod.GET, "/pending", this::getPendingFriendships, "application/json");
-
+        this.registerAuthRoute(HttpMethod.GET, "/friendshipsDTO", this::getFriendshipsDTOuser, "application/json"); //PUT?
         friendshipDAO = (FriendshipDAO) container.getDAO(Friendship.class);
         userDAO = (UserDAO) container.getDAO(User.class);
     }
@@ -78,6 +78,7 @@ public class FriendshipController extends Controller {
 
     /**
      * @api {get} /friends Get the friends of the user
+     *
      * @apiName GetFriendship
      * @apiGroup Friendship
      * @apiParam {String} user_id : id of user whose friend list is request
@@ -97,17 +98,23 @@ public class FriendshipController extends Controller {
                 routingContext.response().end("can't find user whose friend list is requested"); //TODO FORMAT
                 return;
             }
-
+            if(me.getId().equals(other.getId())){
+                friendshipDAO.getFriendshipsByUser(null,me,res1-> {
+                    List<Friendship> friendships = res1.result();
+                    List<UserDTO> friends = friendshipDAO.toDTO(friendships, other);
+                    routingContext.response().end(gson.toJson(friends));
+                    return;
+                });
+            }
             friendshipDAO.getFriendshipByFriends(me, other, res2 -> {
                 Friendship friendship = res2.result();
 
-                if(friendship == null || friendship.getStatus() != Friendship.Status.ACCEPTED){
+                if(friendship == null || friendship.getStatus() != Friendship.Status.ACCEPTED ){
                     routingContext.response().end("can't see this user's friends : you aren't friends"); //TODO FORMAT
                     return;
                 }
                 else {
-
-                    friendshipDAO.getFriendshipsByUser(other, res3 -> {
+                    friendshipDAO.getFriendshipsByUser(null,other, res3 -> {
                         List<Friendship> friendships = res3.result();
                         List<UserDTO> friends = friendshipDAO.toDTO(friendships, other);
                         routingContext.response().end(gson.toJson(friends));
@@ -120,14 +127,38 @@ public class FriendshipController extends Controller {
 
     }
 
-    private void editFriendship(User me, RoutingContext routingContext){
+    /**
+     * @api {get} /friendship/friendshipsDTO get friendship list
+     * @apiName GetFriendshipsDTOuser
+     * @apiGroup Friendship
+     *
+     * @apiParam {String} user_id : id of user whose friend list is request
+     */
+    private void getFriendshipsDTOuser(User me, RoutingContext routingContext){
+        System.out.println("In getFriendshipsDTOuser");
         GsonService gson = (GsonService) this.get(GsonService.class);
+        String status = null;
 
-        if(!this.checkParams(routingContext, "friendship_id", "status")){
+        if(!this.checkParams(routingContext, "user_id")){
             routingContext.response().end("missing parameter"); //TODO FORMAT
             return;
         }
+        userDAO.findById(routingContext.request().getParam("user_id"), res -> {
+            User other = res.result();
+            if (other == null) {
+                routingContext.response().end("can't find user whose friendships list is requested"); //TODO FORMAT
+                return;
+            }
+            if(me.getId().equals(other.getId())){
+                friendshipDAO.getFriendshipsByUser(status,me,res1-> {
+                    List<Friendship> friendships = res1.result();
+                    List<FriendshipDTO> friendshipsDTO = friendshipDAO.toFriendshipDTO(friendships, other);
+                    routingContext.response().end(gson.toJson(friendshipsDTO));
+                    return;
+                });
+            }
 
+        });
 
     }
 

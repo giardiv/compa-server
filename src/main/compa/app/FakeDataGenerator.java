@@ -68,8 +68,9 @@ public class FakeDataGenerator {
             int min = i+1;
             int max = userNb - 1;
             int friendId = r.nextInt((max - min) + 1) + min;
+            LocalDateTime date = LocalDateTime.now().minus(offset, ChronoUnit.SECONDS);
             User other = users.get(friendId);
-            Friendship f = new Friendship(me, other);
+            Friendship f = new Friendship(me, other, java.sql.Timestamp.valueOf(date));
             me.addFriendship(f);
             other.addFriendship(f);
             datastore.save(f);
