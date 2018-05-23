@@ -27,6 +27,8 @@ public class User {
     @Reference
     private List<Location> locations;
 
+    private boolean ghostMode;
+
     public User(){
     }
 
@@ -37,6 +39,7 @@ public class User {
         this.friendships = new ArrayList<>();
         this.salt = salt;
         this.name = name;
+        this.ghostMode = false;
         this.setToken();
     }
 
@@ -77,6 +80,8 @@ public class User {
     }
 
     public String getSalt() { return salt; }
+
+    public boolean getGhostMode() { return ghostMode; }
 
     public boolean isPassword(String password) {
         return this.password.equals(password);

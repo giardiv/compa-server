@@ -28,7 +28,7 @@ public class AuthController extends Controller {
     /**
      * @api {post} /login Get token from user / password
      * @apiName Login
-     * @apiGroup User
+     * @apiGroup Auth
      *
      * @apiParam {String} login      User's email
      * @apiParam {String} password   Users's raw password
@@ -67,7 +67,7 @@ public class AuthController extends Controller {
     /**
      * @api {post} /register Register a new user
      * @apiName Register
-     * @apiGroup User
+     * @apiGroup Auth
      *
      * @apiParam {String} login      User's email
      * @apiParam {String} password   Users's raw password
@@ -120,7 +120,7 @@ public class AuthController extends Controller {
     /**
      * @api {post} /updatePassword Update the password
      * @apiName Update Password
-     * @apiGroup User
+     * @apiGroup Auth
      *
      * @apiParam {String} password   Users's raw password
      *
