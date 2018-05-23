@@ -17,7 +17,7 @@ public class RegisterException extends Exception
      */
     public static final Pair<Integer, String> PASSWORD_TOO_SHORT = new Pair<>(1002, "I'm sure you can do better, gimme a real password");
 
-    public RegisterException(Pair<Integer, String> message) {
-        super(message);
+    public RegisterException(Pair<Integer, String> message, String... values) {
+        super(message, values);
     }
 }

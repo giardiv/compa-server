@@ -91,6 +91,16 @@ public class UserDAO extends DAO<User, ObjectId> {
 
     }
 
+    public void setGhostMode(User user, boolean mode, Handler<AsyncResult<User>> resultHandler ){
+
+        vertx.executeBlocking( future -> {
+            UpdateOperations<User> update = this.createUpdateOperations().set("ghostMode", mode);
+            this.getDatastore().update(user, update);
+            future.complete();
+        }, resultHandler);
+
+    }
+
     public UserDTO toDTO(User me){
         return new UserDTO(me);
     }

@@ -37,7 +37,7 @@ public abstract class Controller {
 
                 if(res.failed()){
                     GsonService gson = (GsonService) this.get(GsonService.class);
-                    context.response().end(gson.toJson(res.cause()));
+                    context.response().setStatusCode(401).end(gson.toJson(res.cause()));
                 } else {
                     handler.handle(res.result(), context);
                 }
@@ -67,7 +67,11 @@ public abstract class Controller {
 
     protected Object getParam(RoutingContext context, String mandatoryParam, boolean required, paramMethod method, Class type) throws ParameterException {
         if(required) {
-            Object value = context.getBodyAsJson().getValue(mandatoryParam);
+            Object value = null;
+            if(method == paramMethod.JSON)
+                value = context.getBodyAsJson().getValue(mandatoryParam);
+            else
+                value = context.request().getParam(mandatoryParam);
             if(value == null){
                 throw new ParameterException(ParameterException.PARAM_REQUIRED, mandatoryParam, method.toString());
             }
@@ -76,6 +80,8 @@ public abstract class Controller {
                     value = Integer.parseInt((String) value);
                 } else if (type == String.class) {
                     value = (String) value;
+                } else if (type == Boolean.class){
+                    value = (boolean) value;
                 } else {
                     System.err.println("Unaccepted class : " + type.toString());
                 }
