@@ -29,11 +29,12 @@ public class User {
     public User(){
     }
 
-    public User(String login, String password){
+    public User(String login, String password, String salt){
         this.login = login;
         this.password = password;
         this.locations = new ArrayList<>();
         this.friendships = new ArrayList<>();
+        this.salt = salt;
         this.setToken();
     }
 
@@ -76,7 +77,7 @@ public class User {
     public String getSalt() { return salt; }
 
     public boolean isPassword(String password) {
-        return this.password == password;
+        return this.password.equals(password);
     }
 
     @Override

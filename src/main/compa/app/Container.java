@@ -41,8 +41,8 @@ public class Container {
         mongoUtil = new MongoUtil(cf.getModelDirectory());
 
         daos = cf.getDAOs(this);
-        controllers = cf.getControllers(this);
         services = cf.getServices(this);
+        controllers = cf.getControllers(this);
 
         server.requestHandler(router::accept);
 

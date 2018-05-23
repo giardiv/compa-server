@@ -14,7 +14,7 @@ public class LoginException extends Exception {
      * @apiDefine IncorrectToken
      * @apiError IncorrectToken Incorrect token
      */
-    public static final Pair<Integer, String> INCORRECT_TOKEN = new Pair<>(3002, "WRONG !!");
+    public static final Pair<Integer, String> INCORRECT_TOKEN = new Pair<>(3002, "WRONG TOKEN !");
 
     public LoginException(Pair<Integer, String> message, String... values) {
         super(message, values);

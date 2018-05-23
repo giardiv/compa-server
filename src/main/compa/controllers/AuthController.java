@@ -3,6 +3,7 @@ package compa.controllers;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import compa.exception.LoginException;
+import compa.exception.RegisterException;
 import compa.services.AuthenticationService;
 import compa.helpers.CipherSecurity;
 import compa.exception.ParameterException;
@@ -31,7 +32,7 @@ public class AuthController extends Controller {
     }
 
     /**
-     * @api {post} /user/login Get token from user / password
+     * @api {post} /login Get token from user / password
      * @apiName Login
      * @apiGroup User
      *
@@ -39,11 +40,10 @@ public class AuthController extends Controller {
      * @apiParam {String} password   Users's raw password
      *
      * @apiUse IncorrectCredentials
+     *
+     * @apiSuccess {String} Token    Token is returned
      */
-    // Return 200 ; 418
     private void login(RoutingContext routingContext){
-        GsonService gson = (GsonService) this.get(GsonService.class);
-
         String login = null;
         String password = null;
         try {
@@ -55,26 +55,22 @@ public class AuthController extends Controller {
         }
 
         userDAO.getByLoginAndPassword(login, password, res -> {
-            // TODO: first check if user exist
             User u = res.result();
-            JsonObject content = new JsonObject();
             if(u != null){
                 u.setToken();
                 routingContext.response().end(
-                        new Gson().toJson(
+                        gson.toJson(
                                 AuthenticationService.getJsonFromToken(u.getToken())));
-            }
-            else{
-                content.addProperty("error", "invalid");
+            } else {
                 routingContext.response().setStatusCode(400).end(
-                        new Gson().toJson(
+                        gson.toJson(
                                 new LoginException(LoginException.INCORRECT_CREDENTIALS)));
             }
         });
     }
 
     /**
-     * @api {post} /user/register Register a new user
+     * @api {post} /register Register a new user
      * @apiName Register
      * @apiGroup User
      *
@@ -87,9 +83,6 @@ public class AuthController extends Controller {
      * @apiSuccess {String} Token    Token is returned
      */
     private void register(RoutingContext routingContext){
-        AuthenticationService AS = (AuthenticationService) this.get(AuthenticationService.class);
-        GsonService gson = (GsonService) this.get(GsonService.class);
-
         String  login = null;
         String password = null;
         try {
@@ -100,12 +93,17 @@ public class AuthController extends Controller {
             return;
         }
 
-        // TODO
-        byte[] salt = AuthenticationService.getSalt();
-        String encryptedPassword = AuthenticationService.encrypt(password, salt);
-        System.out.println(encryptedPassword);
+        if(!AuthenticationService.isAcceptablePassword(password)){
+            routingContext.response().setStatusCode(400).end(
+                    gson.toJson(
+                            new RegisterException(compa.exception.RegisterException.PASSWORD_TOO_SHORT)));
+            return;
+        }
 
-        userDAO.addUser(login, password, salt.toString(), res -> {
+        String salt = AuthenticationService.getSalt();
+        String encryptedPassword = AuthenticationService.encrypt(password, salt);
+
+        userDAO.addUser(login, encryptedPassword, salt, res -> {
             if(res.failed()){
                 // TODO: log
                 System.out.println("fail");
@@ -114,28 +112,51 @@ public class AuthController extends Controller {
             } else {
                 // TODO: log
                 System.out.println("ok");
+                // TODO: send mail ?
                 User user = res.result();
-                routingContext.response().end(gson.toJson(AS.getJsonFromToken(user.getToken())));
+                routingContext.response().end(gson.toJson(AuthenticationService.getJsonFromToken(user.getToken())));
                 return;
             }
         });
     }
 
+    /**
+     * @api {post} /updatePassword Update the password
+     * @apiName Update Password
+     * @apiGroup User
+     *
+     * @apiParam {String} password   Users's raw password
+     *
+     * @apiUse PasswordTooShort
+     *
+     * @apiSuccess {String} Token    A new token is returned
+     */
     private void updatePassword(User me, RoutingContext routingContext) {
-
-        //CipherSecurity cipherUtil = (CipherSecurity) this.get(CipherSecurity.class);
-
-        if(!this.checkParams(routingContext, "new_password")){ //TODO ADD ADDITIONAL CHECK: USER NEEDS TO GIVE CURRENT PASSWORD
-            routingContext.response().end("missing param"); //TODO FORMAT
+        String password = null;
+        try {
+            password = (String) this.getParam(routingContext, "new_password", true, paramMethod.JSON, String.class);
+        } catch (ParameterException e) {
+            routingContext.response().setStatusCode(400).end(gson.toJson(e));
             return;
         }
 
-        String newPassword = routingContext.request().getParam("new_password");
-        String encryptedNewPassword = "";//cipherUtil.encrypt(newPassword);
+        if(!me.isPassword(AuthenticationService.encrypt(password, me.getSalt()))){
+            routingContext.response().setStatusCode(400).end(gson.toJson(new LoginException(LoginException.INCORRECT_CREDENTIALS)));
+            return;
+        }
+
+        if(!AuthenticationService.isAcceptablePassword(password)){
+            routingContext.response().setStatusCode(400).end(
+                    gson.toJson(
+                            new RegisterException(compa.exception.RegisterException.PASSWORD_TOO_SHORT)));
+            return;
+        }
+
+        String encryptedNewPassword = AuthenticationService.encrypt(password, me.getSalt());
 
         userDAO.updatePassword(me, encryptedNewPassword, res -> {
             User u = res.result();
-            routingContext.response().end("updated"); //TODO FORMAT
+            routingContext.response().end(gson.toJson(AuthenticationService.getJsonFromToken(u.getToken()))); //TODO FORMAT
         });
     }
 }

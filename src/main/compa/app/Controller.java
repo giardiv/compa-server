@@ -16,10 +16,12 @@ public abstract class Controller {
 
     private String prefix;
     private Container container;
+    protected GsonService gson;
 
     public Controller(String prefix, Container container){
         this.prefix = prefix;
         this.container = container;
+        this.gson = (GsonService) this.get(GsonService.class);
     }
 
     protected void registerRoute(HttpMethod method, String route, Handler<RoutingContext> handler, String produces){

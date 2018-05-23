@@ -2,7 +2,6 @@ package compa.services;
 
 import com.google.gson.JsonObject;
 import compa.exception.LoginException;
-import compa.helpers.CipherSecurity;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
@@ -11,15 +10,16 @@ import compa.app.Container;
 import compa.app.Service;
 import compa.daos.UserDAO;
 import compa.models.User;
+import org.mindrot.jbcrypt.BCrypt;
 
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import java.math.BigInteger;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
-import java.security.SecureRandom;
 
 public class AuthenticationService extends Service {
+    private final static int SALT_ROUND = 12;
+    public static final int PASSWORD_MIN_LENGTH = 8;
+
     private UserDAO userDAO;
 
     public AuthenticationService(Container container){
@@ -50,46 +50,17 @@ public class AuthenticationService extends Service {
         return content;
     }
 
-    public static String encrypt(String rawPassword, byte[] salt)
+    public static String encrypt(String rawPassword, String salt)
     {
-        int iterations = 1000;
-        char[] chars = rawPassword.toCharArray();
-
-        PBEKeySpec spec = new PBEKeySpec(chars, salt, iterations, 64 * 8);
-        try {
-            SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
-            byte[] hash = skf.generateSecret(spec).getEncoded();
-            return iterations + ":" + toHex(salt) + ":" + toHex(hash);
-        } catch (Exception e) {
-            return null;
-        }
+        return BCrypt.hashpw(rawPassword, salt);
     }
 
-    public static byte[] getSalt()
+    public static String getSalt()
     {
-        try {
-            SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
-            byte[] salt = new byte[16];
-            sr.nextBytes(salt);
-            return salt;
-        }catch (Exception e){
-            return null;
-        }
+        return BCrypt.gensalt(SALT_ROUND);
     }
 
-    private static String toHex(byte[] array)
-    {
-        try {
-            BigInteger bi = new BigInteger(1, array);
-            String hex = bi.toString(16);
-            int paddingLength = (array.length * 2) - hex.length();
-            if (paddingLength > 0) {
-                return String.format("%0" + paddingLength + "d", 0) + hex;
-            } else {
-                return hex;
-            }
-        } catch (Exception e){
-            return null;
-        }
+    public static boolean isAcceptablePassword(String rawPassword){
+        return rawPassword.length() >= PASSWORD_MIN_LENGTH;
     }
 }
