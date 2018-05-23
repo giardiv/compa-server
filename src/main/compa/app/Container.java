@@ -13,7 +13,7 @@ import java.util.Map;
 public class Container {
 
     private final static String SERVER_HOST = "localhost";
-    private final static int SERVER_PORT = 8081;
+    private final static int SERVER_PORT = 8080;
     private Router router;
     private Map<Class, DAO> daos;
     private MongoUtil mongoUtil;
