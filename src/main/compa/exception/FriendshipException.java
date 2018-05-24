@@ -16,18 +16,18 @@ public class FriendshipException extends Exception {
      */
     public static final Pair<Integer, String> FRIEND_NOT_EXIST = new Pair<>(6002, "Can't find your friend");
 
-
+    /**
+     * @apiDefine CanNotBefriendYourself
+     * @apiError CanNotBefriendYourself The friendship is not defined.
+     */
     public static final Pair<Integer, String> BEFRIEND_ME = new Pair<>(6003, "You can't befriend yourself");
-
 
     public static final Pair<Integer, String> FRIEND_NEW = new Pair<>(6004, "You are now friends");
 
 
     public static final Pair<Integer, String> User_NOT_EXIST = new Pair<>(6004, "Can't find user whose friend list is requested");
 
-
     public static final Pair<Integer, String> NOT_FRIEND = new Pair<>(6004, "you aren't friends");
-
 
     public FriendshipException(Pair<Integer, String> message) {
         super(message);
