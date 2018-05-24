@@ -1,15 +1,12 @@
 package compa.app;
 
-import compa.Main;
 import compa.models.Friendship;
-import compa.models.Friendship2;
 import compa.models.Location;
 import compa.models.User;
 import compa.services.AuthenticationService;
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.query.UpdateOperations;
 
-import javax.jws.soap.SOAPBinding;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
