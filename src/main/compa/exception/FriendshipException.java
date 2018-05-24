@@ -28,13 +28,6 @@ public class FriendshipException extends Exception {
 
     public static final Pair<Integer, String> INVALID_STATUS = new Pair<>(6006, "Invalid status requested");
 
-    public static final Pair<Integer, String> FRIEND_NOT_EXIST = new Pair<>(6002, "Can't find your friend");
-
-    public static final Pair<Integer, String> BEFRIEND_ME = new Pair<>(6003, "You can't befriend yourself");
-
-    public static final Pair<Integer, String> User_NOT_EXIST = new Pair<>(6004, "Can't find user whose friend list is requested");
-
-
     public FriendshipException(Pair<Integer, String> message) {
         super(message);
     }

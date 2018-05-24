@@ -25,8 +25,7 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
     }
 
     public void addFriendship(User friend,User me, Handler<AsyncResult<Friendship>> resultHandler) {
-
-        vertx.executeBlocking( future -> {
+     vertx.executeBlocking( future -> {
             logger.log(Level.INFO, "Adding a friendship between {0} and {1}",new Object[]{me.getLogin(), friend.getLogin()});
 
             Friendship fs_me = new Friendship(me);

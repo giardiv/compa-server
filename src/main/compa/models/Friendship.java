@@ -15,8 +15,10 @@ public class Friendship {
     public enum Status {
         PENDING,
         ACCEPTED,
-        REUSED,
-        BLOCKED
+        REFUSED,
+        BLOCKED,
+        BLOCKER,
+        AWAITING
     };
 
     @Id
