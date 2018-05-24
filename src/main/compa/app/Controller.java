@@ -1,11 +1,9 @@
 package compa.app;
 
-import com.google.gson.JsonObject;
 import compa.exception.ParameterException;
 import io.vertx.core.Handler;
 import io.vertx.core.http.HttpMethod;
 
-import io.vertx.core.json.JsonArray;
 import io.vertx.ext.web.RoutingContext;
 import compa.models.User;
 import compa.services.AuthenticationService;
@@ -36,7 +34,6 @@ public abstract class Controller {
             ((AuthenticationService) this.get(AuthenticationService.class)).checkAuth(context.request(), res -> {
 
                 if(res.failed()){
-                    GsonService gson = (GsonService) this.get(GsonService.class);
                     context.response().setStatusCode(401).end(gson.toJson(res.cause()));
                 } else {
                     handler.handle(res.result(), context);
@@ -60,18 +57,16 @@ public abstract class Controller {
         return true;
     }
 
-    protected enum paramMethod {
+    protected enum ParamMethod {
         JSON,
         GET
     }
 
-    protected Object getParam(RoutingContext context, String mandatoryParam, boolean required, paramMethod method, Class type) throws ParameterException {
+    protected Object getParam(RoutingContext context, String mandatoryParam, boolean required, ParamMethod method, Class type) throws ParameterException {
         if(required) {
-            Object value = null;
-            if(method == paramMethod.JSON)
-                value = context.getBodyAsJson().getValue(mandatoryParam);
-            else
-                value = context.request().getParam(mandatoryParam);
+            Object value = method == ParamMethod.JSON ?
+                    context.getBodyAsJson().getValue(mandatoryParam) :
+                    context.request().getParam(mandatoryParam);
             if(value == null){
                 throw new ParameterException(ParameterException.PARAM_REQUIRED, mandatoryParam, method.toString());
             }

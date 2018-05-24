@@ -28,7 +28,7 @@ public class AuthenticationService extends Service {
     }
 
     public void checkAuth(HttpServerRequest request, Handler<AsyncResult<User>> resultHandler){
-        String token = request.getHeader("authorization");
+        String token = request.getHeader("Authorization");
 
         if(token == null) {
             Future<User> f = Future.failedFuture(new LoginException(LoginException.INCORRECT_TOKEN));

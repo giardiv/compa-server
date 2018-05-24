@@ -16,4 +16,8 @@ public class Exception extends java.lang.Exception {
         super(MessageFormat.format(message.getValue(), values));
         this.code = message.getKey();
     }
+
+    public int getCode(){
+        return this.code;
+    }
 }
