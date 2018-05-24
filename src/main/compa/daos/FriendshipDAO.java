@@ -34,7 +34,7 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
             fs_me.setSister(fs_friend);
             this.save(fs_me);
             fs_friend.setSister(fs_me);
-            UpdateOperations<Friendship> ops = getDatastore().createUpdateOperations(Friendship.class).addToSet("sister",fs_me );
+            UpdateOperations<Friendship> ops = createUpdateOperations().addToSet("sister",fs_me );
             getDatastore().update(fs_friend, ops);
 
             logger.log(Level.INFO, "Successfully added a friendship between {0} and {1}",
@@ -48,7 +48,17 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
 
     public void findFriendshipsByStatus(User me, Friendship.Status m, Handler<AsyncResult<List<Friendship>>> resultHandler){
         vertx.executeBlocking( future -> {
+            logger.log(Level.INFO, "Looking for {0}'s friends", me.getLogin());
+            Query<Friendship> query = this.createQuery();
+            query.or(
+                    query.criteria("friend").equal(me),
+                    query.criteria("status").equal(m)
+            );
+            query.project("sister",true).asList();
+            List<Friendship> friendships = this.find(query).asList();
+            logger.log(Level.INFO, "Found {0} friends", friendships.size());
 
+            future.complete(friendships);
 
         }, resultHandler);
     }
@@ -59,7 +69,7 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
         }, resultHandler);
     }
 
-    public void findFriendshipByUsers(User me, User friend, Handler<AsyncResult<List<Friendship>>> resultHandler){
+    public void findFriendshipByUsers(User me, User friend, Handler<AsyncResult<Friendship>> resultHandler){
         vertx.executeBlocking( future -> {
             logger.log(Level.INFO, "Looking for {0}'s friends", me.getLogin());
             Query<Friendship> query = this.createQuery();
@@ -67,8 +77,8 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
                     query.criteria("friend").equal(me)
             );
             query.project("sister",true).asList();
-            List<Friendship> friendships = this.find(query).asList();
-            logger.log(Level.INFO, "Found {0} friends", friendships.size());
+            Friendship friendships = this.findOne(query);
+            logger.log(Level.INFO, "Found {0} friends", friendships);
 
             future.complete(friendships);
 
