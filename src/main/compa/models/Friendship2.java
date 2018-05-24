@@ -28,7 +28,6 @@ public class Friendship2 {
     @Reference
     private User me;
 
-    @Expose
     @Reference
     private Friendship2 sister ;
 
@@ -38,15 +37,14 @@ public class Friendship2 {
 
     public Friendship2(User me, User friend){
         this.me = me;
-        this.status = Status.PENDING;
-        this.sister  = new Friendship2(friend,this, 0);
+        this.status = Status.PENDING;//TODO change the status
+        this.sister  = new Friendship2(friend,this);
     }
 
-    public Friendship2(User me, Friendship2 asker,int depth){
+    public Friendship2(User me, Friendship2 asker){
         this.me = me;
         this.status = Status.PENDING;//TODO change the status
-        if(depth <= 1)
-            this.sister  = new Friendship2(me,asker, depth++);
+        this.sister  = asker;
     }
     public ObjectId getId() {
         return id;

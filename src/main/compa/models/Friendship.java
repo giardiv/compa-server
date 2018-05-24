@@ -31,7 +31,6 @@ public class Friendship {
     @Reference
     private User userAsker;
 
-    @Expose
     @Reference
     private User userAsked ;
 

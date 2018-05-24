@@ -29,6 +29,7 @@ public class Friendship2Controller extends Controller{
     }
 
     private void addFriend(User me, RoutingContext routingContext) {
+        System.out.println("In addFriendship");
         GsonService gson = (GsonService) this.get(GsonService.class);
 
         String friend_id = null;
