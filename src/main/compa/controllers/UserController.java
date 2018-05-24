@@ -4,15 +4,11 @@ import com.google.gson.JsonElement;
 import compa.app.Container;
 import compa.app.Controller;
 import compa.daos.UserDAO;
-import compa.exception.LoginException;
 import compa.exception.ParameterException;
 import compa.exception.UserException;
 import compa.models.User;
-import compa.services.AuthenticationService;
-import io.vertx.core.Future;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.web.RoutingContext;
-import org.bson.types.ObjectId;
 
 public class UserController extends Controller {
     private static final String PREFIX = "/user";
@@ -53,7 +49,7 @@ public class UserController extends Controller {
     public void getProfile(User me, RoutingContext routingContext){
         String id = null;
         try {
-            id = (String) this.getParam(routingContext, "id", true, paramMethod.GET, String.class);
+            id = (String) this.getParam(routingContext, "id", true, ParamMethod.GET, String.class);
         } catch (ParameterException e) {
             routingContext.response().setStatusCode(400).end(gson.toJson(e));
             return;
@@ -85,7 +81,7 @@ public class UserController extends Controller {
     public void setGhostMode(User me, RoutingContext routingContext){
         boolean mode;
         try {
-            mode = (boolean) this.getParam(routingContext, "mode", true, paramMethod.JSON, Boolean.class);
+            mode = (boolean) this.getParam(routingContext, "mode", true, ParamMethod.JSON, Boolean.class);
         } catch (ParameterException e) {
             routingContext.response().setStatusCode(400).end(gson.toJson(e));
             return;
