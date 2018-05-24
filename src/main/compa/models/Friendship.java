@@ -3,7 +3,6 @@ package compa.models;
 import com.google.gson.annotations.Expose;
 import org.bson.types.ObjectId;
 import org.mongodb.morphia.annotations.*;
-import org.omg.CORBA.Object;
 
 import java.util.Date;
 
@@ -17,13 +16,11 @@ public class Friendship {
     public enum Status {
         PENDING,
         ACCEPTED,
-        REUSED(),
+        REUSED,
         BLOCKED,
         BLOCKED_Asked,
         BLOCKED_Asker
     };
-
-    private ObjectId ef;
 
 
     @Id
