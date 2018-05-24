@@ -34,7 +34,7 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
             fs_me.setSister(fs_friend);
             this.save(fs_me);
             fs_friend.setSister(fs_me);
-            UpdateOperations<Friendship> ops = createUpdateOperations().addToSet("sister",fs_me );
+            UpdateOperations<Friendship> ops = createUpdateOperations().set("sister",fs_me );
             getDatastore().update(fs_friend, ops);
 
             logger.log(Level.INFO, "Successfully added a friendship between {0} and {1}",
