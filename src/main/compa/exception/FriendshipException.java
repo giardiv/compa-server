@@ -24,7 +24,6 @@ public class FriendshipException extends Exception {
 
     public static final Pair<Integer, String> FRIEND_NEW = new Pair<>(6004, "Now, you are friends");
 
-
     public static final Pair<Integer, String> User_NOT_EXIST = new Pair<>(6004, "Can't find user whose friend list is requested");
 
     public static final Pair<Integer, String> NOT_FRIEND = new Pair<>(6004, "you aren't friends");

@@ -8,7 +8,7 @@ import java.util.Date;
 
 @Entity(value = "friendship", noClassnameStored = true)
 @Indexes({
-       // @Index(value = "login", fields = @Field("login"), unique = true),
+        // @Index(value = "login", fields = @Field("login"), unique = true),
 })
 public class Friendship {
 
@@ -17,59 +17,63 @@ public class Friendship {
         PENDING,
         ACCEPTED,
         REUSED,
-        BLOCKED,
-        BLOCKED_Asked,
-        BLOCKED_Asker
+        BLOCKED
     };
-
 
     @Id
     private ObjectId id;
 
+    @Reference
+    private User me;
+
+    @Reference
+    private Friendship sister ;
+
     private Status status;
 
-    @Reference
-    private User userAsker;
-
-    @Reference
-    private User userAsked ;
-
-    private Date datetime;
-
-
     public Friendship(){}
-    public Friendship(User a, User b){
-        this(a, b, null);
+
+    public Friendship(User me, User friend){
+        this.me = me;
+        this.status = Status.PENDING;//TODO change the status
+        this.sister  = new Friendship(friend,this);
     }
 
-    public Friendship(User a, User b, Date date){
-        this.status = Status.PENDING;
-        this.userAsker = a;
-        this.userAsked  = b;
-        this.datetime = date;
+    public Friendship(User me, Friendship asker){
+        this.me = me;
+        this.status = Status.PENDING;//TODO change the status
+        this.sister  = asker;
+    }
+    public ObjectId getId() {
+        return id;
     }
 
-    public void setStatus(Status s){
-        this.status = s;
+    public void setId(ObjectId id) {
+        this.id = id;
     }
 
-    public boolean isAccepted(){
-        return true;//this.getStatus().getKey() == Status.ACCEPTED;
+    public User getMe() {
+        return me;
     }
 
-    public Status getStatus(){ ///Map<Date, Status> getStatus(){
-        return this.status;
+    public void setMe(User me) {
+        this.me = me;
     }
 
-    public User getUserAsker() {
-        return userAsker;
+    public Friendship getSister() {
+        return sister;
     }
 
-    public User getUserAsked () {
-        return userAsked ;
+    public void setSister(Friendship sister) {
+        this.sister = sister;
     }
 
-    public ObjectId getId() {return id;}
+    public Status getStatus() {
+        return status;
+    }
 
-    public void setId(ObjectId id) {this.id = id;}
+    public void setStatus(Status status) {
+        this.status = status;
+    }
+
 }

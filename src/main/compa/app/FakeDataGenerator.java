@@ -1,15 +1,12 @@
 package compa.app;
 
-import compa.Main;
 import compa.models.Friendship;
-import compa.models.Friendship2;
 import compa.models.Location;
 import compa.models.User;
 import compa.services.AuthenticationService;
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.query.UpdateOperations;
 
-import javax.jws.soap.SOAPBinding;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -75,9 +72,8 @@ public class FakeDataGenerator {
             int friendId = r.nextInt((max - min) + 1) + min;
             LocalDateTime date = LocalDateTime.now().minus(offset, ChronoUnit.SECONDS);
             User other = users.get(friendId);
-            Friendship f = new Friendship(me, other, java.sql.Timestamp.valueOf(date));
+            Friendship f = new Friendship(me, other);
             me.addFriendship(f);
-            other.addFriendship(f);
             datastore.save(f);
             UpdateOperations ops = datastore.createUpdateOperations(User.class).addToSet("friendships", f);
             datastore.update(me, ops);
