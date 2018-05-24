@@ -22,7 +22,7 @@ public class FriendshipException extends Exception {
      */
     public static final Pair<Integer, String> BEFRIEND_ME = new Pair<>(6003, "You can't befriend yourself");
 
-    public static final Pair<Integer, String> FRIEND_NEW = new Pair<>(6004, "You are now friends");
+    public static final Pair<Integer, String> FRIEND_NEW = new Pair<>(6004, "Now, you are friends");
 
 
     public static final Pair<Integer, String> User_NOT_EXIST = new Pair<>(6004, "Can't find user whose friend list is requested");

@@ -22,7 +22,6 @@ public class Friendship2 {
         BLOCKED_Asker
     };
 
-
     @Id
     private ObjectId id;
 
@@ -35,21 +34,19 @@ public class Friendship2 {
 
     private Status status;
 
-    private Date date;
-
     public Friendship2(){}
 
-    public Friendship2(User me, User sister){
+    public Friendship2(User me, User friend){
         this.me = me;
         this.status = Status.PENDING;
-        this.sister  = new Friendship2(sister,me, 0);
+        this.sister  = new Friendship2(friend,this, 0);
     }
 
-    public Friendship2(User me, User sister,int depth){
+    public Friendship2(User me, Friendship2 asker,int depth){
         this.me = me;
-        this.status = Status.PENDING;
-        if(depth == 0)
-            this.sister  = new Friendship2(sister,me, depth++);
+        this.status = Status.PENDING;//TODO change the status
+        if(depth <= 1)
+            this.sister  = new Friendship2(me,asker, depth++);
     }
     public ObjectId getId() {
         return id;

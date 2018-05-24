@@ -17,11 +17,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-public class FriendshipDAO2 extends DAO<Friendship2, ObjectId> {
+public class Friendship2DAO extends DAO<Friendship2, ObjectId> {
 
     private Logger logger = Logger.getLogger("friendship_dao2");
 
-    public FriendshipDAO2(Container container){
+    public Friendship2DAO(Container container){
         super(Friendship2.class, container);
     }
 

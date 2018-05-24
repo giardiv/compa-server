@@ -1,34 +1,32 @@
 package compa.dtos;
 
-import compa.models.Friendship;
 import compa.models.Friendship2;
 import compa.models.User;
 import java.util.Date;
 
-public class FriendshipDTO2 {
+public class Friendship2DTO {
 
 
 
     private String id;
     private String status;
     private UserDTO me;
-    private FriendshipDTO2 sister;
+    private Friendship2DTO sister;
     private Date datetime;
 
-    public FriendshipDTO2(Friendship2 friendship, User user){
+    public Friendship2DTO(Friendship2 friendship, User user){
         this.id = friendship.getId().toString();
         this.status = friendship.getStatus().toString();
         this.me = new UserDTO(user);
-        this.sister = new FriendshipDTO2(friendship.getSister(),friendship.getMe(),0);
-
+        this.sister = new Friendship2DTO(friendship.getSister(),friendship.getMe(),0);
     }
 
-    private FriendshipDTO2(Friendship2 friendship, User user, int depth){
+    private Friendship2DTO(Friendship2 friendship, User user, int depth){
         this.id = friendship.getId().toString();
         this.status = friendship.getStatus().toString();
         this.me = new UserDTO(user);
         if(depth == 0 )
-            this.sister = new FriendshipDTO2(friendship.getSister(),friendship.getMe(), depth++);
+            this.sister = new Friendship2DTO(friendship.getSister(),friendship.getMe(), depth++);
 
     }
     public String getId() {
@@ -55,11 +53,11 @@ public class FriendshipDTO2 {
         this.me = me;
     }
 
-    public FriendshipDTO2 getSister() {
+    public Friendship2DTO getSister() {
         return sister;
     }
 
-    public void setSister(FriendshipDTO2 sister) {
+    public void setSister(Friendship2DTO sister) {
         this.sister = sister;
     }
 
