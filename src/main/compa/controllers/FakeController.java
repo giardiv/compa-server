@@ -3,6 +3,9 @@ package compa.controllers;
 import compa.app.Container;
 import compa.app.Controller;
 import com.google.gson.Gson;
+import compa.daos.FriendshipDAO;
+import compa.daos.UserDAO;
+import compa.dtos.UserDTO;
 import compa.models.Friendship;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.web.RoutingContext;
@@ -10,15 +13,35 @@ import compa.models.Location;
 import compa.models.User;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class FakeController extends Controller{
     private static final String PREFIX = "/fake";
 
+    FriendshipDAO friendshipDAO;
+    UserDAO userDAO;
+
     public FakeController(Container container) {
         super(PREFIX, container);
-        this.registerRoute(HttpMethod.GET, "/friend", this::addFakeFriend, "application/json");
+        this.registerAuthRoute(HttpMethod.GET, "/friend", this::getFriends, "application/json");
         this.registerRoute(HttpMethod.GET, "/user", this::getFakeUser, "application/json");
         this.registerRoute(HttpMethod.GET, "/location/:id", this::getFakeLocation, "application/json");
+        friendshipDAO = (FriendshipDAO) container.getDAO(Friendship.class);
+        userDAO = (UserDAO) container.getDAO(User.class);
+    }
+
+    /**
+     *
+     * @param routingContext
+     */
+    private void getFriends(User me, RoutingContext routingContext) {
+        friendshipDAO.findFriendshipsByStatus(me, Friendship.Status.PENDING, res -> {
+            List<Friendship> friendships = res.result();
+            System.out.println("Friendship size : " +  friendships);
+            List<UserDTO> friends = friendshipDAO.toUserDTO(friendships);
+            routingContext.response().end(new Gson().toJson(friends));
+        });
+
     }
 
     /**
@@ -37,15 +60,6 @@ public class FakeController extends Controller{
     private void getFakeUser(RoutingContext routingContext) {
         User fakeUser = null;
         routingContext.response().end(new Gson().toJson(fakeUser));
-    }
-
-    /**
-     *
-     * @param routingContext
-     */
-    private void addFakeFriend(RoutingContext routingContext) {
-        ArrayList<Friendship> fakeFriends = null;
-        routingContext.response().end(new Gson().toJson(fakeFriends));
     }
 
 }
