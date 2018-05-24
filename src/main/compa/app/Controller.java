@@ -9,6 +9,10 @@ import compa.models.User;
 import compa.services.AuthenticationService;
 import compa.services.GsonService;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 
 public abstract class Controller {
 
@@ -62,31 +66,45 @@ public abstract class Controller {
         GET
     }
 
-    protected Object getParam(RoutingContext context, String mandatoryParam, boolean required, ParamMethod method, Class type) throws ParameterException {
-        if(required) {
+    protected <T> T getParam(RoutingContext context, String mandatoryParam, boolean required, ParamMethod method, Class<T> type) throws ParameterException {
 
-            Object value = method == ParamMethod.JSON ?
-                    context.getBodyAsJson().getValue(mandatoryParam) :
-                    context.request().getParam(mandatoryParam);
+        String value = method == ParamMethod.JSON ?
+                (String) context.getBodyAsJson().getValue(mandatoryParam) :
+                //considering there is no nesting of objects
+                context.request().getParam(mandatoryParam);
 
-          if(value == null){
-                throw new ParameterException(ParameterException.PARAM_REQUIRED, mandatoryParam, method.toString());
-            }
+        if(required && value == null) {
+            throw new ParameterException(ParameterException.PARAM_REQUIRED, mandatoryParam, method.toString());
+        }
+
+        if(type.equals(Integer.class)) {
             try {
-                if(type == Integer.class) {
-                    value = Integer.parseInt((String) value);
-                } else if (type == String.class) {
-                    value = (String) value;
-                } else if (type == Boolean.class){
-                    value = (boolean) value;
-                } else {
-                    System.err.println("Unaccepted class : " + type.toString());
-                }
+                return type.cast(Integer.parseInt(value));
             } catch (NumberFormatException e) {
-                throw new ParameterException(ParameterException.PARAM_WRONG_FORMAT, (String) value, Integer.class.toString());
+                throw new ParameterException(ParameterException.PARAM_WRONG_FORMAT, value, Integer.class.toString());
             }
-            return value;
-        } else {
+        }
+        else if (type.equals(String.class)) {
+            return type.cast(value);
+        }
+        else if (type.equals(Boolean.class)) {
+            if(value.equals("true"))
+                return type.cast(true);
+            else if(value.equals("false"))
+                return type.cast(false);
+            else
+                throw new ParameterException(ParameterException.PARAM_WRONG_FORMAT, value, Boolean.class.toString());
+        }
+        else if(type.equals(Date.class)){
+            try{
+                return type.cast(new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").parse(value));
+            }
+            catch(ParseException e){
+                throw new ParameterException(ParameterException.PARAM_WRONG_FORMAT, value, Date.class.toString());
+            }
+        }
+        else{
+            System.err.println("Unaccepted class : " + type.toString());
             return null;
         }
     }

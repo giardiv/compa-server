@@ -18,12 +18,36 @@ import java.util.stream.Collectors;
 
 public class FriendshipDAO extends DAO<Friendship, ObjectId> {
 
-    private Logger logger = Logger.getLogger("friendship_dao2");
+    private Logger logger = Logger.getLogger("friendship_dao");
 
     public FriendshipDAO(Container container){
         super(Friendship.class, container);
     }
 
+    public void findFriendshipByStatus(User me, Friendship.Status m, Handler<AsyncResult<Friendship>> resultHandler){
+        vertx.executeBlocking( future -> {
+
+        }, resultHandler);
+    }
+
+    public void deleteFriendship(Friendship friendship, Handler<AsyncResult<Friendship>> resultHandler){
+        vertx.executeBlocking( future -> {
+
+        }, resultHandler);
+    }
+
+    public void findFriendshipByUsers(User me, User friend, Handler<AsyncResult<Friendship>> resultHandler){
+        vertx.executeBlocking( future -> {
+
+        }, resultHandler);
+
+    }
+
+    public void updateFriendship(Friendship f, Friendship.Status m, Handler<AsyncResult<Friendship>> resultHandler){
+        vertx.executeBlocking( future -> {
+
+        }, resultHandler);
+    }
 
     public void addFriendship(User a, User b, Handler<AsyncResult<Friendship>> resultHandler) {
 
