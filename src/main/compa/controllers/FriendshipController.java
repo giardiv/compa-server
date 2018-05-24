@@ -14,7 +14,7 @@ import io.vertx.ext.web.RoutingContext;
 
 public class FriendshipController extends Controller{
 
-    private static final String PREFIX = "/friendship2";
+    private static final String PREFIX = "/friendship";
 
     private FriendshipDAO friendshipDAO2;
     private UserDAO userDAO;
@@ -23,6 +23,7 @@ public class FriendshipController extends Controller{
 
         super(PREFIX, container);
         this.registerAuthRoute(HttpMethod.POST, "/request", this::addFriend, "application/json");
+        this.registerAuthRoute(HttpMethod.GET, "/request", this::addFriend, "application/json");
 
         friendshipDAO2 = (FriendshipDAO) container.getDAO(Friendship.class);
         userDAO = (UserDAO) container.getDAO(User.class);

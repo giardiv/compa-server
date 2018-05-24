@@ -49,22 +49,25 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
         }, resultHandler);
     }
 
-    public void addFriendship(User a, User b, Handler<AsyncResult<Friendship>> resultHandler) {
+    public void addFriendship(User me, User friend, Handler<AsyncResult<Friendship>> resultHandler) {
 
         vertx.executeBlocking( future -> {
-            logger.log(Level.INFO, "Adding a friendship between {0} and {1}",new Object[]{a.getLogin(), b.getLogin()});
+            logger.log(Level.INFO, "Adding a friendship between {0} and {1}",new Object[]{me.getLogin(), friend.getLogin()});
 
-            Friendship fs = new Friendship(a, b);
-            this.save(fs);
 
-            UpdateOperations<User> ops = getDatastore().createUpdateOperations(User.class).addToSet("friendships", fs);
-            getDatastore().update(a, ops);
-            getDatastore().update(b, ops);
+            Friendship fs_me = new Friendship(me);
+            Friendship fs_friend = new Friendship(friend);
+            this.save(fs_friend);
+            fs_me.setSister(fs_friend);
+            this.save(fs_me);
+            fs_friend.setSister(fs_me);
+            UpdateOperations<Friendship> ops = getDatastore().createUpdateOperations(Friendship.class).addToSet("sister",fs_me );
+            getDatastore().update(fs_friend, ops);
 
             logger.log(Level.INFO, "Successfully added a friendship between {0} and {1}",
-                    new Object[]{a.getLogin(), b.getLogin()});
+                    new Object[]{me.getLogin(), friend.getLogin()});
 
-            future.complete(fs);
+            future.complete(fs_me);
 
         }, resultHandler);
 

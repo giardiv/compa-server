@@ -33,17 +33,11 @@ public class Friendship {
 
     public Friendship(){}
 
-    public Friendship(User me, User friend){
+    public Friendship(User me){
         this.me = me;
         this.status = Status.PENDING;//TODO change the status
-        this.sister  = new Friendship(friend,this);
     }
 
-    public Friendship(User me, Friendship asker){
-        this.me = me;
-        this.status = Status.PENDING;//TODO change the status
-        this.sister  = asker;
-    }
     public ObjectId getId() {
         return id;
     }
