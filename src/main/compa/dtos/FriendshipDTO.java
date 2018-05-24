@@ -6,8 +6,6 @@ import java.util.Date;
 
 public class FriendshipDTO {
 
-
-
     private String id;
     private String status;
     private UserDTO me;
@@ -19,6 +17,7 @@ public class FriendshipDTO {
         this.status = friendship.getStatus().toString();
         this.me = new UserDTO(user);
         this.sister = new FriendshipDTO(friendship.getSister(),friendship.getMe(),0);
+
     }
 
     private FriendshipDTO(Friendship friendship, User user, int depth){
@@ -70,5 +69,3 @@ public class FriendshipDTO {
     }
 
 }
-
-

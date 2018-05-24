@@ -3,7 +3,9 @@ package compa.models;
 import org.bson.types.ObjectId;
 import org.mongodb.morphia.annotations.*;
 
-@Entity(value = "friendship2", noClassnameStored = true)
+import java.util.Date;
+
+@Entity(value = "friendship", noClassnameStored = true)
 @Indexes({
         // @Index(value = "login", fields = @Field("login"), unique = true),
 })
@@ -33,20 +35,27 @@ public class Friendship {
     public Friendship(User me, User friend){
         this.me = me;
         this.status = Status.PENDING;//TODO change the status
-        //this.sister  = new Friendship(friend,this);
     }
 
-//    public Friendship(User me, Friendship asker){
-//        this.me = me;
-//        this.status = Status.PENDING;//TODO change the status
-//        this.sister  = asker;
-//    }
+    public Friendship(User me, Friendship asker){
+        this.me = me;
+        this.status = Status.PENDING;//TODO change the status
+
+    }
     public ObjectId getId() {
         return id;
     }
 
+    public void setId(ObjectId id) {
+        this.id = id;
+    }
+
     public User getMe() {
         return me;
+    }
+
+    public void setMe(User me) {
+        this.me = me;
     }
 
     public Friendship getSister() {

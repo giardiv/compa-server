@@ -1,16 +1,20 @@
 package compa.daos;
 
+import compa.dtos.FriendshipDTO;
 import compa.models.Friendship;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import compa.app.Container;
 import compa.app.DAO;
+import compa.dtos.UserDTO;
+import compa.exception.FriendshipException;
 import compa.models.User;
 import org.bson.types.ObjectId;
 import org.mongodb.morphia.query.*;
-
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public class FriendshipDAO extends DAO<Friendship, ObjectId> {
 
@@ -26,22 +30,20 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
         vertx.executeBlocking( future -> {
             logger.log(Level.INFO, "Adding a friendship between {0} and {1}",new Object[]{a.getLogin(), b.getLogin()});
 
-                Friendship fs = new Friendship(a, b);
-                this.save(fs);
+            Friendship fs = new Friendship(a, b);
+            this.save(fs);
 
-                UpdateOperations<User> ops = getDatastore().createUpdateOperations(User.class).addToSet("friendships", fs);
-                getDatastore().update(a, ops);
-                getDatastore().update(b, ops);
+            UpdateOperations<User> ops = getDatastore().createUpdateOperations(User.class).addToSet("friendships", fs);
+            getDatastore().update(a, ops);
+            getDatastore().update(b, ops);
 
-                logger.log(Level.INFO, "Successfully added a friendship between {0} and {1}",
-                        new Object[]{a.getLogin(), b.getLogin()});
+            logger.log(Level.INFO, "Successfully added a friendship between {0} and {1}",
+                    new Object[]{a.getLogin(), b.getLogin()});
 
-                future.complete(fs);
+            future.complete(fs);
 
         }, resultHandler);
 
     }
-
-
 
 }
