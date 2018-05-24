@@ -80,6 +80,14 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
         vertx.executeBlocking( future -> {
 
         }, resultHandler);
+
+      public UserDTO toUserDTO(Friendship friendship){
+        return new UserDTO(friendship.getMe());
+    }
+
+    public List<UserDTO> toUserDTO(List<Friendship> friendships){
+        return friendships.stream().map(x -> new UserDTO(x.getMe())).collect(Collectors.toList());
+
     }
 
 }
