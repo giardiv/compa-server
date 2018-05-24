@@ -94,7 +94,8 @@ public class FriendshipController extends Controller{
 
                 if(!res.failed()){
                     routingContext.response().setStatusCode(400).end(gson.toJson(
-                                  new FriendshipException(FriendshipException.FRIENDSHIP_ALREADY_EXISTS)));
+                            new FriendshipException(FriendshipException.FRIENDSHIP_ALREADY_EXISTS)));
+
                     return;
                 }
 

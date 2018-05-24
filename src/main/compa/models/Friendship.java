@@ -1,6 +1,5 @@
 package compa.models;
 
-import com.google.gson.annotations.Expose;
 import org.bson.types.ObjectId;
 import org.mongodb.morphia.annotations.*;
 
@@ -26,7 +25,7 @@ public class Friendship {
     private ObjectId id;
 
     @Reference
-    private User me;
+    private User friend;
 
     @Reference
     private Friendship sister ;
@@ -35,31 +34,21 @@ public class Friendship {
 
     public Friendship(){}
 
-    public Friendship(User me, User friend){
-        this.me = me;
+    public Friendship(User friend){
+        this.friend= friend;
         this.status = Status.PENDING;//TODO change the status
-        this.sister  = new Friendship(friend,this);
     }
 
-    public Friendship(User me, Friendship asker){
-        this.me = me;
-        this.status = Status.PENDING;//TODO change the status
-        this.sister  = asker;
-    }
     public ObjectId getId() {
         return id;
     }
 
-    public void setId(ObjectId id) {
-        this.id = id;
+    public User getFriend() {
+        return friend;
     }
 
-    public User getMe() {
-        return me;
-    }
-
-    public void setMe(User me) {
-        this.me = me;
+    public User setFriend(User friend) {
+        return this.friend = friend;
     }
 
     public Friendship getSister() {
