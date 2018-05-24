@@ -31,7 +31,7 @@ public class FriendshipController extends Controller {
         this.registerAuthRoute(HttpMethod.POST, "/request", this::requestFriendship, "application/json");
         this.registerAuthRoute(HttpMethod.GET, "/friend_list", this::getFriends, "application/json");
         this.registerAuthRoute(HttpMethod.GET, "/pending", this::getPendingFriendships, "application/json");
-        this.registerAuthRoute(HttpMethod.GET, "/friendshipsDTO/:status", this::getFriendshipsDTOuser, "application/json"); //PUT?
+        this.registerAuthRoute(HttpMethod.GET, "/friendshipsDTO/:status", this::getFriendshipsDTOuser, "application/json");
 
         friendshipDAO = (FriendshipDAO) container.getDAO(Friendship.class);
         userDAO = (UserDAO) container.getDAO(User.class);
@@ -79,7 +79,7 @@ public class FriendshipController extends Controller {
                     routingContext.response().setStatusCode(418).end(gson.toJson(res2.cause()));
                 }
                 else{
-                    routingContext.response().setStatusCode(400).end(
+                    routingContext.response().end(
                             gson.toJson(
                                     new FriendshipException(FriendshipException.FRIEND_NEW)));
                 }
@@ -156,18 +156,19 @@ public class FriendshipController extends Controller {
     private void getFriendshipsDTOuser(User me, RoutingContext routingContext){
         GsonService gson = (GsonService) this.get(GsonService.class);
 
-        String status;
-
+        //String status = null;
+        final String status = routingContext.request().getParam("status");
         String user_id = null;
         try {
+            //status = (String) this.getParam(routingContext, "status", true, paramMethod.JSON, String.class);
             user_id = (String) this.getParam(routingContext, "user_id", true, paramMethod.JSON, String.class);
-            status = (String) this.getParam(routingContext, "status", true, paramMethod.JSON, String.class);
 
         } catch (ParameterException e) {
             routingContext.response().setStatusCode(400).end(gson.toJson(e));
             return;
         }
 
+        //String finalStatus = status;
         userDAO.findById(user_id, res -> {
             User other = res.result();
             if (other == null) {

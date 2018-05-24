@@ -82,9 +82,11 @@ public class AuthController extends Controller {
         String password = null;
         String name = null;
         try {
+
             login = (String) this.getParam(routingContext, "login", true, ParamMethod.JSON, String.class);
             password = (String) this.getParam(routingContext, "password", true, ParamMethod.JSON, String.class);
             name = (String) this.getParam(routingContext, "name", true, ParamMethod.JSON, String.class);
+
         } catch (ParameterException e) {
             routingContext.response().setStatusCode(400).end(gson.toJson(e));
             return;

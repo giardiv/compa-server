@@ -4,11 +4,15 @@ import com.google.gson.JsonElement;
 import compa.app.Container;
 import compa.app.Controller;
 import compa.daos.UserDAO;
+import compa.exception.LoginException;
 import compa.exception.ParameterException;
 import compa.exception.UserException;
 import compa.models.User;
+import compa.services.AuthenticationService;
+import io.vertx.core.Future;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.web.RoutingContext;
+import org.bson.types.ObjectId;
 
 public class UserController extends Controller {
     private static final String PREFIX = "/user";
@@ -92,7 +96,6 @@ public class UserController extends Controller {
             routingContext.response().end();
         });
     }
-
     public void updateProfile(User me, RoutingContext routingContext){
         // TODO
     }

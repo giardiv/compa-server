@@ -64,10 +64,12 @@ public abstract class Controller {
 
     protected Object getParam(RoutingContext context, String mandatoryParam, boolean required, ParamMethod method, Class type) throws ParameterException {
         if(required) {
+
             Object value = method == ParamMethod.JSON ?
                     context.getBodyAsJson().getValue(mandatoryParam) :
                     context.request().getParam(mandatoryParam);
-            if(value == null){
+
+          if(value == null){
                 throw new ParameterException(ParameterException.PARAM_REQUIRED, mandatoryParam, method.toString());
             }
             try {

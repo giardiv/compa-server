@@ -1,7 +1,5 @@
 package compa.app;
 
-import com.google.gson.annotations.Expose;
-
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 

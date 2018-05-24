@@ -25,6 +25,9 @@ public class User {
     private List<Friendship> friendships;
 
     @Reference
+    private List<Friendship2> friendships2;
+
+    @Reference
     private List<Location> locations;
 
     private boolean ghostMode;
@@ -37,6 +40,7 @@ public class User {
         this.password = password;
         this.locations = new ArrayList<>();
         this.friendships = new ArrayList<>();
+        this.friendships2 = new ArrayList<>();
         this.salt = salt;
         this.name = name;
         this.ghostMode = false;
@@ -61,6 +65,10 @@ public class User {
 
     public void addFriendship(Friendship f){
         friendships.add(f);
+    }
+
+    public void addFriendship2(Friendship2 f){
+        friendships2.add(f);
     }
 
     public List<Friendship> getFriendships() {

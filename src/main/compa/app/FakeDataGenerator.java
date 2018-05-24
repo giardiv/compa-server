@@ -2,6 +2,7 @@ package compa.app;
 
 import compa.Main;
 import compa.models.Friendship;
+import compa.models.Friendship2;
 import compa.models.Location;
 import compa.models.User;
 import compa.services.AuthenticationService;
@@ -29,6 +30,7 @@ public class FakeDataGenerator {
         datastore.getCollection(User.class).drop();
         datastore.getCollection(Location.class).drop();
         datastore.getCollection(Friendship.class).drop();
+        datastore.getCollection(Friendship2.class).drop();
 
         users = new ArrayList<>();
         Location cityTest = new Location(51.509865, -0.118092);
@@ -78,6 +80,20 @@ public class FakeDataGenerator {
             other.addFriendship(f);
             datastore.save(f);
             UpdateOperations ops = datastore.createUpdateOperations(User.class).addToSet("friendships", f);
+            datastore.update(me, ops);
+            datastore.update(other, ops);
+        }
+
+        for(int i = 0; i < 1; ++i){
+            User me = users.get(i);
+            int min = i+1;
+            int max = userNb - 1;
+            int friendId = r.nextInt((max - min) + 1) + min;
+            User other = users.get(friendId);
+            Friendship2 f = new Friendship2(me, other);
+            me.addFriendship2(f);
+            datastore.save(f);
+            UpdateOperations ops = datastore.createUpdateOperations(User.class).addToSet("friendships2", f);
             datastore.update(me, ops);
             datastore.update(other, ops);
         }
