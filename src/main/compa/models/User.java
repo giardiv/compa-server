@@ -25,7 +25,7 @@ public class User {
     private List<Friendship> friendships;
 
     @Reference
-    private List<Friendship2> friendships2;
+    private List<Friendship> friendships2;
 
     @Reference
     private List<Location> locations;
@@ -67,7 +67,7 @@ public class User {
         friendships.add(f);
     }
 
-    public void addFriendship2(Friendship2 f){
+    public void addFriendship2(Friendship f){
         friendships2.add(f);
     }
 
