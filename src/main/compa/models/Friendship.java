@@ -27,7 +27,7 @@ public class Friendship {
     @Reference
     private User friend;
 
-    @Reference
+    @Reference(lazy = true)
     private Friendship sister ;
 
     private Status status;

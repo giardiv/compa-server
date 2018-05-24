@@ -50,7 +50,7 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
         vertx.executeBlocking( future -> {
             logger.log(Level.INFO, "Looking for {0}'s friends", me.getLogin());
             Query<Friendship> query = this.createQuery();
-            query.or(
+            query.and(
                     query.criteria("friend").equal(me),
                     query.criteria("status").equal(m)
             );
@@ -60,6 +60,12 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
 
             future.complete(friendships);
 
+        }, resultHandler);
+    }
+
+    public void testFriendship(Handler<AsyncResult<List<Friendship>>> resultHandler){
+        vertx.executeBlocking( future -> {
+            future.complete(this.find().asList());
         }, resultHandler);
     }
 

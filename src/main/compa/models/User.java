@@ -48,7 +48,7 @@ public class User {
     }
 
     public void setToken(){
-        this.token = RandomStringUtils.randomAscii(TOKEN_COUNT);
+        this.token = RandomStringUtils.randomAlphanumeric(TOKEN_COUNT);
     }
 
     public String getLogin() {
