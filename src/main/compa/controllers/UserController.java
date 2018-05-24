@@ -23,6 +23,7 @@ public class UserController extends Controller {
         super(PREFIX, container);
         this.registerAuthRoute(HttpMethod.GET, "/:id", this::getProfile, "application/json");
         this.registerAuthRoute(HttpMethod.GET, "", this::getCurrentProfile, "application/json");
+        this.registerAuthRoute(HttpMethod.PUT, "", this::updateProfile, "application/json");
         this.registerAuthRoute(HttpMethod.PUT, "/ghostmode", this::setGhostMode, "application/json");
 
         userDAO = (UserDAO) container.getDAO(User.class);
@@ -53,7 +54,7 @@ public class UserController extends Controller {
     public void getProfile(User me, RoutingContext routingContext){
         String id = null;
         try {
-            id = (String) this.getParam(routingContext, "id", true, paramMethod.GET, String.class);
+            id = (String) this.getParam(routingContext, "id", true, ParamMethod.GET, String.class);
         } catch (ParameterException e) {
             routingContext.response().setStatusCode(400).end(gson.toJson(e));
             return;
@@ -85,7 +86,7 @@ public class UserController extends Controller {
     public void setGhostMode(User me, RoutingContext routingContext){
         boolean mode;
         try {
-            mode = (boolean) this.getParam(routingContext, "mode", true, paramMethod.JSON, Boolean.class);
+            mode = (boolean) this.getParam(routingContext, "mode", true, ParamMethod.JSON, Boolean.class);
         } catch (ParameterException e) {
             routingContext.response().setStatusCode(400).end(gson.toJson(e));
             return;
@@ -94,5 +95,8 @@ public class UserController extends Controller {
         userDAO.setGhostMode(me, mode, res -> {
             routingContext.response().end();
         });
+    }
+    public void updateProfile(User me, RoutingContext routingContext){
+        // TODO
     }
 }

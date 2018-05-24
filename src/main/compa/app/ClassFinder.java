@@ -16,6 +16,7 @@ public class ClassFinder {
     private static final String DAO_DIRECTORY = "compa.daos";
     private static final String CONTROLLER_DIRECTORY = "compa.controllers";
     private static final String SERVICE_DIRECTORY = "compa.services";
+    private static final String EXCEPTION_DIRECTORY = "compa.exception";
 
     public String getModelDirectory(){
         return MODEL_DIRECTORY;
@@ -114,5 +115,14 @@ public class ClassFinder {
             return null;
         }
 
+    }
+
+    public Set<Class<?>> getExceptions(){
+        try {
+            return ReflectionUtils.getClasses(EXCEPTION_DIRECTORY);
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }

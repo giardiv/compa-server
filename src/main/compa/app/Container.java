@@ -9,6 +9,7 @@ import io.vertx.ext.web.handler.BodyHandler;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class Container {
 
@@ -18,6 +19,7 @@ public class Container {
     private Map<Class, DAO> daos;
     private MongoUtil mongoUtil;
     private List<Controller> controllers;
+    private Set<Class<?>> exceptions;
     private Map<Class, Service> services;
     private Vertx vertx;
 
@@ -41,6 +43,7 @@ public class Container {
         mongoUtil = new MongoUtil(cf.getModelDirectory());
 
         daos = cf.getDAOs(this);
+        exceptions = cf.getExceptions();
         services = cf.getServices(this);
         controllers = cf.getControllers(this);
 
@@ -69,6 +72,10 @@ public class Container {
 
     public MongoUtil getMongoUtil(){
         return mongoUtil;
+    }
+
+    public Set<Class<?>> getExceptions() {
+        return exceptions;
     }
 
     public Vertx getVertx() {
