@@ -16,7 +16,7 @@ public class FriendshipDTO {
         this.id = friendship.getId().toString();
         this.status = friendship.getStatus().toString();
         this.me = new UserDTO(user);
-        this.sister = new FriendshipDTO(friendship.getSister(),friendship.getMe(),0);
+        this.sister = new FriendshipDTO(friendship.getSister(),friendship.getFriend(),0);
 
     }
 
@@ -25,7 +25,7 @@ public class FriendshipDTO {
         this.status = friendship.getStatus().toString();
         this.me = new UserDTO(user);
         if(depth == 0 )
-            this.sister = new FriendshipDTO(friendship.getSister(),friendship.getMe(), depth++);
+            this.sister = new FriendshipDTO(friendship.getSister(),friendship.getFriend(), depth++);
 
     }
     public String getId() {

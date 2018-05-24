@@ -3,9 +3,9 @@ package compa.controllers;
 import compa.app.Container;
 import compa.app.Controller;
 import com.google.gson.Gson;
+import compa.models.Friendship;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.web.RoutingContext;
-import compa.models.Friendship;
 import compa.models.Location;
 import compa.models.User;
 

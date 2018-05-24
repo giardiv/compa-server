@@ -24,36 +24,10 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
         super(Friendship.class, container);
     }
 
-    public void findFriendshipByStatus(User me, Friendship.Status m, Handler<AsyncResult<Friendship>> resultHandler){
-        vertx.executeBlocking( future -> {
-
-        }, resultHandler);
-    }
-
-    public void deleteFriendship(Friendship friendship, Handler<AsyncResult<Friendship>> resultHandler){
-        vertx.executeBlocking( future -> {
-
-        }, resultHandler);
-    }
-
-    public void findFriendshipByUsers(User me, User friend, Handler<AsyncResult<Friendship>> resultHandler){
-        vertx.executeBlocking( future -> {
-
-        }, resultHandler);
-
-    }
-
-    public void updateFriendship(Friendship f, Friendship.Status m, Handler<AsyncResult<Friendship>> resultHandler){
-        vertx.executeBlocking( future -> {
-
-        }, resultHandler);
-    }
-
-    public void addFriendship(User me, User friend, Handler<AsyncResult<Friendship>> resultHandler) {
+    public void addFriendship(User friend,User me, Handler<AsyncResult<Friendship>> resultHandler) {
 
         vertx.executeBlocking( future -> {
             logger.log(Level.INFO, "Adding a friendship between {0} and {1}",new Object[]{me.getLogin(), friend.getLogin()});
-
 
             Friendship fs_me = new Friendship(me);
             Friendship fs_friend = new Friendship(friend);
@@ -73,6 +47,40 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
 
     }
 
+    public void findFriendshipsByStatus(User me, Friendship.Status m, Handler<AsyncResult<List<Friendship>>> resultHandler){
+        vertx.executeBlocking( future -> {
 
+
+        }, resultHandler);
+    }
+
+    public void deleteFriendship(Friendship friendship, Handler<AsyncResult<Boolean>> resultHandler){
+        vertx.executeBlocking( future -> {
+
+        }, resultHandler);
+    }
+
+    public void findFriendshipByUsers(User me, User friend, Handler<AsyncResult<List<Friendship>>> resultHandler){
+        vertx.executeBlocking( future -> {
+            logger.log(Level.INFO, "Looking for {0}'s friends", me.getLogin());
+            Query<Friendship> query = this.createQuery();
+            query.or(
+                    query.criteria("friend").equal(me)
+            );
+            query.project("sister",true).asList();
+            List<Friendship> friendships = this.find(query).asList();
+            logger.log(Level.INFO, "Found {0} friends", friendships.size());
+
+            future.complete(friendships);
+
+        }, resultHandler);
+
+    }
+
+    public void updateFriendship(Friendship f, Friendship.Status m, Handler<AsyncResult<Friendship>> resultHandler){
+        vertx.executeBlocking( future -> {
+
+        }, resultHandler);
+    }
 
 }
