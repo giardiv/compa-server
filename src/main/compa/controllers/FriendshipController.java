@@ -59,6 +59,9 @@ public class FriendshipController extends Controller{
 
         friendshipDAO.findFriendshipsByStatus(me, statusEnum, res -> {
             List<Friendship> friendshipList = res.result();
+            System.out.println(friendshipList);
+            System.out.println("friendshipList.size() : " + friendshipList.size());
+
         });
     }
 

@@ -48,7 +48,17 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
 
     public void findFriendshipsByStatus(User me, Friendship.Status m, Handler<AsyncResult<List<Friendship>>> resultHandler){
         vertx.executeBlocking( future -> {
+            logger.log(Level.INFO, "Looking for {0}'s friends", me.getLogin());
+            Query<Friendship> query = this.createQuery();
+            query.and(
+                    query.criteria("friend").equal(me),
+                    query.criteria("status").equal(m)
+            );
+            query.project("sister",true).asList();
+            List<Friendship> friendships = this.find(query).asList();
+            logger.log(Level.INFO, "Found {0} friends", friendships.size());
 
+            future.complete(friendships);
 
         }, resultHandler);
     }
@@ -60,6 +70,7 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
     }
 
     public void findFriendshipByUsers(User me, User friend, Handler<AsyncResult<List<Friendship>>> resultHandler){
+
         vertx.executeBlocking( future -> {
             logger.log(Level.INFO, "Looking for {0}'s friends", me.getLogin());
             Query<Friendship> query = this.createQuery();
@@ -81,12 +92,14 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
 
         }, resultHandler);
 
-      public UserDTO toUserDTO(Friendship friendship){
-        return new UserDTO(friendship.getMe());
+    }
+
+    public UserDTO toUserDTO(Friendship friendship) {
+        return new UserDTO(friendship.getFriend());
     }
 
     public List<UserDTO> toUserDTO(List<Friendship> friendships){
-        return friendships.stream().map(x -> new UserDTO(x.getMe())).collect(Collectors.toList());
+        return friendships.stream().map(x -> new UserDTO(x.getFriend())).collect(Collectors.toList());
 
     }
 
