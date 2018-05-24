@@ -24,13 +24,13 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
         super(Friendship.class, container);
     }
 
-    public void findFriendshipByStatus(User me, Friendship.Status m, Handler<AsyncResult<Friendship>> resultHandler){
+    public void findFriendshipsByStatus(User me, Friendship.Status m, Handler<AsyncResult<List<Friendship>>> resultHandler){
         vertx.executeBlocking( future -> {
 
         }, resultHandler);
     }
 
-    public void deleteFriendship(Friendship friendship, Handler<AsyncResult<Friendship>> resultHandler){
+    public void deleteFriendship(Friendship friendship, Handler<AsyncResult<Boolean>> resultHandler){
         vertx.executeBlocking( future -> {
 
         }, resultHandler);
