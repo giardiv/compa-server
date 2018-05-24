@@ -75,9 +75,8 @@ public class FakeDataGenerator {
             int friendId = r.nextInt((max - min) + 1) + min;
             LocalDateTime date = LocalDateTime.now().minus(offset, ChronoUnit.SECONDS);
             User other = users.get(friendId);
-            Friendship f = new Friendship(me, other, java.sql.Timestamp.valueOf(date));
+            Friendship f = new Friendship(me, other);
             me.addFriendship(f);
-            other.addFriendship(f);
             datastore.save(f);
             UpdateOperations ops = datastore.createUpdateOperations(User.class).addToSet("friendships", f);
             datastore.update(me, ops);
