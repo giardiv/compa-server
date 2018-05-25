@@ -28,7 +28,7 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
      vertx.executeBlocking( future -> {
             logger.log(Level.INFO, "Adding a friendship between {0} and {1}",new Object[]{me.getLogin(), friend.getLogin()});
 
-            Friendship fs_me = new Friendship(me);
+            /**Friendship fs_me = new Friendship(me,);
             Friendship fs_friend = new Friendship(friend);
             this.save(fs_friend);
             fs_me.setSister(fs_friend);
@@ -40,23 +40,26 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
             logger.log(Level.INFO, "Successfully added a friendship between {0} and {1}",
                     new Object[]{me.getLogin(), friend.getLogin()});
 
-            future.complete(fs_me);
+            future.complete(fs_me);**/
 
         }, resultHandler);
 
     }
 
-    public void findFriendshipsByStatus(User me, Friendship.Status m, Handler<AsyncResult<List<Friendship>>> resultHandler){
+    public void findFriendsByStatus(User user, Friendship.Status status, Handler<AsyncResult<List<User>>> resultHandler){
         vertx.executeBlocking( future -> {
-            logger.log(Level.INFO, "Looking for {0}'s friends", me.getLogin());
+            logger.log(Level.INFO, "Looking for {0}'s friends", user.getLogin());
             Query<Friendship> query = this.createQuery();
 
             query.and(
-                    query.criteria("friend").equal(me),
-                    query.criteria("status").equal(m)
+                    query.criteria("friend").equal(user),
+                    query.criteria("status").equal(status)
             );
-            query.project("sister",true).asList();
-            List<Friendship> friendships = this.find(query).asList();
+            List<User> friendships = query.asList()
+                    .stream()
+                    .map(Friendship::getSister)
+                    .map(Friendship::getFriend)
+                    .collect(Collectors.toList());
             logger.log(Level.INFO, "Found {0} friends", friendships.size());
 
             future.complete(friendships);
@@ -112,6 +115,10 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
     public List<UserDTO> toUserDTO(List<Friendship> friendships){
         return friendships.stream().map(x -> new UserDTO(x.getFriend())).collect(Collectors.toList());
 
+    }
+
+    public List<FriendshipDTO> toDTO(List<Friendship> friendships){
+        return friendships.stream().map(FriendshipDTO::new).collect(Collectors.toList());
     }
 
 }
