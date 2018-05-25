@@ -50,7 +50,8 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
         vertx.executeBlocking( future -> {
             logger.log(Level.INFO, "Looking for {0}'s friends", me.getLogin());
             Query<Friendship> query = this.createQuery();
-            query.or(
+
+            query.and(
                     query.criteria("friend").equal(me),
                     query.criteria("status").equal(m)
             );
@@ -65,6 +66,7 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
 
     public void deleteFriendship(Friendship friendship, Handler<AsyncResult<Boolean>> resultHandler){
         vertx.executeBlocking( future -> {
+            //TODO chercher le comment on supprime un document sur internet
 
         }, resultHandler);
     }
@@ -76,7 +78,7 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
             query.or(
                     query.criteria("friend").equal(me)
             );
-            query.project("sister",true).asList();
+            query.project("sister",true);
             Friendship friendships = this.findOne(query);
             logger.log(Level.INFO, "Found {0} friends", friendships);
 
@@ -88,7 +90,11 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
 
     public void updateFriendship(Friendship f, Friendship.Status m, Handler<AsyncResult<Friendship>> resultHandler){
         vertx.executeBlocking( future -> {
-
+            UpdateOperations<Friendship> update = this.createUpdateOperations().set("status", m);
+            this.getDatastore().update(f, update);
+            //TODO update status of sister
+            this.save(f);
+            future.complete(f);
         }, resultHandler);
 
     }

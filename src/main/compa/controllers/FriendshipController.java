@@ -30,6 +30,16 @@ public class FriendshipController extends Controller{
         userDAO = (UserDAO) container.getDAO(User.class);
     }
 
+    public void updateFriendship(User me, RoutingContext routingContext){
+        String status = null;
+        try {
+            status = this.getParam(routingContext, "status", true, ParamMethod.GET, String.class);
+        } catch (ParameterException e) {
+            routingContext.response().setStatusCode(400).end(gson.toJson(e));
+            return;
+        }
+
+    }
 
     public void getFriendshipByStatus(User me, RoutingContext routingContext){
         String status = null;
@@ -59,6 +69,9 @@ public class FriendshipController extends Controller{
 
         friendshipDAO.findFriendshipsByStatus(me, statusEnum, res -> {
             List<Friendship> friendshipList = res.result();
+            System.out.println(friendshipList);
+            System.out.println("friendshipList.size() : " + friendshipList.size());
+
         });
     }
 
