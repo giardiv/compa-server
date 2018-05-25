@@ -34,7 +34,7 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
             fs_me.setSister(fs_friend);
             this.save(fs_me);
             fs_friend.setSister(fs_me);
-            UpdateOperations<Friendship> ops = getDatastore().createUpdateOperations(Friendship.class).addToSet("sister",fs_me );
+            UpdateOperations<Friendship> ops = createUpdateOperations().set("sister",fs_me );
             getDatastore().update(fs_friend, ops);
 
             logger.log(Level.INFO, "Successfully added a friendship between {0} and {1}",
@@ -65,21 +65,21 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
 
     public void deleteFriendship(Friendship friendship, Handler<AsyncResult<Boolean>> resultHandler){
         vertx.executeBlocking( future -> {
+            //TODO chercher le comment on supprime un document sur internet
 
         }, resultHandler);
     }
 
-    public void findFriendshipByUsers(User me, User friend, Handler<AsyncResult<List<Friendship>>> resultHandler){
-
+    public void findFriendshipByUsers(User me, User friend, Handler<AsyncResult<Friendship>> resultHandler){
         vertx.executeBlocking( future -> {
             logger.log(Level.INFO, "Looking for {0}'s friends", me.getLogin());
             Query<Friendship> query = this.createQuery();
             query.or(
                     query.criteria("friend").equal(me)
             );
-            query.project("sister",true).asList();
-            List<Friendship> friendships = this.find(query).asList();
-            logger.log(Level.INFO, "Found {0} friends", friendships.size());
+            query.project("sister",true);
+            Friendship friendships = this.findOne(query);
+            logger.log(Level.INFO, "Found {0} friends", friendships);
 
             future.complete(friendships);
 
@@ -89,7 +89,11 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
 
     public void updateFriendship(Friendship f, Friendship.Status m, Handler<AsyncResult<Friendship>> resultHandler){
         vertx.executeBlocking( future -> {
-
+            UpdateOperations<Friendship> update = this.createUpdateOperations().set("status", m);
+            this.getDatastore().update(f, update);
+            //TODO update status of sister
+            this.save(f);
+            future.complete(f);
         }, resultHandler);
 
     }
