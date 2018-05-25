@@ -81,6 +81,7 @@ public class FriendshipController extends Controller{
 
         try {
             friend_id = this.getParam(routingContext, "friend_id", true, ParamMethod.JSON, String.class);
+            System.out.println("friend : " + friend_id);
         } catch (ParameterException e) {
             routingContext.response().setStatusCode(400).end(gson.toJson(e));
             return;

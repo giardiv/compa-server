@@ -55,8 +55,8 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
                     query.criteria("friend").equal(me),
                     query.criteria("status").equal(m)
             );
-            query.project("sister",true).asList();
-            List<Friendship> friendships = this.find(query).asList();
+            query.project("sister",true);
+            List<Friendship> friendships = query.asList();
             logger.log(Level.INFO, "Found {0} friends", friendships.size());
 
             future.complete(friendships);
@@ -66,7 +66,7 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
 
     public void deleteFriendship(Friendship friendship, Handler<AsyncResult<Boolean>> resultHandler){
         vertx.executeBlocking( future -> {
-            //TODO chercher le comment on supprime un document sur internet
+
 
         }, resultHandler);
     }
