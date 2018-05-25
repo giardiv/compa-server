@@ -30,6 +30,7 @@ public class FriendshipController extends Controller{
     }
 
     public void updateFriendship(User me, RoutingContext routingContext){
+        // TODO: to refactor
         String status = null;
         try {
             status = this.getParam(routingContext, "status", true, ParamMethod.GET, String.class);
@@ -57,6 +58,7 @@ public class FriendshipController extends Controller{
 
     private void addFriend(User me, RoutingContext routingContext) {
 
+        // TODO: to refactor
         String friend_id = null;
 
         try {
