@@ -103,6 +103,13 @@ public abstract class Controller {
                 throw new ParameterException(ParameterException.PARAM_WRONG_FORMAT, value, Date.class.toString());
             }
         }
+        else if(type.equals(Double.class)) {
+            try {
+                return type.cast(Double.parseDouble(value));
+            } catch (NumberFormatException e) {
+                throw new ParameterException(ParameterException.PARAM_WRONG_FORMAT, value, Double.class.toString());
+            }
+        }
         else{
             System.err.println("Unaccepted class : " + type.toString());
             return null;

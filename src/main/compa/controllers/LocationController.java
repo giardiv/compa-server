@@ -1,6 +1,7 @@
 package compa.controllers;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import compa.exception.ParameterException;
 import compa.models.User;
 import io.vertx.core.http.HttpMethod;
@@ -40,9 +41,12 @@ public class LocationController extends Controller {
             routingContext.response().setStatusCode(400).end(gson.toJson(e));
             return;
         }
-
-
-    }
+        locationDAO.addPosition(me,latitude,longitude,date,res -> {
+            Location locations = res.result();
+            JsonElement tempEl = this.gson.toJsonTree(locationDAO.toDTO(locations));
+            routingContext.response().end(gson.toJson(tempEl));
+        });
+        }
 
     private void getAll(User me, RoutingContext routingContext){
         List<LocationDTO> list = locationDAO.toDTO(locationDAO.findAll());

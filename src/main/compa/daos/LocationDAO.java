@@ -11,6 +11,7 @@ import io.vertx.core.Handler;
 import org.bson.types.ObjectId;
 import org.mongodb.morphia.Datastore;
 
+import javax.swing.text.BadLocationException;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -31,17 +32,24 @@ public class LocationDAO extends DAO<Location, ObjectId> {
 
     public void addPosition(User me, Double lat, Double lon, Date date, Handler<AsyncResult<Location>> resultHandler) {
         vertx.executeBlocking( future -> {
+            Location lastLocation = me.getLastLocation();
 
-            // TODO: check if location date > last location date
+            if(lastLocation.getLatitude()== lat && lastLocation.getLongitude() == lon) {
+                future.complete(lastLocation);
+            }else {
+                Location location = new Location(lat, lon, date);
+                this.save(location);
+                me.addLocation(location);
+                future.complete(location);
 
-            Location location = new Location(lat, lon, date);
-            this.save(location);
-            me.addLocation(location);
+            }
 
-            future.complete(location);
+            return;
 
         }, resultHandler);
     }
 
-    public void getLocationFromDateInterval(){}
+    public void getLocationFromDateInterval(User me, Date firstDate, Date lastDate, Handler<AsyncResult<List<Location>>> resultHandler){
+
+    }
 }
