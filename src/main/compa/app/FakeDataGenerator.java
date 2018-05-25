@@ -68,14 +68,14 @@ public class FakeDataGenerator {
             int max = userNb - 1;
             int friendId = r.nextInt((max - min) + 1) + min;
             User friend = users.get(friendId);
-            Friendship fs_me = new Friendship(me);
-            Friendship fs_friend = new Friendship(friend);
-            datastore.save(fs_friend);
-            fs_me.setSister(fs_friend);
+            Friendship fs_me = new Friendship(me, friend);
+            //Friendship fs_friend = new Friendship(friend, me);
+            //fs_me.setSister(fs_friend);
             datastore.save(fs_me);
-            fs_friend.setSister(fs_me);
-            UpdateOperations<Friendship> ops = datastore.createUpdateOperations(Friendship.class).set("sister",fs_me );
-            datastore.update(fs_friend, ops);
+            datastore.save(fs_me.getSister());
+            //fs_friend.setSister(fs_me);
+            //UpdateOperations<Friendship> ops = datastore.createUpdateOperations(Friendship.class).set("sister",fs_me );
+            //datastore.update(fs_friend, ops);
         }
     }
 

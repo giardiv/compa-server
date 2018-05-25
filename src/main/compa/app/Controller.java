@@ -1,6 +1,7 @@
 package compa.app;
 
 import compa.exception.ParameterException;
+import compa.models.Friendship;
 import io.vertx.core.Handler;
 import io.vertx.core.http.HttpMethod;
 
@@ -101,6 +102,14 @@ public abstract class Controller {
             }
             catch(ParseException e){
                 throw new ParameterException(ParameterException.PARAM_WRONG_FORMAT, value, Date.class.toString());
+            }
+        }
+        else if(type.equals(Friendship.Status.class)){
+            try{
+                return (T) Friendship.Status.valueOf(value);
+            }
+            catch(IllegalArgumentException e){
+                throw new ParameterException(ParameterException.PARAM_WRONG_FORMAT, value, Friendship.Status.class.toString());
             }
         }
         else{
