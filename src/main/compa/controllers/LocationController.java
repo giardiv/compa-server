@@ -30,15 +30,18 @@ public class LocationController extends Controller {
     }
 
     private void newInstance(User me, RoutingContext routingContext){
+        Double latitude, longitude;
+        Date date;
         try {
-            Double latitude = this.getParam(routingContext, "latitude", true, ParamMethod.JSON, Double.class);
-            Double longitude = this.getParam(routingContext, "longitude", true, ParamMethod.JSON, Double.class);
-            Date date = this.getParam(routingContext, "datetime", true, ParamMethod.JSON, Date.class);
-
+            latitude = this.getParam(routingContext, "latitude", true, ParamMethod.JSON, Double.class);
+            longitude = this.getParam(routingContext, "longitude", true, ParamMethod.JSON, Double.class);
+            date = this.getParam(routingContext, "datetime", true, ParamMethod.JSON, Date.class);
         } catch (ParameterException e) {
             routingContext.response().setStatusCode(400).end(gson.toJson(e));
             return;
         }
+
+
     }
 
     private void getAll(User me, RoutingContext routingContext){

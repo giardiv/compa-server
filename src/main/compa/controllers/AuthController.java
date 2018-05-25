@@ -78,19 +78,17 @@ public class AuthController extends Controller {
      * @apiSuccess {String} Token    Token is returned
      */
     private void register(RoutingContext routingContext){
-        String  login = null;
-        String password = null;
-        String name = null;
+        String login, password, name;
         try {
-
-            login = (String) this.getParam(routingContext, "login", true, ParamMethod.JSON, String.class);
-            password = (String) this.getParam(routingContext, "password", true, ParamMethod.JSON, String.class);
-            name = (String) this.getParam(routingContext, "name", true, ParamMethod.JSON, String.class);
+            login = this.getParam(routingContext, "login", true, ParamMethod.JSON, String.class);
+            password = this.getParam(routingContext, "password", true, ParamMethod.JSON, String.class);
+            name = this.getParam(routingContext, "name", true, ParamMethod.JSON, String.class);
 
         } catch (ParameterException e) {
             routingContext.response().setStatusCode(400).end(gson.toJson(e));
             return;
         }
+        // TODO: login instance of email ?
 
         if(!AuthenticationService.isAcceptablePassword(password)){
             routingContext.response().setStatusCode(400).end(
@@ -134,8 +132,8 @@ public class AuthController extends Controller {
         String password = null;
         String newPassword = null;
         try {
-            newPassword = (String) this.getParam(routingContext, "new_password", true, ParamMethod.JSON, String.class);
-            password = (String) this.getParam(routingContext, "password", true, ParamMethod.JSON, String.class);
+            newPassword = this.getParam(routingContext, "new_password", true, ParamMethod.JSON, String.class);
+            password = this.getParam(routingContext, "password", true, ParamMethod.JSON, String.class);
         } catch (ParameterException e) {
             routingContext.response().setStatusCode(400).end(gson.toJson(e));
             return;

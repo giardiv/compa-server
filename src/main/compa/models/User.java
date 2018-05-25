@@ -6,6 +6,8 @@ import org.bson.types.ObjectId;
 import org.mongodb.morphia.annotations.*;
 
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 
 
@@ -57,6 +59,12 @@ public class User {
 
     public List<Location> getLocations() {
         return locations;
+    }
+
+    public Location getLastLocation() {
+        return this.getLocations().size() > 0 ?
+                this.getLocations().stream().max(Comparator.comparing(Location::getDatetime)).get() :
+                null;
     }
 
     public String getName() {
