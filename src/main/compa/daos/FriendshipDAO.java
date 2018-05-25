@@ -64,6 +64,12 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
         }, resultHandler);
     }
 
+    public void testFriendship(Handler<AsyncResult<List<Friendship>>> resultHandler){
+        vertx.executeBlocking( future -> {
+            future.complete(this.find().asList());
+        }, resultHandler);
+    }
+
     public void deleteFriendship(Friendship friendship, Handler<AsyncResult<Boolean>> resultHandler){
         vertx.executeBlocking( future -> {
             //TODO chercher le comment on supprime un document sur internet
