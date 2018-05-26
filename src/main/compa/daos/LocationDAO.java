@@ -2,16 +2,13 @@ package compa.daos;
 
 import compa.app.Container;
 import compa.dtos.LocationDTO;
-import compa.exception.RegisterException;
 import compa.models.Location;
 import compa.app.DAO;
 import compa.models.User;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import org.bson.types.ObjectId;
-import org.mongodb.morphia.Datastore;
 
-import javax.swing.text.BadLocationException;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -41,7 +38,6 @@ public class LocationDAO extends DAO<Location, ObjectId> {
                 this.save(location);
                 me.addLocation(location);
                 future.complete(location);
-
             }
 
             return;
@@ -49,7 +45,14 @@ public class LocationDAO extends DAO<Location, ObjectId> {
         }, resultHandler);
     }
 
-    public void getLocationFromDateInterval(User me, Date firstDate, Date lastDate, Handler<AsyncResult<List<Location>>> resultHandler){
+    public void getLocationFromDateInterval(User me, Date startDate, Date endDate, Handler<AsyncResult<List<Location>>> resultHandler){
+        vertx.executeBlocking( future -> {
 
+            List<Location> locationList = me.getLocations().size() > 0 ?
+                    me.getLocations().stream().filter(d -> d.getDatetime().after(startDate) && d.getDatetime().before(endDate))
+                            .collect(Collectors.toList()):
+                    null;
+            future.complete(locationList);
+        }, resultHandler);
     }
 }
