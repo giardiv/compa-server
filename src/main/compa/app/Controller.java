@@ -104,12 +104,21 @@ public abstract class Controller {
                 throw new ParameterException(ParameterException.PARAM_WRONG_FORMAT, value, Date.class.toString());
             }
         }
+        else if(type.equals(Double.class)) {
+            try {
+                return type.cast(Double.parseDouble(value));
+            } catch (NumberFormatException e) {
+                throw new ParameterException(ParameterException.PARAM_WRONG_FORMAT, value, Double.class.toString());
+
+            }
+        }
         else if(type.equals(Friendship.Status.class)){
             try{
                 return (T) Friendship.Status.valueOf(value);
             }
             catch(IllegalArgumentException e){
                 throw new ParameterException(ParameterException.PARAM_WRONG_FORMAT, value, Friendship.Status.class.toString());
+
             }
         }
         else{

@@ -1,6 +1,7 @@
 package compa.controllers;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import compa.exception.ParameterException;
 import compa.models.User;
 import io.vertx.core.http.HttpMethod;
@@ -10,8 +11,9 @@ import compa.dtos.LocationDTO;
 import compa.models.Location;
 import compa.app.Controller;
 import compa.daos.LocationDAO;
-import org.bson.types.ObjectId;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -25,24 +27,51 @@ public class LocationController extends Controller {
         super(PREFIX, container);
         this.registerAuthRoute(HttpMethod.POST, "/", this::newInstance, "application/json");
         this.registerAuthRoute(HttpMethod.GET, "/", this::getAll, "application/json");
+        this.registerAuthRoute(HttpMethod.GET, "/getLocationsList/:startDate/:endDate", this::getLocationFromDateInterval, "application/json");
 
         locationDAO = (LocationDAO) container.getDAO(Location.class);
     }
 
     private void newInstance(User me, RoutingContext routingContext){
+        Double latitude, longitude;
+        Date date;
         try {
-            Double latitude = this.getParam(routingContext, "latitude", true, ParamMethod.JSON, Double.class);
-            Double longitude = this.getParam(routingContext, "longitude", true, ParamMethod.JSON, Double.class);
-            Date date = this.getParam(routingContext, "datetime", true, ParamMethod.JSON, Date.class);
-
+            latitude = this.getParam(routingContext, "latitude", true, ParamMethod.JSON, Double.class);
+            longitude = this.getParam(routingContext, "longitude", true, ParamMethod.JSON, Double.class);
+            date = this.getParam(routingContext, "datetime", true, ParamMethod.JSON, Date.class);
         } catch (ParameterException e) {
             routingContext.response().setStatusCode(400).end(gson.toJson(e));
             return;
         }
+        locationDAO.addPosition(me,latitude,longitude,date,res -> {
+            Location locations = res.result();
+            JsonElement tempEl = this.gson.toJsonTree(locationDAO.toDTO(locations));
+            routingContext.response().end(gson.toJson(tempEl));
+        });
     }
 
     private void getAll(User me, RoutingContext routingContext){
         List<LocationDTO> list = locationDAO.toDTO(locationDAO.findAll());
     	routingContext.response().end(new Gson().toJson(list));
+    }
+
+    private void getLocationFromDateInterval(User me, RoutingContext routingContext) {
+        Date startDate = null;
+        Date endDate = null;
+
+        try {
+            startDate = this.getParam(routingContext, "startDate", true, ParamMethod.GET, Date.class);
+            endDate = this.getParam(routingContext, "endDate", true, ParamMethod.GET, Date.class);
+        } catch (ParameterException e) {
+            routingContext.response().setStatusCode(400).end(gson.toJson(e));
+            return;
+        }
+
+        locationDAO.getLocationFromDateInterval(me,startDate,endDate,res -> {
+            List<Location> locations = res.result();
+            JsonElement tempEl = this.gson.toJsonTree(locationDAO.toDTO(locations));
+            routingContext.response().end(gson.toJson(tempEl));
+
+        });
     }
 }

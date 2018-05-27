@@ -25,6 +25,8 @@ public class FriendshipController extends Controller{
         super(PREFIX, container);
         this.registerAuthRoute(HttpMethod.POST, "/request", this::addFriend, "application/json");
         this.registerAuthRoute(HttpMethod.GET, "/friends/:status", this::getFriendsByStatus, "application/json");
+        this.registerAuthRoute(HttpMethod.POST, "/deleteFriends", this::deleteFriendship, "application/json");
+        this.registerAuthRoute(HttpMethod.GET, "/addFriend/:friend_id", this::addFriend, "application/json");
         friendshipDAO = (FriendshipDAO) container.getDAO(Friendship.class);
         userDAO = (UserDAO) container.getDAO(User.class);
     }
@@ -38,6 +40,22 @@ public class FriendshipController extends Controller{
             routingContext.response().setStatusCode(400).end(gson.toJson(e));
             return;
         }
+    }
+
+    public void deleteFriendship(User me, RoutingContext routingContext){
+        String friend_id = null;
+
+        try {
+            friend_id = this.getParam(routingContext, "friend_id", true, ParamMethod.GET, String.class);
+        } catch (ParameterException e) {
+            routingContext.response().setStatusCode(400).end(gson.toJson(e));
+            return;
+        }
+        User friend = userDAO.findById(friend_id);
+
+        friendshipDAO.deleteFriendship(friend, res -> {
+            routingContext.response().end();
+        });
     }
 
     public void getFriendsByStatus(User me, RoutingContext routingContext){
@@ -57,12 +75,10 @@ public class FriendshipController extends Controller{
     }
 
     private void addFriend(User me, RoutingContext routingContext) {
-
-        // TODO: to refactor
         String friend_id = null;
 
         try {
-            friend_id = this.getParam(routingContext, "friend_id", true, ParamMethod.JSON, String.class);
+            friend_id = this.getParam(routingContext, "friend_id", true, ParamMethod.GET, String.class);
         } catch (ParameterException e) {
             routingContext.response().setStatusCode(400).end(gson.toJson(e));
             return;
@@ -87,7 +103,7 @@ public class FriendshipController extends Controller{
 
             friendshipDAO.findFriendshipByUsers(me, friend, res -> {
 
-                if(!res.failed()){
+                if(res.failed()){
                     routingContext.response().setStatusCode(400).end(gson.toJson(
                             new FriendshipException(FriendshipException.FRIENDSHIP_ALREADY_EXISTS)));
 
@@ -95,14 +111,10 @@ public class FriendshipController extends Controller{
                 }
 
                 friendshipDAO.addFriendship(me, friend, res2 -> {
-                    if(res2.failed()){
-                        routingContext.response().setStatusCode(418).end(gson.toJson(res2.cause())); //SHOULD NEVER HAPPEN
-                    }
-                    else{
-                        routingContext.response().end(
-                                gson.toJson(
-                                        new FriendshipException(FriendshipException.FRIEND_NEW)));
-                    }
+                    routingContext.response().end(
+                            gson.toJson(
+                                    new FriendshipException(FriendshipException.FRIEND_NEW)));
+
                 });
 
             });
