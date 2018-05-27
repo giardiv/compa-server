@@ -70,9 +70,9 @@ public abstract class Controller {
     protected <T> T getParam(RoutingContext context, String mandatoryParam, boolean required, ParamMethod method, Class<T> type) throws ParameterException {
 
         String value = method == ParamMethod.JSON ?
-                (String) context.getBodyAsJson().getValue(mandatoryParam).toString() :
+                (String) context.getBodyAsJson().getValue(mandatoryParam) :
                 //considering there is no nesting of objects
-                context.request().getParam(mandatoryParam).toString();
+                context.request().getParam(mandatoryParam);
 
         if(required && value == null) {
             throw new ParameterException(ParameterException.PARAM_REQUIRED, mandatoryParam, method.toString());
