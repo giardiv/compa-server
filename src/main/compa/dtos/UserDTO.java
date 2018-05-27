@@ -25,7 +25,7 @@ public class UserDTO {
         this.name = user.getName();
         this.ghostMode = user.getGhostMode();
         List<Location> locs = user.getLocations();
-        Location loc = (ghostMode)? null : user.getLastLocation();
+        Location loc = (locs.size() > 0 && !ghostMode)? locs.get(locs.size() - 1) : null;
         this.lastLocation = loc == null ? null : new LocationDTO(loc);
     }
 }
