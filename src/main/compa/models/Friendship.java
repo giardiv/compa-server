@@ -1,10 +1,11 @@
 package compa.models;
 
-import com.google.gson.annotations.Expose;
 import org.bson.types.ObjectId;
 import org.mongodb.morphia.annotations.*;
 
 import java.util.Date;
+
+import static compa.models.Friendship.Status.*;
 
 @Entity(value = "friendship", noClassnameStored = true)
 @Indexes({
@@ -15,49 +16,54 @@ public class Friendship {
     @Embedded
     public enum Status {
         PENDING,
+        AWAITING,
+
+        SORRY,
+        REFUSED,
+
         ACCEPTED,
-        REUSED,
-        BLOCKED
+
+        BLOCKED,
+        BLOCKER
     };
 
     @Id
     private ObjectId id;
 
     @Reference
-    private User me;
+    private User friend;
 
-    @Reference
-    private Friendship sister ;
+    @Reference(lazy = true)
+    private Friendship sister;
 
     private Status status;
 
     public Friendship(){}
 
     public Friendship(User me, User friend){
-        this.me = me;
-        this.status = Status.PENDING;//TODO change the status
-        this.sister  = new Friendship(friend,this);
+        this.id = ObjectId.get();
+        this.friend = friend;
+        this.status = PENDING;
+        this.sister = new Friendship(me, this);
     }
 
-    public Friendship(User me, Friendship asker){
-        this.me = me;
-        this.status = Status.PENDING;//TODO change the status
-        this.sister  = asker;
+    public Friendship(User friend, Friendship fs){
+        this.id = ObjectId.get();
+        this.friend= friend;
+        this.status = AWAITING;
+        this.sister = fs;
     }
+
     public ObjectId getId() {
         return id;
     }
 
-    public void setId(ObjectId id) {
-        this.id = id;
+    public User getFriend() {
+        return friend;
     }
 
-    public User getMe() {
-        return me;
-    }
-
-    public void setMe(User me) {
-        this.me = me;
+    public User setFriend(User friend) {
+        return this.friend = friend;
     }
 
     public Friendship getSister() {
@@ -73,7 +79,19 @@ public class Friendship {
     }
 
     public void setStatus(Status status) {
+        // TODO: to test
+        if(this.status == status)
+            return;
         this.status = status;
+        switch (status){
+            case BLOCKED:
+                sister.setStatus(BLOCKER);
+                break;
+            case REFUSED:
+                sister.setStatus(SORRY);
+            default:
+                sister.setStatus(status);
+        }
     }
 
 }

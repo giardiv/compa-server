@@ -38,7 +38,6 @@ public class UserController extends Controller {
      */
     public void getCurrentProfile(User me, RoutingContext routingContext){
         final String status = routingContext.request().getParam("id");
-        System.out.println(status);
         JsonElement tempEl = this.gson.toJsonTree(userDAO.toDTO(me));
         // todo add friendships.
         routingContext.response().end(gson.toJson(tempEl));

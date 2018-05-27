@@ -60,7 +60,6 @@ public class FakeDataGenerator {
             datastore.save(u);
         }
 
-
        Random r = new Random();
 
         for(int i = 0; i < userNb - 1; ++i){
@@ -68,27 +67,16 @@ public class FakeDataGenerator {
             int min = i+1;
             int max = userNb - 1;
             int friendId = r.nextInt((max - min) + 1) + min;
-            User other = users.get(friendId);
-            Friendship f = new Friendship(me, other);
-            datastore.save(f);
-            UpdateOperations<User> ops = datastore.createUpdateOperations(User.class).addToSet("friendships", f);
-            datastore.update(me, ops);
-            datastore.update(other, ops);
+            User friend = users.get(friendId);
+            Friendship fs_me = new Friendship(me, friend);
+            //Friendship fs_friend = new Friendship(friend, me);
+            //fs_me.setSister(fs_friend);
+            datastore.save(fs_me);
+            datastore.save(fs_me.getSister());
+            //fs_friend.setSister(fs_me);
+            //UpdateOperations<Friendship> ops = datastore.createUpdateOperations(Friendship.class).set("sister",fs_me );
+            //datastore.update(fs_friend, ops);
         }
-
-        for(int i = 0; i < 1; ++i){
-            User me = users.get(i);
-            int min = i+1;
-            int max = userNb - 1;
-            int friendId = r.nextInt((max - min) + 1) + min;
-            User other = users.get(friendId);
-            Friendship f = new Friendship(me, other);
-            datastore.save(f);
-            UpdateOperations<User> ops = datastore.createUpdateOperations(User.class).addToSet("friendships2", f);
-            datastore.update(me, ops);
-            datastore.update(other, ops);
-        }
-
     }
 
 }

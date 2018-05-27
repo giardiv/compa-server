@@ -49,7 +49,8 @@ public class LocationDAO extends DAO<Location, ObjectId> {
         vertx.executeBlocking( future -> {
 
             List<Location> locationList = me.getLocations().size() > 0 ?
-                    me.getLocations().stream().filter(d -> d.getDatetime().after(startDate) && d.getDatetime().before(endDate))
+                    me.getLocations().stream()
+                            .filter(d -> d.getDatetime().after(startDate) && d.getDatetime().before(endDate))
                             .collect(Collectors.toList()):
                     null;
             future.complete(locationList);

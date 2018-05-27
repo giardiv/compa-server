@@ -8,26 +8,23 @@ public class FriendshipDTO {
 
     private String id;
     private String status;
-    private UserDTO me;
+    private UserDTO friend;
     private FriendshipDTO sister;
     private Date datetime;
 
-    public FriendshipDTO(Friendship friendship, User user){
-        this.id = friendship.getId().toString();
-        this.status = friendship.getStatus().toString();
-        this.me = new UserDTO(user);
-        this.sister = new FriendshipDTO(friendship.getSister(),friendship.getMe(),0);
-
+    public FriendshipDTO(Friendship friendship){
+        this(friendship, 1);
     }
 
-    private FriendshipDTO(Friendship friendship, User user, int depth){
+    public FriendshipDTO(Friendship friendship, int depth){
         this.id = friendship.getId().toString();
         this.status = friendship.getStatus().toString();
-        this.me = new UserDTO(user);
-        if(depth == 0 )
-            this.sister = new FriendshipDTO(friendship.getSister(),friendship.getMe(), depth++);
-
+        this.friend = new UserDTO(friendship.getFriend());
+        if(depth > 0){
+            this.sister = new FriendshipDTO(friendship.getSister(), 0);
+        }
     }
+
     public String getId() {
         return id;
     }
@@ -44,12 +41,12 @@ public class FriendshipDTO {
         this.status = status;
     }
 
-    public UserDTO getMe() {
-        return me;
+    public UserDTO getFriend() {
+        return friend;
     }
 
-    public void setMe(UserDTO me) {
-        this.me = me;
+    public void setFriend(UserDTO friend) {
+        this.friend = friend;
     }
 
     public FriendshipDTO getSister() {

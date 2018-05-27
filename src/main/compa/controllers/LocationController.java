@@ -27,7 +27,7 @@ public class LocationController extends Controller {
         super(PREFIX, container);
         this.registerAuthRoute(HttpMethod.POST, "/", this::newInstance, "application/json");
         this.registerAuthRoute(HttpMethod.GET, "/", this::getAll, "application/json");
-        this.registerAuthRoute(HttpMethod.GET, "/getLocationsList", this::getLocationFromDateInterval, "application/json");
+        this.registerAuthRoute(HttpMethod.GET, "/getLocationsList/:startDate/:endDate", this::getLocationFromDateInterval, "application/json");
 
         locationDAO = (LocationDAO) container.getDAO(Location.class);
     }
@@ -60,24 +60,15 @@ public class LocationController extends Controller {
         Date endDate = null;
 
         try {
-            startDate = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").parse("25-05-2018 17:09:35");
-            endDate = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").parse("25-05-2018 17:12:55");
-        } catch (ParseException e) {
-            e.printStackTrace();
+            startDate = this.getParam(routingContext, "startDate", true, ParamMethod.GET, Date.class);
+            endDate = this.getParam(routingContext, "endDate", true, ParamMethod.GET, Date.class);
+        } catch (ParameterException e) {
+            routingContext.response().setStatusCode(400).end(gson.toJson(e));
+            return;
         }
-
-//        try {
-//            start = this.getParam(routingContext, "startDate", true, ParamMethod.JSON, Date.class);
-//            endDate = this.getParam(routingContext, "endDate", true, ParamMethod.JSON, Date.class);
-//        } catch (ParameterException e) {
-//            routingContext.response().setStatusCode(400).end(gson.toJson(e));
-//            return;
-//        }
-
 
         locationDAO.getLocationFromDateInterval(me,startDate,endDate,res -> {
             List<Location> locations = res.result();
-            System.out.println(locations);
             JsonElement tempEl = this.gson.toJsonTree(locationDAO.toDTO(locations));
             routingContext.response().end(gson.toJson(tempEl));
 
