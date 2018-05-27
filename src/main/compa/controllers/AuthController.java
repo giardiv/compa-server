@@ -115,7 +115,10 @@ public class AuthController extends Controller {
                 System.out.println("ok");
                 // TODO: add email to register
 
-                //sendEmail("amichi.katia@gmail.com","titre", "message sans pièce joint");
+                sendEmail("amichi.katia@gmail.com","titre", "message sans pièce joint", res1 -> {
+                    if(res1!=null)
+                        System.out.println("email Ok");
+                });
 
                 User user = res.result();
                 routingContext.response().end(gson.toJson(AuthenticationService.getJsonFromToken(user.getToken())));
