@@ -5,6 +5,8 @@ import org.mongodb.morphia.annotations.*;
 
 import java.util.Date;
 
+import static compa.models.Friendship.Status.*;
+
 @Entity(value = "friendship", noClassnameStored = true)
 @Indexes({
         // @Index(value = "login", fields = @Field("login"), unique = true),
@@ -14,11 +16,15 @@ public class Friendship {
     @Embedded
     public enum Status {
         PENDING,
-        ACCEPTED,
+        AWAITING,
+
+        SORRY,
         REFUSED,
+
+        ACCEPTED,
+
         BLOCKED,
-        BLOCKER,
-        AWAITING
+        BLOCKER
     };
 
     @Id
@@ -28,15 +34,24 @@ public class Friendship {
     private User friend;
 
     @Reference(lazy = true)
-    private Friendship sister ;
+    private Friendship sister;
 
     private Status status;
 
     public Friendship(){}
 
-    public Friendship(User friend){
+    public Friendship(User me, User friend){
+        this.id = ObjectId.get();
+        this.friend = friend;
+        this.status = PENDING;
+        this.sister = new Friendship(me, this);
+    }
+
+    public Friendship(User friend, Friendship fs){
+        this.id = ObjectId.get();
         this.friend= friend;
-        this.status = Status.PENDING;//TODO change the status
+        this.status = AWAITING;
+        this.sister = fs;
     }
 
     public ObjectId getId() {
@@ -63,8 +78,19 @@ public class Friendship {
         return status;
     }
 
-    public void setStatus(Status status) {
+    public void setStatus(Status status, boolean recursive) {
+        // TODO: to test
+        if(!recursive)
+            return;
         this.status = status;
+        switch (status){
+            case BLOCKED:
+                sister.setStatus(BLOCKER, false);
+                break;
+            case REFUSED:
+                sister.setStatus(SORRY,false);
+            default:
+                sister.setStatus(status,false);
+        }
     }
-
 }
