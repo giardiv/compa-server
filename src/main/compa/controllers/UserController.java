@@ -23,7 +23,7 @@ public class UserController extends Controller {
         super(PREFIX, container);
         this.registerAuthRoute(HttpMethod.GET, "/:id", this::getProfile, "application/json");
         this.registerAuthRoute(HttpMethod.GET, "", this::getCurrentProfile, "application/json");
-        this.registerAuthRoute(HttpMethod.PUT, "", this::updateProfile, "application/json");
+        this.registerAuthRoute(HttpMethod.PUT, "/updateProfile", this::updateProfile, "application/json");
         this.registerAuthRoute(HttpMethod.PUT, "/ghostmode", this::setGhostMode, "application/json");
 
         userDAO = (UserDAO) container.getDAO(User.class);
@@ -95,7 +95,21 @@ public class UserController extends Controller {
             routingContext.response().end();
         });
     }
+
     public void updateProfile(User me, RoutingContext routingContext){
-        // TODO
+        String name = null;
+        try {
+            name = this.getParam(routingContext, "name", true, ParamMethod.JSON, String.class);
+        } catch (ParameterException e) {
+            routingContext.response().setStatusCode(400).end(gson.toJson(e));
+            return;
+        }
+        userDAO.updateProfile(me, name, res -> {
+            User u = res.result();
+            JsonElement tempEl = this.gson.toJsonTree(userDAO.toDTO(u));
+
+            routingContext.response().end(gson.toJson(tempEl));
+        });
     }
+
 }

@@ -6,6 +6,8 @@ import org.bson.types.ObjectId;
 import org.mongodb.morphia.annotations.*;
 
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 
 
@@ -36,7 +38,7 @@ public class User {
         this.salt = salt;
         this.name = name;
         this.ghostMode = false;
-        this.setToken();
+        this.generateToken();
     }
 
     public void addLocation(Location l){
@@ -47,8 +49,8 @@ public class User {
         return this.token;
     }
 
-    public void setToken(){
-        this.token = RandomStringUtils.randomAscii(TOKEN_COUNT);
+    public void generateToken(){
+        this.token = RandomStringUtils.randomAlphanumeric(TOKEN_COUNT);
     }
 
     public String getLogin() {
@@ -59,8 +61,18 @@ public class User {
         return locations;
     }
 
+    public Location getLastLocation() {
+        return this.getLocations().size() > 0 ?
+                this.getLocations().stream().max(Comparator.comparing(Location::getDatetime)).get() :
+                null;
+    }
+
     public String getName() {
         return name;
+    }
+
+    public void setName(String name) {
+        this.name=name;
     }
 
     public ObjectId getId() {

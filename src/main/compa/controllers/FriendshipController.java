@@ -9,7 +9,6 @@ import compa.exception.ParameterException;
 import compa.exception.UserException;
 import compa.models.Friendship;
 import compa.models.User;
-import compa.services.GsonService;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.web.RoutingContext;
 
@@ -25,12 +24,15 @@ public class FriendshipController extends Controller{
     public FriendshipController(Container container) {
         super(PREFIX, container);
         this.registerAuthRoute(HttpMethod.POST, "/request", this::addFriend, "application/json");
-        this.registerAuthRoute(HttpMethod.GET, "/friends/:status", this::getFriendshipByStatus, "application/json");
+        this.registerAuthRoute(HttpMethod.GET, "/friends/:status", this::getFriendsByStatus, "application/json");
+        this.registerAuthRoute(HttpMethod.POST, "/deleteFriends", this::deleteFriendship, "application/json");
+        this.registerAuthRoute(HttpMethod.GET, "/addFriend/:friend_id", this::addFriend, "application/json");
         friendshipDAO = (FriendshipDAO) container.getDAO(Friendship.class);
         userDAO = (UserDAO) container.getDAO(User.class);
     }
 
     public void updateFriendship(User me, RoutingContext routingContext){
+        // TODO: to refactor
         String status = null;
         try {
             status = this.getParam(routingContext, "status", true, ParamMethod.GET, String.class);
@@ -38,50 +40,46 @@ public class FriendshipController extends Controller{
             routingContext.response().setStatusCode(400).end(gson.toJson(e));
             return;
         }
-
     }
 
-    public void getFriendshipByStatus(User me, RoutingContext routingContext){
-        String status = null;
+    public void deleteFriendship(User me, RoutingContext routingContext){
+        String friend_id = null;
 
         try {
-            status = this.getParam(routingContext, "status", true, ParamMethod.GET, String.class);
+            friend_id = this.getParam(routingContext, "friend_id", true, ParamMethod.GET, String.class);
+        } catch (ParameterException e) {
+            routingContext.response().setStatusCode(400).end(gson.toJson(e));
+            return;
+        }
+        User friend = userDAO.findById(friend_id);
+
+        friendshipDAO.deleteFriendship(friend, res -> {
+            routingContext.response().end();
+        });
+    }
+
+    public void getFriendsByStatus(User me, RoutingContext routingContext){
+        Friendship.Status status = null;
+
+        try {
+            status = this.getParam(routingContext, "status", true, ParamMethod.GET, Friendship.Status.class);
         } catch (ParameterException e) {
             routingContext.response().setStatusCode(400).end(gson.toJson(e));
             return;
         }
 
-        Friendship.Status statusEnum = null;
-        try{
-            statusEnum = Friendship.Status.valueOf(status);
-            if(statusEnum.equals(Friendship.Status.BLOCKED)){
-
-                routingContext.response().setStatusCode(400).end(
-                        gson.toJson(new FriendshipException(FriendshipException.INVALID_STATUS)));
-                return;
-            }
-
-        } catch (IllegalArgumentException e){
-            routingContext.response().setStatusCode(400).end(
-                    gson.toJson(new FriendshipException(FriendshipException.INVALID_STATUS)));
-            return;
-        }
-
-        friendshipDAO.findFriendshipsByStatus(me, statusEnum, res -> {
-            List<Friendship> friendshipList = res.result();
-            System.out.println(friendshipList);
-            System.out.println("friendshipList.size() : " + friendshipList.size());
-
+        friendshipDAO.findFriendsByStatus(me, status, res -> {
+            List<User> friendshipList = res.result();
+            routingContext.response().end(gson.toJson(userDAO.toDTO(friendshipList)));
         });
     }
 
     private void addFriend(User me, RoutingContext routingContext) {
-
         String friend_id = null;
 
         try {
-            friend_id = this.getParam(routingContext, "friend_id", true, ParamMethod.JSON, String.class);
-            System.out.println("friend : " + friend_id);
+            friend_id = this.getParam(routingContext, "friend_id", true, ParamMethod.GET, String.class);
+
         } catch (ParameterException e) {
             routingContext.response().setStatusCode(400).end(gson.toJson(e));
             return;
@@ -106,7 +104,7 @@ public class FriendshipController extends Controller{
 
             friendshipDAO.findFriendshipByUsers(me, friend, res -> {
 
-                if(!res.failed()){
+                if(res.failed()){
                     routingContext.response().setStatusCode(400).end(gson.toJson(
                             new FriendshipException(FriendshipException.FRIENDSHIP_ALREADY_EXISTS)));
 
@@ -114,14 +112,10 @@ public class FriendshipController extends Controller{
                 }
 
                 friendshipDAO.addFriendship(me, friend, res2 -> {
-                    if(res2.failed()){
-                        routingContext.response().setStatusCode(418).end(gson.toJson(res2.cause())); //SHOULD NEVER HAPPEN
-                    }
-                    else{
-                        routingContext.response().end(
-                                gson.toJson(
-                                        new FriendshipException(FriendshipException.FRIEND_NEW)));
-                    }
+                    routingContext.response().end(
+                            gson.toJson(
+                                    new FriendshipException(FriendshipException.FRIEND_NEW)));
+
                 });
 
             });

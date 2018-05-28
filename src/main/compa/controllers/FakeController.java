@@ -35,9 +35,8 @@ public class FakeController extends Controller{
      * @param routingContext
      */
     private void getFriends(User me, RoutingContext routingContext) {
-        friendshipDAO.findFriendshipsByStatus(me, Friendship.Status.PENDING, res -> {
+        friendshipDAO.testFriendship(res -> {
             List<Friendship> friendships = res.result();
-            System.out.println("Friendship size : " +  friendships);
             List<UserDTO> friends = friendshipDAO.toUserDTO(friendships);
             routingContext.response().end(new Gson().toJson(friends));
         });
