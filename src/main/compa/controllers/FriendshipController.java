@@ -57,6 +57,8 @@ public class FriendshipController extends Controller{
             routingContext.response().end();
         });
     }
+  
+    public void searchFriend(){}
 
     public void getFriendsByStatus(User me, RoutingContext routingContext){
         Friendship.Status status = null;

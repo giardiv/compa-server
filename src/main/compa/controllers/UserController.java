@@ -98,4 +98,6 @@ public class UserController extends Controller {
     public void updateProfile(User me, RoutingContext routingContext){
         // TODO
     }
+
+    public void uploadPic(){ }
 }
