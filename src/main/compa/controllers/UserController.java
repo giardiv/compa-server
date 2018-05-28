@@ -68,7 +68,7 @@ public class UserController extends Controller {
             } else {
                 routingContext.response().setStatusCode(404).end(
                         gson.toJson(
-                                new UserException(UserException.USER_NOT_FOUND, finalId)));
+                                new UserException(UserException.USER_NOT_FOUND, "id", finalId)));
             }
         });
     }
