@@ -1,7 +1,9 @@
 package compa.daos;
 
+import com.mongodb.operation.DeleteOperation;
 import compa.dtos.FriendshipDTO;
 import compa.models.Friendship;
+import compa.models.Location;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import compa.app.Container;
@@ -24,12 +26,12 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
         super(Friendship.class, container);
     }
 
-    public void addFriendship(User friend,User me, Handler<AsyncResult<Friendship>> resultHandler) {
+    public void addFriendship(User me, User friend, Handler<AsyncResult<Friendship>> resultHandler) {
      vertx.executeBlocking( future -> {
             logger.log(Level.INFO, "Adding a friendship between {0} and {1}",new Object[]{me.getLogin(), friend.getLogin()});
 
-            /**Friendship fs_me = new Friendship(me,);
-            Friendship fs_friend = new Friendship(friend);
+            Friendship fs_me = new Friendship(me, friend);
+            Friendship fs_friend = new Friendship(friend, me);
             this.save(fs_friend);
             fs_me.setSister(fs_friend);
             this.save(fs_me);
@@ -40,7 +42,7 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
             logger.log(Level.INFO, "Successfully added a friendship between {0} and {1}",
                     new Object[]{me.getLogin(), friend.getLogin()});
 
-            future.complete(fs_me);**/
+            future.complete(fs_me);
 
         }, resultHandler);
 
@@ -73,11 +75,21 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
         }, resultHandler);
     }
 
-    public void deleteFriendship(Friendship friendship, Handler<AsyncResult<Boolean>> resultHandler){
+    public void deleteFriendship(User friend, Handler<AsyncResult<Boolean>> resultHandler){
         vertx.executeBlocking( future -> {
-            //TODO chercher le comment on supprime un document sur internet
+            Query<Friendship> query = this.createQuery();
+            query.and(
+                    query.criteria("friend").equal(friend)
+            );
+            Friendship friendship = this.findOne(query);
+            if (friendship== null)
+                return;
 
+            this.getDatastore().delete(friendship.getSister());
+            this.getDatastore().delete(friendship);
+            future.complete();
         }, resultHandler);
+
     }
 
     public void findFriendshipByUsers(User me, User friend, Handler<AsyncResult<Friendship>> resultHandler){

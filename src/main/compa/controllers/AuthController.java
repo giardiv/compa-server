@@ -11,6 +11,8 @@ import compa.app.*;
 import compa.models.User;
 import compa.daos.UserDAO;
 
+import static compa.email.SendEmail.sendEmail;
+
 public class AuthController extends Controller {
 
     private static final String PREFIX = "";
@@ -82,7 +84,6 @@ public class AuthController extends Controller {
         String password = null;
         String name = null;
         try {
-
             login = (String) this.getParam(routingContext, "login", true, ParamMethod.JSON, String.class);
             password = (String) this.getParam(routingContext, "password", true, ParamMethod.JSON, String.class);
             name = (String) this.getParam(routingContext, "name", true, ParamMethod.JSON, String.class);
@@ -91,6 +92,7 @@ public class AuthController extends Controller {
             routingContext.response().setStatusCode(400).end(gson.toJson(e));
             return;
         }
+        // TODO: login instance of email ?
 
         if(!AuthenticationService.isAcceptablePassword(password)){
             routingContext.response().setStatusCode(400).end(
@@ -111,7 +113,10 @@ public class AuthController extends Controller {
             } else {
                 // TODO: log
                 System.out.println("ok");
-                // TODO: send mail ?
+                // TODO: add email to register
+
+                //sendEmail("amichi.katia@gmail.com","titre", "message sans pièce joint");
+
                 User user = res.result();
                 routingContext.response().end(gson.toJson(AuthenticationService.getJsonFromToken(user.getToken())));
                 return;
