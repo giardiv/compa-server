@@ -1,14 +1,17 @@
 package compa.controllers;
 
+import com.google.gson.JsonElement;
 import compa.app.Container;
 import compa.app.Controller;
 import compa.daos.FriendshipDAO;
 import compa.daos.UserDAO;
 import compa.exception.FriendshipException;
+import compa.exception.LoginException;
 import compa.exception.ParameterException;
 import compa.exception.UserException;
 import compa.models.Friendship;
 import compa.models.User;
+import io.vertx.core.Future;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.web.RoutingContext;
 
@@ -27,6 +30,7 @@ public class FriendshipController extends Controller{
         this.registerAuthRoute(HttpMethod.GET, "/friends/:status", this::getFriendsByStatus, "application/json");
         this.registerAuthRoute(HttpMethod.POST, "/deleteFriends", this::deleteFriendship, "application/json");
         this.registerAuthRoute(HttpMethod.GET, "/addFriend/:friend_id", this::addFriend, "application/json");
+        this.registerAuthRoute(HttpMethod.GET, "/search/:tag", this::searchFriend, "application/json");
         friendshipDAO = (FriendshipDAO) container.getDAO(Friendship.class);
         userDAO = (UserDAO) container.getDAO(User.class);
     }
@@ -58,7 +62,28 @@ public class FriendshipController extends Controller{
         });
     }
   
-    public void searchFriend(){}
+    public void searchFriend(User me, RoutingContext routingContext){
+        String tag;
+
+        try {
+            tag = this.getParam(routingContext, "tag", true, ParamMethod.GET, String.class);
+        } catch (ParameterException e) {
+            routingContext.response().setStatusCode(400).end(gson.toJson(e));
+            return;
+        }
+
+        userDAO.findOne("login", tag, res -> {
+            User u = res.result();
+            if(u != null){
+                JsonElement tempEl = this.gson.toJsonTree(userDAO.toDTO(u));
+                routingContext.response().end(gson.toJson(tempEl));
+            } else {
+                routingContext.response().setStatusCode(404).end(
+                        gson.toJson(
+                                new UserException(UserException.USER_NOT_FOUND, "login", tag)));
+            }
+        });
+    }
 
     public void getFriendsByStatus(User me, RoutingContext routingContext){
         Friendship.Status status = null;
@@ -86,6 +111,7 @@ public class FriendshipController extends Controller{
             return;
         }
 
+        String finalFriend_id = friend_id;
         userDAO.findById(friend_id, res1 -> {
 
             User friend = res1.result();
@@ -93,7 +119,7 @@ public class FriendshipController extends Controller{
             if(friend == null){
                 routingContext.response().setStatusCode(400).end(
                         gson.toJson(
-                                new UserException(UserException.USER_NOT_FOUND)));
+                                new UserException(UserException.USER_NOT_FOUND, "id", finalFriend_id)));
                 return;
             }
 
