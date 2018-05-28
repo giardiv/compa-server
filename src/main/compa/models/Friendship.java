@@ -78,20 +78,19 @@ public class Friendship {
         return status;
     }
 
-    public void setStatus(Status status) {
+    public void setStatus(Status status, boolean recursive) {
         // TODO: to test
-        if(this.status == status)
+        if(!recursive)
             return;
         this.status = status;
         switch (status){
             case BLOCKED:
-                sister.setStatus(BLOCKER);
+                sister.setStatus(BLOCKER, false);
                 break;
             case REFUSED:
-                sister.setStatus(SORRY);
+                sister.setStatus(SORRY,false);
             default:
-                sister.setStatus(status);
+                sister.setStatus(status,false);
         }
     }
-
 }
