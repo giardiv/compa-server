@@ -74,9 +74,9 @@ public class FriendshipController extends Controller{
                                     new UserException(FriendshipException.NOT_FRIEND)));
                     return;
                 }
-                // TODO: first check if pending
-                System.out.println(fs.getId());
-                System.out.println(status);
+                // TODO: to test
+                if(status == Friendship.Status.ACCEPTED && fs.getStatus() != Friendship.Status.AWAITING)
+                    return;
                 friendshipDAO.updateFriendship(fs, status, res2 -> {
                     routingContext.response().end(
                             gson.toJson(""));
