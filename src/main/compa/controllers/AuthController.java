@@ -53,7 +53,7 @@ public class AuthController extends Controller {
         userDAO.getByLoginAndPassword(login, password, res -> {
             User u = res.result();
             if(u != null){
-                u.setToken();
+                u.generateToken();
                 userDAO.save(u);
                 routingContext.response().end(
                         gson.toJson(
@@ -80,13 +80,16 @@ public class AuthController extends Controller {
      * @apiSuccess {String} Token    Token is returned
      */
     private void register(RoutingContext routingContext){
+        System.out.println("In register");
+        String name = null;
+        String email = null;
         String  login = null;
         String password = null;
-        String name = null;
         try {
+            name = (String) this.getParam(routingContext, "name", true, ParamMethod.JSON, String.class);
+            email = (String) this.getParam(routingContext, "email", true, ParamMethod.JSON, String.class);
             login = (String) this.getParam(routingContext, "login", true, ParamMethod.JSON, String.class);
             password = (String) this.getParam(routingContext, "password", true, ParamMethod.JSON, String.class);
-            name = (String) this.getParam(routingContext, "name", true, ParamMethod.JSON, String.class);
 
         } catch (ParameterException e) {
             routingContext.response().setStatusCode(400).end(gson.toJson(e));

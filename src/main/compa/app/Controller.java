@@ -114,6 +114,7 @@ public abstract class Controller {
         }
         else if(type.equals(Friendship.Status.class)){
             try{
+                value = value.toUpperCase();
                 return (T) Friendship.Status.valueOf(value);
             }
             catch(IllegalArgumentException e){

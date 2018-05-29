@@ -1,5 +1,8 @@
 package compa.daos;
 
+import com.mongodb.DB;
+import com.mongodb.gridfs.GridFS;
+import com.mongodb.gridfs.GridFSInputFile;
 import compa.app.MongoUtil;
 import compa.dtos.UserDTO;
 import compa.services.AuthenticationService;
@@ -11,7 +14,7 @@ import compa.models.User;
 import compa.app.DAO;
 import org.bson.types.ObjectId;
 import org.mongodb.morphia.query.UpdateOperations;
-
+import java.io.File;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -115,7 +118,7 @@ public class UserDAO extends DAO<User, ObjectId> {
 
     }
 
-    public void setImgProfile(User user, Handler<AsyncResult<User>> resultHandler){
+    public void setImgProfile(User user, byte[] imageBytes, Handler<AsyncResult<User>> resultHandler){
         vertx.executeBlocking( future -> {
 
         }, resultHandler);

@@ -1,6 +1,7 @@
 package compa.controllers;
 
 import com.google.gson.JsonElement;
+import com.mongodb.gridfs.GridFS;
 import compa.app.Container;
 import compa.app.Controller;
 import compa.daos.UserDAO;
@@ -13,6 +14,9 @@ import io.vertx.core.Future;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.web.RoutingContext;
 import org.bson.types.ObjectId;
+
+import java.io.File;
+import java.io.FileInputStream;
 
 public class UserController extends Controller {
     private static final String PREFIX = "/user";
@@ -110,6 +114,20 @@ public class UserController extends Controller {
 
             routingContext.response().end(gson.toJson(tempEl));
         });
+    }
+
+    public void setImg(){
+
+    }
+
+        public byte[] LoadImage(String filePath) throws Exception {
+        File file = new File(filePath);
+        int size = (int)file.length();
+        byte[] buffer = new byte[size];
+        FileInputStream in = new FileInputStream(file);
+        in.read(buffer);
+        in.close();
+        return buffer;
     }
 
 }

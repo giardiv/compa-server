@@ -1,10 +1,12 @@
 package compa.models;
 
 
+import com.mongodb.gridfs.GridFSDBFile;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.bson.types.ObjectId;
 import org.mongodb.morphia.annotations.*;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
@@ -21,7 +23,7 @@ public class User {
     @Id
     public ObjectId id;
 
-    private String login, password, token, name, salt;
+    private String login, email, password, token, name, salt;
 
     @Reference
     private List<Location> locations;
@@ -32,11 +34,12 @@ public class User {
     }
 
     public User(String login, String name, String password, String salt){
+        this.name = name;
+        this.name = name;
         this.login = login;
         this.password = password;
         this.locations = new ArrayList<>();
         this.salt = salt;
-        this.name = name;
         this.ghostMode = false;
         this.generateToken();
     }
