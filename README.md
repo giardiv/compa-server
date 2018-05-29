@@ -1,5 +1,4 @@
 # Compa
+#### L3/DANT : Sarah, Katia, Merzouk, Vincent
 
-- Vert.x starter github
-
-https://github.com/vert-x3/vertx-maven-starter
+This is the back side of the project, which is running on vert.x
