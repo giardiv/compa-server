@@ -5,6 +5,7 @@ import compa.app.Controller;
 import com.google.gson.Gson;
 import compa.daos.FriendshipDAO;
 import compa.daos.UserDAO;
+import compa.dtos.FriendshipDTO;
 import compa.dtos.UserDTO;
 import compa.models.Friendship;
 import io.vertx.core.http.HttpMethod;
@@ -35,12 +36,9 @@ public class FakeController extends Controller{
      * @param routingContext
      */
     private void getFriends(User me, RoutingContext routingContext) {
-        friendshipDAO.testFriendship(res -> {
-            List<Friendship> friendships = res.result();
-            List<UserDTO> friends = friendshipDAO.toUserDTO(friendships);
-            routingContext.response().end(new Gson().toJson(friends));
-        });
-
+        List<Friendship> friendships = friendshipDAO.findAll();
+        List<FriendshipDTO> friends = friendshipDAO.toDTO(friendships);
+        routingContext.response().end(gson.toJson(friends));
     }
 
     /**

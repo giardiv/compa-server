@@ -71,7 +71,7 @@ public class UserDAO extends DAO<User, ObjectId> {
     public void findById(String id, Handler<AsyncResult<User>> resultHandler) {
 
         vertx.executeBlocking( future -> {
-            logger.log(Level.INFO, "Looking for user {0}", id);
+            logger.log(Level.INFO, "Looking for user with id {0}", id);
             User u = super.findById(id);
             logger.log(Level.INFO, "User {0}found", u == null ? "not " : "");
             future.complete(u);
@@ -82,7 +82,7 @@ public class UserDAO extends DAO<User, ObjectId> {
     public void findById(ObjectId id, Handler<AsyncResult<User>> resultHandler) {
 
         vertx.executeBlocking( future -> {
-            logger.log(Level.INFO, "Looking for user {0}", id);
+            logger.log(Level.INFO, "Looking for user with ObjectId {0}", id);
             User u = super.findOne("id", id);
             logger.log(Level.INFO, "User {0}found", u == null ? "not " : "");
             future.complete(u);
