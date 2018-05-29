@@ -83,14 +83,37 @@ public class Friendship {
         if(!recursive)
             return;
         this.status = status;
-        switch (status){
+        sister.setStatus(Friendship.getRiprocalStatus(status), false);
+    }
+
+    public static Status getRiprocalStatus(Status s){
+        Status reciprocal = null;
+        switch (s){
+            case PENDING:
+                reciprocal = AWAITING;
+                break;
+            case AWAITING:
+                reciprocal = PENDING;
+                break;
             case BLOCKED:
-                sister.setStatus(BLOCKER, false);
+                reciprocal = BLOCKER;
+                break;
+            case BLOCKER:
+                reciprocal = BLOCKED;
                 break;
             case REFUSED:
-                sister.setStatus(SORRY,false);
+                reciprocal = SORRY;
+                break;
+            case SORRY:
+                reciprocal = REFUSED;
+                break;
             default:
-                sister.setStatus(status,false);
+                reciprocal = s;
         }
+        return reciprocal;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
     }
 }
