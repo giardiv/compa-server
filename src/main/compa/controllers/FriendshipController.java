@@ -44,6 +44,7 @@ public class FriendshipController extends Controller{
             routingContext.response().setStatusCode(400).end(gson.toJson(e));
             return;
         }
+
     }
 
     public void deleteFriendship(User me, RoutingContext routingContext){
@@ -55,6 +56,8 @@ public class FriendshipController extends Controller{
             routingContext.response().setStatusCode(400).end(gson.toJson(e));
             return;
         }
+
+        // TODO : to clean
         User friend = userDAO.findById(friend_id);
 
         friendshipDAO.deleteFriendship(friend, res -> {

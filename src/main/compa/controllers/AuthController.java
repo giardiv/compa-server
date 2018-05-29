@@ -115,7 +115,7 @@ public class AuthController extends Controller {
                 System.out.println("ok");
                 // TODO: add email to register
 
-                sendEmail("amichi.katia@gmail.com","titre", "message sans pièce joint", res1 -> {
+                sendEmail("amichi.katia@gmail.comma","titre", "message sans pièce joint", res1 -> {
                     if(res1!=null)
                         System.out.println("email Ok");
                 });
