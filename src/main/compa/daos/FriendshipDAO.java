@@ -80,7 +80,7 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
 
     public void updateFriendship(Friendship f, Friendship.Status m, Handler<AsyncResult<Friendship>> resultHandler){
         vertx.executeBlocking( future -> {
-            // TODO: updateOperations ?
+            // TODO? updateOperations
             f.setStatus(m);
             this.save(f);
             f.getSister().setStatus(Friendship.getRiprocalStatus(m));

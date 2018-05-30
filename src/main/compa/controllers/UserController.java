@@ -10,9 +10,15 @@ import compa.exception.UserException;
 import compa.models.User;
 import compa.services.AuthenticationService;
 import io.vertx.core.Future;
+import io.vertx.core.file.FileSystem;
 import io.vertx.core.http.HttpMethod;
+import io.vertx.ext.web.FileUpload;
 import io.vertx.ext.web.RoutingContext;
 import org.bson.types.ObjectId;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Set;
 
 public class UserController extends Controller {
     private static final String PREFIX = "/user";
@@ -25,6 +31,7 @@ public class UserController extends Controller {
         this.registerAuthRoute(HttpMethod.GET, "", this::getCurrentProfile, "application/json");
         this.registerAuthRoute(HttpMethod.PUT, "", this::updateProfile, "application/json");
         this.registerAuthRoute(HttpMethod.PUT, "/ghostmode", this::setGhostMode, "application/json");
+        this.registerAuthRoute(HttpMethod.POST, "/uploadPic", this::uploadPic, "application/json");
 
         userDAO = (UserDAO) container.getDAO(User.class);
     }
@@ -39,7 +46,7 @@ public class UserController extends Controller {
     public void getCurrentProfile(User me, RoutingContext routingContext){
         final String status = routingContext.request().getParam("id");
         JsonElement tempEl = this.gson.toJsonTree(userDAO.toDTO(me));
-        // todo add friendships.
+        // todo? add friendships
         routingContext.response().end(gson.toJson(tempEl));
     }
 
@@ -99,5 +106,28 @@ public class UserController extends Controller {
         // TODO
     }
 
-    public void uploadPic(){ }
+    public void uploadPic(User me, RoutingContext routingContext){
+        String encryptedId = me.getId().toString();
+        new File("profile-images/" + encryptedId + ".png").delete();
+        // Refresh
+
+        Set<FileUpload> files = routingContext.fileUploads();
+
+        for(FileUpload file : files) {
+            File uploadedFile = new File(file.uploadedFileName());
+            uploadedFile.renameTo(new File("profile-images/" + encryptedId + ".png"));
+            try {
+                uploadedFile.createNewFile();
+                System.out.println(uploadedFile.getName());
+                System.out.println(uploadedFile.getAbsolutePath());
+                System.out.println("profile-images/" + encryptedId + ".png");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            new File(file.uploadedFileName()).delete();
+        }
+
+        routingContext.response().setStatusCode(201).end();
+        routingContext.response().close();
+    }
 }
