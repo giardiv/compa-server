@@ -1,5 +1,6 @@
 package compa.app;
 
+import compa.services.ImageService;
 import io.vertx.ext.web.Router;
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.dao.BasicDAO;
