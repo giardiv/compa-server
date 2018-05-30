@@ -60,17 +60,15 @@ public class FriendshipController extends Controller{
         userDAO.findById(friend_id, res1 -> {
             User friend = res1.result();
             if(friend == null){
-                routingContext.response().setStatusCode(404).end(
-                        gson.toJson(
-                                new UserException(UserException.USER_NOT_FOUND, "id", friend_id)));
+                routingContext.response().setStatusCode(404).end(gson.toJson(
+                        new UserException(UserException.USER_NOT_FOUND, "id", friend_id)));
                 return;
             }
             friendshipDAO.findFriendshipByUsers(me, friend, res -> {
                 Friendship fs = res.result();
                 if(fs == null){
-                    routingContext.response().setStatusCode(404).end(
-                            gson.toJson(
-                                    new UserException(FriendshipException.NOT_FRIEND)));
+                    routingContext.response().setStatusCode(404).end(gson.toJson(
+                            new UserException(FriendshipException.NOT_FRIEND)));
                     return;
                 }
                 // TODO: to test
@@ -78,7 +76,7 @@ public class FriendshipController extends Controller{
                     return;
                 friendshipDAO.updateFriendship(fs, status, res2 -> {
                     routingContext.response().end(
-                            gson.toJson(""));
+                            gson.toJson("{\"success\":true}"));
                 });
             });
         });
@@ -106,9 +104,8 @@ public class FriendshipController extends Controller{
         userDAO.findById(friend_id, res1 -> {
             User friend = res1.result();
             if(friend == null){
-                routingContext.response().setStatusCode(404).end(
-                        gson.toJson(
-                                new UserException(UserException.USER_NOT_FOUND, "id", friend_id)));
+                routingContext.response().setStatusCode(404).end(gson.toJson(
+                        new UserException(UserException.USER_NOT_FOUND, "id", friend_id)));
                 return;
             }
             if(friend.equals(me)){
@@ -125,7 +122,7 @@ public class FriendshipController extends Controller{
                     return;
                 }
                 friendshipDAO.deleteFriendship(fs, res2 -> {
-                    routingContext.response().end();
+                    routingContext.response().end("{\"success\":true}");
                 });
             });
         });
@@ -156,9 +153,8 @@ public class FriendshipController extends Controller{
                 JsonElement tempEl = this.gson.toJsonTree(userDAO.toDTO(u));
                 routingContext.response().end(gson.toJson(tempEl));
             } else {
-                routingContext.response().setStatusCode(404).end(
-                        gson.toJson(
-                                new UserException(UserException.USER_NOT_FOUND, "login", tag)));
+                routingContext.response().setStatusCode(404).end(gson.toJson(
+                        new UserException(UserException.USER_NOT_FOUND, "login", tag)));
             }
         });
     }
@@ -210,9 +206,8 @@ public class FriendshipController extends Controller{
         userDAO.findById(friend_id, res1 -> {
             User friend = res1.result();
             if(friend == null){
-                routingContext.response().setStatusCode(404).end(
-                        gson.toJson(
-                                new UserException(UserException.USER_NOT_FOUND, "id", friend_id)));
+                routingContext.response().setStatusCode(404).end(gson.toJson(
+                        new UserException(UserException.USER_NOT_FOUND, "id", friend_id)));
                 return;
             }
             if(friend.equals(me)){
@@ -230,7 +225,7 @@ public class FriendshipController extends Controller{
                 }
                 friendshipDAO.addFriendship(me, friend, res2 -> {
                     routingContext.response().end(
-                            gson.toJson(""));
+                            gson.toJson("{\"success\":true}"));
                 });
             });
         });

@@ -86,7 +86,7 @@ public abstract class Controller {
                 throw new ParameterException(ParameterException.PARAM_WRONG_FORMAT, value, Integer.class.toString());
             }
         }
-        
+
         else if (type.equals(String.class)) {
             return type.cast(value);
         }
