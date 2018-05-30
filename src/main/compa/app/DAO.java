@@ -6,8 +6,9 @@ import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.dao.BasicDAO;
 
 import java.util.List;
+import java.util.Map;
 
-public class DAO<T, K> extends BasicDAO<T, K> {
+public abstract class DAO<T, K> extends BasicDAO<T, K> {
 
     protected Vertx vertx;
 
@@ -23,4 +24,6 @@ public class DAO<T, K> extends BasicDAO<T, K> {
     public T findById(String id) {
         return this.findOne("id", new ObjectId(id));
     }
+
+    public abstract void init(Map<Class, DAO> daos);
 }

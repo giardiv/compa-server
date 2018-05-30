@@ -15,6 +15,7 @@ import org.bson.types.ObjectId;
 import org.mongodb.morphia.Morphia;
 import org.mongodb.morphia.query.*;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -112,4 +113,8 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
         return friendships.stream().map(FriendshipDTO::new).collect(Collectors.toList());
     }
 
+    @Override
+    public void init(Map<Class, DAO> daos) {
+
+    }
 }
