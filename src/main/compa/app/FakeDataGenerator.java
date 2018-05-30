@@ -34,7 +34,7 @@ public class FakeDataGenerator {
         double baseLongitude = Math.round((cityTest.getLongitude() - 0.008)*1000)/1000;
 
         int offset = -10000;
-        int userNb = 20;
+        int userNb = 50;
         int locationsPerUser = 5;
 
         for(int i = 0; i < userNb; ++i){
@@ -64,21 +64,22 @@ public class FakeDataGenerator {
 
         for(int i = 0; i < userNb - 1; ++i){
             User me = users.get(i);
-            int min = i+1;
-            int max = userNb - 1;
-            int friendId = r.nextInt((max - min) + 1) + min;
-            User friend = users.get(friendId);
-            Friendship fs_me = new Friendship(me, friend);
+            for(int j = i; j < userNb - 1; ++j){
+                User friend = users.get(j);
 
-            if(i % 7 == 0)
-                fs_me.setStatus(Friendship.Status.BLOCKED, true);
-            if(i % 3 == 0)
-                fs_me.setStatus(Friendship.Status.REFUSED, true);
-            if(i % 5 == 0)
-                fs_me.setStatus(Friendship.Status.ACCEPTED, true);
+                Friendship fs_me = new Friendship(me, friend);
 
-            datastore.save(fs_me);
-            datastore.save(fs_me.getSister());
+                int n = r.nextInt(1000);
+                if(n % 11 == 0)
+                    fs_me.setStatus(Friendship.Status.BLOCKED, true);
+                if(n % 7 == 0)
+                    fs_me.setStatus(Friendship.Status.REFUSED, true);
+                if(n % 2 == 0)
+                    fs_me.setStatus(Friendship.Status.ACCEPTED, true);
+
+                datastore.save(fs_me);
+                datastore.save(fs_me.getSister());
+            }
         }
     }
 

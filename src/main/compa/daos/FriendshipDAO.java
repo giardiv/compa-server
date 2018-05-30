@@ -82,9 +82,6 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
             this.save(f);
             f.getSister().setStatus(Friendship.getReciprocalStatus(m));
             this.save(f.getSister());
-            System.out.println(f.getSister().getStatus());
-            System.out.println(f.getStatus());
-            System.out.println(m);
             future.complete(f);
         }, resultHandler);
     }

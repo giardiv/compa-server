@@ -65,7 +65,6 @@ public class LocationController extends Controller {
      * @apiSuccess Return an array of locationDTO
      */
     private void getAll(User me, RoutingContext routingContext){
-        System.out.println(me.getId());
         locationDAO.getLocationFromUser(me,res -> {
             List<Location> list = res.result();
             routingContext.response().end(gson.toJson(locationDAO.toDTO(list)));
