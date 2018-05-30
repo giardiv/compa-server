@@ -16,6 +16,7 @@ import org.bson.types.ObjectId;
 import org.mongodb.morphia.query.UpdateOperations;
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -43,7 +44,7 @@ public class UserDAO extends DAO<User, ObjectId> {
         }, resultHandler);
     }
 
-    public void addUser(String login, String name, String password, String salt, Handler<AsyncResult<User>> resultHandler) {
+    public void addUser(String email, String name, String login, String password, String salt, Handler<AsyncResult<User>> resultHandler) {
         vertx.executeBlocking( future -> {
             User user = this.createQuery().filter("login", login).get();
 
@@ -52,7 +53,7 @@ public class UserDAO extends DAO<User, ObjectId> {
                 return;
             }
 
-            user = new User(login, name, password, salt);
+            user = new User(email, name, login, password, salt);
             this.save(user);
             future.complete(user);
 
@@ -74,7 +75,7 @@ public class UserDAO extends DAO<User, ObjectId> {
     public void findById(String id, Handler<AsyncResult<User>> resultHandler) {
 
         vertx.executeBlocking( future -> {
-            logger.log(Level.INFO, "Looking for user {0}", id);
+            logger.log(Level.INFO, "Looking for user with id {0}", id);
             User u = super.findById(id);
             logger.log(Level.INFO, "User {0}found", u == null ? "not " : "");
             future.complete(u);
@@ -85,7 +86,7 @@ public class UserDAO extends DAO<User, ObjectId> {
     public void findById(ObjectId id, Handler<AsyncResult<User>> resultHandler) {
 
         vertx.executeBlocking( future -> {
-            logger.log(Level.INFO, "Looking for user {0}", id);
+            logger.log(Level.INFO, "Looking for user with ObjectId {0}", id);
             User u = super.findOne("id", id);
             logger.log(Level.INFO, "User {0}found", u == null ? "not " : "");
             future.complete(u);
@@ -140,5 +141,10 @@ public class UserDAO extends DAO<User, ObjectId> {
 
     public List<UserDTO> toDTO(List<User> users){
         return users.stream().map(UserDTO::new).collect(Collectors.toList());
+    }
+
+    @Override
+    public void init(Map<Class, DAO> daos) {
+
     }
 }

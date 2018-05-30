@@ -3,8 +3,6 @@ package compa.models;
 import org.bson.types.ObjectId;
 import org.mongodb.morphia.annotations.*;
 
-import java.util.Date;
-
 import static compa.models.Friendship.Status.*;
 
 @Entity(value = "friendship", noClassnameStored = true)
@@ -25,7 +23,7 @@ public class Friendship {
 
         BLOCKED,
         BLOCKER
-    };
+    }
 
     @Id
     private ObjectId id;
@@ -47,9 +45,9 @@ public class Friendship {
         this.sister = new Friendship(me, this);
     }
 
-    public Friendship(User friend, Friendship fs){
+    private Friendship(User friend, Friendship fs){
         this.id = ObjectId.get();
-        this.friend= friend;
+        this.friend = friend;
         this.status = AWAITING;
         this.sister = fs;
     }
@@ -62,36 +60,45 @@ public class Friendship {
         return friend;
     }
 
-    public User setFriend(User friend) {
-        return this.friend = friend;
-    }
-
     public Friendship getSister() {
         return sister;
-    }
-
-    public void setSister(Friendship sister) {
-        this.sister = sister;
     }
 
     public Status getStatus() {
         return status;
     }
 
-    public void setStatus(Status status) {
+    public void setStatus(Status status, boolean recursive) {
         // TODO: to test
-        if(this.status == status)
-            return;
         this.status = status;
-        switch (status){
+        if(!recursive)
+            return;
+        sister.setStatus(Friendship.getReciprocalStatus(status), false);
+    }
+
+    public static Status getReciprocalStatus(Status s){
+        switch (s){
+            case PENDING:
+                return AWAITING;
+            case AWAITING:
+                return PENDING;
             case BLOCKED:
-                sister.setStatus(BLOCKER);
-                break;
+                return BLOCKER;
+            case BLOCKER:
+                return BLOCKED;
             case REFUSED:
-                sister.setStatus(SORRY);
+                return SORRY;
+            case SORRY:
+                return REFUSED;
+            case ACCEPTED:
+                return ACCEPTED;
             default:
-                sister.setStatus(status);
+                System.err.println("Match hasn't been done yet");
+                return s;
         }
     }
 
+    public void setStatus(Status status) {
+        this.status = status;
+    }
 }

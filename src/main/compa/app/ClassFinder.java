@@ -1,5 +1,6 @@
 package compa.app;
 
+import compa.services.ImageService;
 import io.vertx.ext.web.Router;
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.dao.BasicDAO;
@@ -38,11 +39,15 @@ public class ClassFinder {
                 }
                 catch(ClassNotFoundException e){
                     System.err.println("no dao for class " + clazz.toString() + ", used custom" );
-                    daos.put(clazz, new DAO<>(clazz, container));
+                    //daos.put(clazz, new DAO<>(clazz, container));
                 } catch(NoSuchMethodException | IllegalAccessException
                         | InstantiationException | InvocationTargetException e){
                     System.err.println(e.getMessage());
                 }
+            }
+
+            for(Map.Entry<Class, DAO> dao : daos.entrySet()) {
+                dao.getValue().init(daos);
             }
 
             return daos;

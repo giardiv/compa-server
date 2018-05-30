@@ -1,19 +1,17 @@
 package compa.daos;
 
-import com.mongodb.operation.DeleteOperation;
 import compa.dtos.FriendshipDTO;
 import compa.models.Friendship;
-import compa.models.Location;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import compa.app.Container;
 import compa.app.DAO;
 import compa.dtos.UserDTO;
-import compa.exception.FriendshipException;
 import compa.models.User;
 import org.bson.types.ObjectId;
 import org.mongodb.morphia.query.*;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -24,28 +22,6 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
 
     public FriendshipDAO(Container container){
         super(Friendship.class, container);
-    }
-
-    public void addFriendship(User me, User friend, Handler<AsyncResult<Friendship>> resultHandler) {
-     vertx.executeBlocking( future -> {
-            logger.log(Level.INFO, "Adding a friendship between {0} and {1}",new Object[]{me.getLogin(), friend.getLogin()});
-
-            Friendship fs_me = new Friendship(me, friend);
-            Friendship fs_friend = new Friendship(friend, me);
-            this.save(fs_friend);
-            fs_me.setSister(fs_friend);
-            this.save(fs_me);
-            fs_friend.setSister(fs_me);
-            UpdateOperations<Friendship> ops = createUpdateOperations().set("sister",fs_me );
-            getDatastore().update(fs_friend, ops);
-
-            logger.log(Level.INFO, "Successfully added a friendship between {0} and {1}",
-                    new Object[]{me.getLogin(), friend.getLogin()});
-
-            future.complete(fs_me);
-
-        }, resultHandler);
-
     }
 
     public void findFriendsByStatus(User user, Friendship.Status status, Handler<AsyncResult<List<User>>> resultHandler){
@@ -61,7 +37,8 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
                     .stream()
                     .map(Friendship::getSister)
                     .map(Friendship::getFriend)
-                    .collect(Collectors.toList());
+                    .collect(Collectors.toList()); //100% against this how dare you
+
             logger.log(Level.INFO, "Found {0} friends", friendships.size());
 
             future.complete(friendships);
@@ -69,55 +46,52 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
         }, resultHandler);
     }
 
-    public void testFriendship(Handler<AsyncResult<List<Friendship>>> resultHandler){
-        vertx.executeBlocking( future -> {
-            future.complete(this.find().asList());
-        }, resultHandler);
-    }
-
-    public void deleteFriendship(User friend, Handler<AsyncResult<Boolean>> resultHandler){
-        vertx.executeBlocking( future -> {
-            Query<Friendship> query = this.createQuery();
-            query.and(
-                    query.criteria("friend").equal(friend)
-            );
-            Friendship friendship = this.findOne(query);
-            if (friendship== null)
-                return;
-
-            this.getDatastore().delete(friendship.getSister());
-            this.getDatastore().delete(friendship);
-            future.complete();
-        }, resultHandler);
-
-    }
-
     public void findFriendshipByUsers(User me, User friend, Handler<AsyncResult<Friendship>> resultHandler){
         vertx.executeBlocking( future -> {
-            logger.log(Level.INFO, "Looking for {0}'s friends", me.getLogin());
+            logger.log(Level.INFO, "Looking for {0} 's friends", me.getLogin());
+            QueryResults<Friendship> friendsFriends = this.find(this.createQuery().field("friend").equal(friend));
             Query<Friendship> query = this.createQuery();
-            query.or(
-                    query.criteria("friend").equal(me)
+            query.and(
+                    query.criteria("friend").equal(me),
+                    query.criteria("sister").in(friendsFriends.asList())
             );
-            query.project("sister",true);
-            Friendship friendships = this.findOne(query);
-            logger.log(Level.INFO, "Found {0} friends", friendships);
+            Friendship friendship = this.findOne(query);
+            logger.log(Level.INFO, "Found {0} friends", friendship);
 
-            future.complete(friendships);
+            future.complete(friendship);
 
         }, resultHandler);
+    }
 
+    public void addFriendship(User me, User friend, Handler<AsyncResult<Friendship>> resultHandler) {
+     vertx.executeBlocking( future -> {
+            logger.log(Level.INFO, "Adding a friendship between {0} and {1}",new Object[]{me.getLogin(), friend.getLogin()});
+            Friendship fs = new Friendship(me, friend);
+            this.save(fs);
+            this.save(fs.getSister());
+            logger.log(Level.INFO, "Successfully added a friendship between {0} and {1}",
+                    new Object[]{me.getLogin(), friend.getLogin()});
+            future.complete(fs);
+        }, resultHandler);
     }
 
     public void updateFriendship(Friendship f, Friendship.Status m, Handler<AsyncResult<Friendship>> resultHandler){
         vertx.executeBlocking( future -> {
-            UpdateOperations<Friendship> update = this.createUpdateOperations().set("status", m);
-            this.getDatastore().update(f, update);
-            //TODO update status of sister
+            // TODO? updateOperations
+            f.setStatus(m);
             this.save(f);
+            f.getSister().setStatus(Friendship.getReciprocalStatus(m));
+            this.save(f.getSister());
             future.complete(f);
         }, resultHandler);
+    }
 
+    public void deleteFriendship(Friendship fs, Handler<AsyncResult<Boolean>> resultHandler){
+        vertx.executeBlocking( future -> {
+            this.getDatastore().delete(fs.getSister());
+            this.getDatastore().delete(fs);
+            future.complete();
+        }, resultHandler);
     }
 
     public UserDTO toUserDTO(Friendship friendship) {
@@ -133,4 +107,8 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
         return friendships.stream().map(FriendshipDTO::new).collect(Collectors.toList());
     }
 
+    @Override
+    public void init(Map<Class, DAO> daos) {
+
+    }
 }

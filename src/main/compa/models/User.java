@@ -23,7 +23,8 @@ public class User {
     @Id
     public ObjectId id;
 
-    private String login, email, password, token, name, salt;
+
+    private String email, name, login, password, token, salt;
 
     @Reference
     private List<Location> locations;
@@ -33,9 +34,9 @@ public class User {
     public User(){
     }
 
-    public User(String login, String name, String password, String salt){
+    public User(String email, String name, String login, String password, String salt){
         this.name = name;
-        this.name = name;
+        this.email = email;
         this.login = login;
         this.password = password;
         this.locations = new ArrayList<>();
@@ -43,6 +44,10 @@ public class User {
         this.ghostMode = false;
         this.generateToken();
     }
+
+    public String getEmail() {return email;}
+
+    public void setEmail(String email) {this.email = email;}
 
     public void addLocation(Location l){
         locations.add(l);
