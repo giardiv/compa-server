@@ -80,13 +80,15 @@ public class AuthController extends Controller {
      * @apiSuccess {String} Token    Token is returned
      */
     private void register(RoutingContext routingContext){
+        String name = null;
+        String email = null;
         String  login = null;
         String password = null;
-        String name = null;
         try {
+            name = (String) this.getParam(routingContext, "name", true, ParamMethod.JSON, String.class);
+            email = (String) this.getParam(routingContext, "email", true, ParamMethod.JSON, String.class);
             login = (String) this.getParam(routingContext, "login", true, ParamMethod.JSON, String.class);
             password = (String) this.getParam(routingContext, "password", true, ParamMethod.JSON, String.class);
-            name = (String) this.getParam(routingContext, "name", true, ParamMethod.JSON, String.class);
 
         } catch (ParameterException e) {
             routingContext.response().setStatusCode(400).end(gson.toJson(e));
@@ -104,7 +106,7 @@ public class AuthController extends Controller {
         String salt = AuthenticationService.getSalt();
         String encryptedPassword = AuthenticationService.encrypt(password, salt);
 
-        userDAO.addUser(login, name, encryptedPassword, salt, res -> {
+        userDAO.addUser(email, name, login, encryptedPassword, salt, res -> {
             if(res.failed()){
                 // TODO: log
                 System.out.println("fail");

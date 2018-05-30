@@ -40,7 +40,7 @@ public class UserDAO extends DAO<User, ObjectId> {
         }, resultHandler);
     }
 
-    public void addUser(String login, String name, String password, String salt, Handler<AsyncResult<User>> resultHandler) {
+    public void addUser(String email, String name, String login, String password, String salt, Handler<AsyncResult<User>> resultHandler) {
         vertx.executeBlocking( future -> {
             User user = this.createQuery().filter("login", login).get();
 
@@ -49,7 +49,7 @@ public class UserDAO extends DAO<User, ObjectId> {
                 return;
             }
 
-            user = new User(login, name, password, salt);
+            user = new User(email, name, login, password, salt);
             this.save(user);
             future.complete(user);
 
