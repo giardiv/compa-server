@@ -1,19 +1,15 @@
 package compa.controllers;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import compa.exception.ParameterException;
 import compa.models.User;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.web.RoutingContext;
 import compa.app.Container;
-import compa.dtos.LocationDTO;
 import compa.models.Location;
 import compa.app.Controller;
 import compa.daos.LocationDAO;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -87,10 +83,9 @@ public class LocationController extends Controller {
      * @apiSuccess Return an array of locationDTO
      */
     private void getLocationFromDateInterval(User me, RoutingContext routingContext) {
-        Date startDate = null;
-        Date endDate = null;
+        Date startDate, endDate;
 
-        try     {
+        try {
             startDate = this.getParam(routingContext, "startDate", true, ParamMethod.GET, Date.class);
             endDate = this.getParam(routingContext, "endDate", true, ParamMethod.GET, Date.class);
         } catch (ParameterException e) {
@@ -102,7 +97,6 @@ public class LocationController extends Controller {
             List<Location> locations = res.result();
             JsonElement tempEl = this.gson.toJsonTree(locationDAO.toDTO(locations));
             routingContext.response().end(gson.toJson(tempEl));
-
         });
     }
 }
