@@ -64,11 +64,6 @@ public class FakeDataGenerator {
 
         for(int i = 0; i < userNb - 1; ++i){
             User me = users.get(i);
-            //int min = i+1;
-            //int max = userNb - 1;
-            //int friendId = r.nextInt((max - min) + 1) + min;
-            //User friend = users.get(friendId);
-
             for(int j = i; j < userNb - 1; ++j){
                 User friend = users.get(j);
 
