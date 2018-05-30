@@ -1,5 +1,8 @@
 package compa.daos;
 
+import com.mongodb.DB;
+import com.mongodb.gridfs.GridFS;
+import com.mongodb.gridfs.GridFSInputFile;
 import compa.app.MongoUtil;
 import compa.dtos.UserDTO;
 import compa.services.AuthenticationService;
@@ -11,7 +14,7 @@ import compa.models.User;
 import compa.app.DAO;
 import org.bson.types.ObjectId;
 import org.mongodb.morphia.query.UpdateOperations;
-
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -96,11 +99,30 @@ public class UserDAO extends DAO<User, ObjectId> {
         vertx.executeBlocking( future -> {
             UpdateOperations<User> update = this.createUpdateOperations().set("password", newEncryptedPassword);
             this.getDatastore().update(user, update);
-            user.setToken();
+            user.generateToken();
             this.save(user);
             future.complete(user);
         }, resultHandler);
 
+    }
+
+    public void updateProfile(User user, String name, Handler<AsyncResult<User>> resultHandler ){
+
+        vertx.executeBlocking( future -> {
+            UpdateOperations<User> update = this.createUpdateOperations().set("name", name);
+            this.getDatastore().update(user, update);
+            user.setName(name);
+            this.save(user);
+
+            future.complete(user);
+        }, resultHandler);
+
+    }
+
+    public void setImgProfile(User user, byte[] imageBytes, Handler<AsyncResult<User>> resultHandler){
+        vertx.executeBlocking( future -> {
+
+        }, resultHandler);
     }
 
     public void setGhostMode(User user, boolean mode, Handler<AsyncResult<User>> resultHandler ){

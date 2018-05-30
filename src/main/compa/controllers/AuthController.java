@@ -53,7 +53,7 @@ public class AuthController extends Controller {
         userDAO.getByLoginAndPassword(login, password, res -> {
             User u = res.result();
             if(u != null){
-                u.setToken();
+                u.generateToken();
                 userDAO.save(u);
                 routingContext.response().end(
                         gson.toJson(
@@ -80,6 +80,7 @@ public class AuthController extends Controller {
      * @apiSuccess {String} Token    Token is returned
      */
     private void register(RoutingContext routingContext){
+
         String name, email, login, password;
 
         try {
@@ -87,6 +88,7 @@ public class AuthController extends Controller {
             email = this.getParam(routingContext, "email", true, ParamMethod.JSON, String.class);
             login = this.getParam(routingContext, "login", true, ParamMethod.JSON, String.class);
             password = this.getParam(routingContext, "password", true, ParamMethod.JSON, String.class);
+
 
         } catch (ParameterException e) {
             routingContext.response().setStatusCode(400).end(gson.toJson(e));
@@ -114,7 +116,7 @@ public class AuthController extends Controller {
                 System.out.println("ok");
                 // TODO: add email to register
 
-                sendEmail("amichi.katia@gmail.comma","titre", "message sans pièce joint", res1 -> {
+                sendEmail("amichi.katia@gmail.com","titre", "message sans pièce joint", res1 -> {
                     if(res1!=null)
                         System.out.println("email Ok");
                 });
