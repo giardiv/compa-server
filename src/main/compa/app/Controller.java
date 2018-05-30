@@ -53,15 +53,6 @@ public abstract class Controller {
         return container.getServices().get(service);
     }
 
-    // OUTDATED
-    public boolean checkParams(RoutingContext context, String... mandatoryParams) {
-        for (String s : mandatoryParams)
-            if (context.request().getParam(s) == null && context.request().getFormAttribute(s) == null) {
-                return false;
-            }
-        return true;
-    }
-
     protected enum ParamMethod {
         JSON,
         GET

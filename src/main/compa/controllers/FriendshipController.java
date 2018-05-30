@@ -94,7 +94,7 @@ public class FriendshipController extends Controller{
      * @apiSuccess Return 200 without body
      */
     public void deleteFriendship(User me, RoutingContext routingContext){
-        String friend_id;
+        final String friend_id;
 
         try {
             friend_id = this.getParam(routingContext, "friend_id", true, ParamMethod.JSON, String.class);
@@ -103,13 +103,12 @@ public class FriendshipController extends Controller{
             return;
         }
 
-        String finalFriend_id = friend_id;
         userDAO.findById(friend_id, res1 -> {
             User friend = res1.result();
             if(friend == null){
                 routingContext.response().setStatusCode(404).end(
                         gson.toJson(
-                                new UserException(UserException.USER_NOT_FOUND, "id", finalFriend_id)));
+                                new UserException(UserException.USER_NOT_FOUND, "id", friend_id)));
                 return;
             }
             if(friend.equals(me)){
