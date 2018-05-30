@@ -3,8 +3,6 @@ package compa.models;
 import org.bson.types.ObjectId;
 import org.mongodb.morphia.annotations.*;
 
-import java.util.Date;
-
 import static compa.models.Friendship.Status.*;
 
 @Entity(value = "friendship", noClassnameStored = true)
@@ -25,7 +23,7 @@ public class Friendship {
 
         BLOCKED,
         BLOCKER
-    };
+    }
 
     @Id
     private ObjectId id;
@@ -47,9 +45,9 @@ public class Friendship {
         this.sister = new Friendship(me, this);
     }
 
-    public Friendship(User friend, Friendship fs){
+    private Friendship(User friend, Friendship fs){
         this.id = ObjectId.get();
-        this.friend= friend;
+        this.friend = friend;
         this.status = AWAITING;
         this.sister = fs;
     }
@@ -62,16 +60,8 @@ public class Friendship {
         return friend;
     }
 
-    public User setFriend(User friend) {
-        return this.friend = friend;
-    }
-
     public Friendship getSister() {
         return sister;
-    }
-
-    public void setSister(Friendship sister) {
-        this.sister = sister;
     }
 
     public Status getStatus() {
@@ -80,37 +70,32 @@ public class Friendship {
 
     public void setStatus(Status status, boolean recursive) {
         // TODO: to test
+        this.status = status;
         if(!recursive)
             return;
-        this.status = status;
-        sister.setStatus(Friendship.getRiprocalStatus(status), false);
+        sister.setStatus(Friendship.getReciprocalStatus(status), false);
     }
 
-    public static Status getRiprocalStatus(Status s){
-        Status reciprocal = null;
+    public static Status getReciprocalStatus(Status s){
         switch (s){
             case PENDING:
-                reciprocal = AWAITING;
-                break;
+                return AWAITING;
             case AWAITING:
-                reciprocal = PENDING;
-                break;
+                return PENDING;
             case BLOCKED:
-                reciprocal = BLOCKER;
-                break;
+                return BLOCKER;
             case BLOCKER:
-                reciprocal = BLOCKED;
-                break;
+                return BLOCKED;
             case REFUSED:
-                reciprocal = SORRY;
-                break;
+                return SORRY;
             case SORRY:
-                reciprocal = REFUSED;
-                break;
+                return REFUSED;
+            case ACCEPTED:
+                return ACCEPTED;
             default:
-                reciprocal = s;
+                System.err.println("Match hasn't been done yet");
+                return s;
         }
-        return reciprocal;
     }
 
     public void setStatus(Status status) {

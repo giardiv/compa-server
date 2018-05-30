@@ -80,15 +80,13 @@ public class AuthController extends Controller {
      * @apiSuccess {String} Token    Token is returned
      */
     private void register(RoutingContext routingContext){
-        String name = null;
-        String email = null;
-        String  login = null;
-        String password = null;
+        String name, email, login, password;
+
         try {
-            name = (String) this.getParam(routingContext, "name", true, ParamMethod.JSON, String.class);
-            email = (String) this.getParam(routingContext, "email", true, ParamMethod.JSON, String.class);
-            login = (String) this.getParam(routingContext, "login", true, ParamMethod.JSON, String.class);
-            password = (String) this.getParam(routingContext, "password", true, ParamMethod.JSON, String.class);
+            name = this.getParam(routingContext, "name", true, ParamMethod.JSON, String.class);
+            email = this.getParam(routingContext, "email", true, ParamMethod.JSON, String.class);
+            login = this.getParam(routingContext, "login", true, ParamMethod.JSON, String.class);
+            password = this.getParam(routingContext, "password", true, ParamMethod.JSON, String.class);
 
         } catch (ParameterException e) {
             routingContext.response().setStatusCode(400).end(gson.toJson(e));
@@ -96,7 +94,7 @@ public class AuthController extends Controller {
         }
         // TODO: login instance of email ?
 
-        if(!AuthenticationService.isAcceptablePassword(password)){
+        if(AuthenticationService.isNotAcceptablePassword(password)){
             routingContext.response().setStatusCode(400).end(
                     gson.toJson(
                             new RegisterException(compa.exception.RegisterException.PASSWORD_TOO_SHORT)));
@@ -111,7 +109,6 @@ public class AuthController extends Controller {
                 // TODO: log
                 System.out.println("fail");
                 routingContext.response().end(gson.toJson(res.cause()));
-                return;
             } else {
                 // TODO: log
                 System.out.println("ok");
@@ -124,7 +121,6 @@ public class AuthController extends Controller {
 
                 User user = res.result();
                 routingContext.response().end(gson.toJson(AuthenticationService.getJsonFromToken(user.getToken())));
-                return;
             }
         });
     }
@@ -141,11 +137,11 @@ public class AuthController extends Controller {
      * @apiSuccess {String} Token    A new token is returned
      */
     private void updatePassword(User me, RoutingContext routingContext) {
-        String password = null;
-        String newPassword = null;
+        String password, newPassword;
+
         try {
-            newPassword = (String) this.getParam(routingContext, "new_password", true, ParamMethod.JSON, String.class);
-            password = (String) this.getParam(routingContext, "password", true, ParamMethod.JSON, String.class);
+            newPassword = this.getParam(routingContext, "new_password", true, ParamMethod.JSON, String.class);
+            password = this.getParam(routingContext, "password", true, ParamMethod.JSON, String.class);
         } catch (ParameterException e) {
             routingContext.response().setStatusCode(400).end(gson.toJson(e));
             return;
@@ -156,7 +152,7 @@ public class AuthController extends Controller {
             return;
         }
 
-        if(!AuthenticationService.isAcceptablePassword(newPassword)){
+        if(AuthenticationService.isNotAcceptablePassword(newPassword)){
             routingContext.response().setStatusCode(400).end(
                     gson.toJson(
                             new RegisterException(compa.exception.RegisterException.PASSWORD_TOO_SHORT)));

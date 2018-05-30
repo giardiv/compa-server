@@ -58,24 +58,22 @@ public class UserController extends Controller {
      * @apiUse UserDTO
      */
     public void getProfile(User me, RoutingContext routingContext){
-        String id = null;
+        final String id;
+
         try {
-            id = (String) this.getParam(routingContext, "id", true, ParamMethod.GET, String.class);
+            id = this.getParam(routingContext, "id", true, ParamMethod.GET, String.class);
         } catch (ParameterException e) {
             routingContext.response().setStatusCode(400).end(gson.toJson(e));
             return;
         }
 
-        String finalId = id;
         userDAO.findById(id, res -> {
             User u = res.result();
             if(u != null){
-                JsonElement tempEl = this.gson.toJsonTree(userDAO.toDTO(u));
-                routingContext.response().end(gson.toJson(tempEl));
+                routingContext.response().end(gson.toJson(userDAO.toDTO(u)));
             } else {
-                routingContext.response().setStatusCode(404).end(
-                        gson.toJson(
-                                new UserException(UserException.USER_NOT_FOUND, "id", finalId)));
+                routingContext.response().setStatusCode(404).end(gson.toJson(
+                                new UserException(UserException.USER_NOT_FOUND, "id", id)));
             }
         });
     }
@@ -92,14 +90,14 @@ public class UserController extends Controller {
     public void setGhostMode(User me, RoutingContext routingContext){
         boolean mode;
         try {
-            mode = (boolean) this.getParam(routingContext, "mode", true, ParamMethod.JSON, Boolean.class);
+            mode = this.getParam(routingContext, "mode", true, ParamMethod.JSON, Boolean.class);
         } catch (ParameterException e) {
             routingContext.response().setStatusCode(400).end(gson.toJson(e));
             return;
         }
 
         userDAO.setGhostMode(me, mode, res -> {
-            routingContext.response().end();
+            routingContext.response().end(); // TODO Return something to indicate success
         });
     }
     public void updateProfile(User me, RoutingContext routingContext){
@@ -107,20 +105,20 @@ public class UserController extends Controller {
     }
 
     public void uploadPic(User me, RoutingContext routingContext){
-        String encryptedId = me.getId().toString();
-        new File("profile-images/" + encryptedId + ".png").delete();
+        String id = me.getId().toString();
+        new File("profile-images/" + id + ".png").delete();
         // Refresh
-
+        //TODO SURROUND WITH VERTX BLOCKING AS IT MIGHT BE TIME CONSUMING???
         Set<FileUpload> files = routingContext.fileUploads();
 
         for(FileUpload file : files) {
             File uploadedFile = new File(file.uploadedFileName());
-            uploadedFile.renameTo(new File("profile-images/" + encryptedId + ".png"));
+            uploadedFile.renameTo(new File("profile-images/" + id + ".png"));
             try {
                 uploadedFile.createNewFile();
                 System.out.println(uploadedFile.getName());
                 System.out.println(uploadedFile.getAbsolutePath());
-                System.out.println("profile-images/" + encryptedId + ".png");
+                System.out.println("profile-images/" + id + ".png");
             } catch (IOException e) {
                 e.printStackTrace();
             }
