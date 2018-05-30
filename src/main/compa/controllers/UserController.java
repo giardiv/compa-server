@@ -3,12 +3,15 @@ package compa.controllers;
 import com.google.gson.JsonElement;
 import compa.app.Container;
 import compa.app.Controller;
+import compa.daos.ImageDAO;
 import compa.daos.UserDAO;
 import compa.exception.LoginException;
 import compa.exception.ParameterException;
 import compa.exception.UserException;
+import compa.models.Image;
 import compa.models.User;
 import compa.services.AuthenticationService;
+import compa.services.ImageService;
 import io.vertx.core.Future;
 import io.vertx.core.file.FileSystem;
 import io.vertx.core.http.HttpMethod;
@@ -18,6 +21,8 @@ import org.bson.types.ObjectId;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.util.Map;
 import java.util.Set;
 
 public class UserController extends Controller {
@@ -108,26 +113,27 @@ public class UserController extends Controller {
 
     public void uploadPic(User me, RoutingContext routingContext){
         String encryptedId = me.getId().toString();
-        new File("profile-images/" + encryptedId + ".png").delete();
+        //new File("profile-images/" + encryptedId + ".png").delete();
         // Refresh
 
         Set<FileUpload> files = routingContext.fileUploads();
 
         for(FileUpload file : files) {
             File uploadedFile = new File(file.uploadedFileName());
-            uploadedFile.renameTo(new File("profile-images/" + encryptedId + ".png"));
-            try {
-                uploadedFile.createNewFile();
-                System.out.println(uploadedFile.getName());
-                System.out.println(uploadedFile.getAbsolutePath());
-                System.out.println("profile-images/" + encryptedId + ".png");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            new File(file.uploadedFileName()).delete();
+            ImageService imageService = (ImageService) this.get(ImageService.class);
+            imageService.upload(uploadedFile, mapAsyncResult -> {
+                if(mapAsyncResult.failed()){
+                    routingContext.response().setStatusCode(400).end(gson.toJson(mapAsyncResult.cause()));
+                } else {
+                    Image image = mapAsyncResult.result();
+                    System.out.println(image);
+                    new File(file.uploadedFileName()).delete();
+
+                    routingContext.response().setStatusCode(201).end(gson.toJson(ImageDAO.toDTO(image)));
+                    routingContext.response().close();
+                }
+            });
         }
 
-        routingContext.response().setStatusCode(201).end();
-        routingContext.response().close();
     }
 }

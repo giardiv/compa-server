@@ -2,6 +2,7 @@ package compa.app;
 
 import compa.exception.ParameterException;
 import compa.models.Friendship;
+import compa.services.ImageService;
 import io.vertx.core.Handler;
 import io.vertx.core.http.HttpMethod;
 

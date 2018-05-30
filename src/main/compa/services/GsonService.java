@@ -4,11 +4,6 @@ import com.google.gson.*;
 import compa.app.Container;
 import compa.app.Exception;
 import compa.app.Service;
-import compa.dtos.UserDTO;
-import compa.exception.LoginException;
-import org.bson.types.ObjectId;
-
-import java.lang.reflect.Type;
 
 public class GsonService extends Service {
 
