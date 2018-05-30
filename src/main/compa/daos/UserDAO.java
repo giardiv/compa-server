@@ -13,6 +13,7 @@ import org.bson.types.ObjectId;
 import org.mongodb.morphia.query.UpdateOperations;
 
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -118,5 +119,10 @@ public class UserDAO extends DAO<User, ObjectId> {
 
     public List<UserDTO> toDTO(List<User> users){
         return users.stream().map(UserDTO::new).collect(Collectors.toList());
+    }
+
+    @Override
+    public void init(Map<Class, DAO> daos) {
+
     }
 }

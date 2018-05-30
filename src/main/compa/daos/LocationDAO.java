@@ -11,9 +11,12 @@ import org.bson.types.ObjectId;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class LocationDAO extends DAO<Location, ObjectId> {
+
+    private UserDAO userDAO;
 
     public LocationDAO(Container container){
         super(Location.class, container);
@@ -29,16 +32,12 @@ public class LocationDAO extends DAO<Location, ObjectId> {
 
     public void addPosition(User me, Double lat, Double lon, Date date, Handler<AsyncResult<Location>> resultHandler) {
         vertx.executeBlocking( future -> {
-            Location lastLocation = me.getLastLocation();
 
-            if(lastLocation.getLatitude()== lat && lastLocation.getLongitude() == lon) {
-                future.complete(lastLocation);
-            }else {
-                Location location = new Location(lat, lon, date);
-                this.save(location);
-                me.addLocation(location);
-                future.complete(location);
-            }
+            Location location = new Location(lat, lon, date);
+            this.save(location);
+            me.addLocation(location);
+            this.userDAO.save(me);
+            future.complete(location);
 
             return;
 
@@ -55,5 +54,18 @@ public class LocationDAO extends DAO<Location, ObjectId> {
                     null;
             future.complete(locationList);
         }, resultHandler);
+    }
+
+
+    public void getLocationFromUser(User me, Handler<AsyncResult<List<Location>>> resultHandler){
+        vertx.executeBlocking( future -> {
+            List<Location> locationList = me.getLocations();
+            future.complete(locationList);
+        }, resultHandler);
+    }
+
+    @Override
+    public void init(Map<Class, DAO> daos) {
+        this.userDAO = (UserDAO) daos.get(User.class);
     }
 }

@@ -38,11 +38,15 @@ public class ClassFinder {
                 }
                 catch(ClassNotFoundException e){
                     System.err.println("no dao for class " + clazz.toString() + ", used custom" );
-                    daos.put(clazz, new DAO<>(clazz, container));
+                    //daos.put(clazz, new DAO<>(clazz, container));
                 } catch(NoSuchMethodException | IllegalAccessException
                         | InstantiationException | InvocationTargetException e){
                     System.err.println(e.getMessage());
                 }
+            }
+
+            for(Map.Entry<Class, DAO> dao : daos.entrySet()) {
+                dao.getValue().init(daos);
             }
 
             return daos;

@@ -25,13 +25,24 @@ public class LocationController extends Controller {
 
     public LocationController(Container container){
         super(PREFIX, container);
-        this.registerAuthRoute(HttpMethod.POST, "/", this::newInstance, "application/json");
-        this.registerAuthRoute(HttpMethod.GET, "/", this::getAll, "application/json");
+        this.registerAuthRoute(HttpMethod.POST, "", this::newInstance, "application/json");
+        this.registerAuthRoute(HttpMethod.GET, "", this::getAll, "application/json");
         this.registerAuthRoute(HttpMethod.GET, "/getLocationsList/:startDate/:endDate", this::getLocationFromDateInterval, "application/json");
 
         locationDAO = (LocationDAO) container.getDAO(Location.class);
     }
 
+    /**
+     * @api {post} /location Declare a new position
+     * @apiName PostLocation
+     * @apiGroup Location
+     *
+     * @apiParam {double} latitude        Latitude of the postion
+     * @apiParam {double} longitude       Longitude of the postion
+     * @apiParam {datetime} datetime      The moment where the position was posted
+     *
+     * @apiSuccess Return the location
+     */
     private void newInstance(User me, RoutingContext routingContext){
         Double latitude, longitude;
         Date date;
@@ -50,16 +61,37 @@ public class LocationController extends Controller {
         });
     }
 
+    /**
+     * @api {get} /location Get all location of the current user
+     * @apiName GetLocations
+     * @apiGroup Location
+     *
+     * @apiSuccess Return an array of locationDTO
+     */
     private void getAll(User me, RoutingContext routingContext){
-        List<LocationDTO> list = locationDAO.toDTO(locationDAO.findAll());
-    	routingContext.response().end(new Gson().toJson(list));
+        System.out.println(me.getId());
+        locationDAO.getLocationFromUser(me,res -> {
+            List<Location> list = res.result();
+            routingContext.response().end(gson.toJson(locationDAO.toDTO(list)));
+        });
     }
 
+    /**
+     * @api {get} /location/getLocationsList/:startDate/:endDate Get all location of the current user from a time interval
+     * @apiName GetLocations
+     * @apiGroup Location
+     *
+     *
+     * @apiParam {datetime} startDate      Beginning
+     * @apiParam {datetime} endDate        End
+     *
+     * @apiSuccess Return an array of locationDTO
+     */
     private void getLocationFromDateInterval(User me, RoutingContext routingContext) {
         Date startDate = null;
         Date endDate = null;
 
-        try {
+        try     {
             startDate = this.getParam(routingContext, "startDate", true, ParamMethod.GET, Date.class);
             endDate = this.getParam(routingContext, "endDate", true, ParamMethod.GET, Date.class);
         } catch (ParameterException e) {

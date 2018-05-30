@@ -98,7 +98,7 @@ public abstract class Controller {
         }
         else if(type.equals(Date.class)){
             try{
-                return type.cast(new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").parse(value));
+                return type.cast(new SimpleDateFormat("dd-MM-yyyy_HH:mm:ss").parse(value));
             }
             catch(ParseException e){
                 throw new ParameterException(ParameterException.PARAM_WRONG_FORMAT, value, Date.class.toString());
