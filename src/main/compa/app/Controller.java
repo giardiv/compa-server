@@ -60,10 +60,20 @@ public abstract class Controller {
 
     protected <T> T getParam(RoutingContext context, String mandatoryParam, boolean required, ParamMethod method, Class<T> type) throws ParameterException {
 
-        String value = method == ParamMethod.JSON ?
-                (String) context.getBodyAsJson().getValue(mandatoryParam) :
+        String value;
+
+        if(method.equals(ParamMethod.JSON)){
+            try{
+                value = (String) context.getBodyAsJson().getValue(mandatoryParam);
                 //considering there is no nesting of objects
-                context.request().getParam(mandatoryParam);
+            }
+            catch(io.vertx.core.json.DecodeException e){
+                throw new ParameterException(ParameterException.ERROR_PARSING_JSON);
+            }
+        }
+        else{
+            value = context.request().getParam(mandatoryParam);
+        }
 
         if(required && value == null) {
             throw new ParameterException(ParameterException.PARAM_REQUIRED, mandatoryParam, method.toString());
@@ -76,6 +86,7 @@ public abstract class Controller {
                 throw new ParameterException(ParameterException.PARAM_WRONG_FORMAT, value, Integer.class.toString());
             }
         }
+        
         else if (type.equals(String.class)) {
             return type.cast(value);
         }
