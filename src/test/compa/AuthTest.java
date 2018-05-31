@@ -12,6 +12,7 @@ import compa.services.AuthenticationService;
 import compa.services.GsonService;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpClient;
+import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
@@ -61,7 +62,7 @@ public class AuthTest {
         String salt = AuthenticationService.getSalt();
         String encPassword = AuthenticationService.encrypt(USER_RAW_PW, salt);
         User u = new User(USER_EMAIL, USER_NAME,USER_LOGIN, encPassword, salt.toString());
-        u.setToken();
+        u.setToken(USER_TOKEN);
         datastore.save(u);
     }
 
@@ -198,6 +199,37 @@ public class AuthTest {
 
     @Test
     public void badToken(TestContext context) {
+        HttpClient client = vertx.createHttpClient();
+        Async async = context.async();
 
+        client.request(HttpMethod.GET, Container.SERVER_PORT, Container.SERVER_HOST, "/user",
+                resp -> {
+                    context.assertEquals(resp.statusCode(), 401);
+                    resp.bodyHandler(body -> {
+                        Exception e = gson.toObject(body.toString(), Exception.class);
+                        context.assertEquals(e.getCode(), LoginException.INCORRECT_TOKEN.getKey());
+                        client.close();
+                        async.complete();
+                    });
+                }
+        ).putHeader("authorization", "wrong_token").end();
+    }
+
+    @Test
+    public void goodToken(TestContext context) {
+        HttpClient client = vertx.createHttpClient();
+        Async async = context.async();
+
+        client.request(HttpMethod.GET, Container.SERVER_PORT, Container.SERVER_HOST, "/user",
+                resp -> {
+                    context.assertEquals(resp.statusCode(), 200);
+                    resp.bodyHandler(body -> {
+                        JsonObject e = gson.toObject(body.toString(), JsonObject.class);
+                        context.assertEquals(e.get("name").getAsString(),USER_NAME);
+                        client.close();
+                        async.complete();
+                    });
+                }
+        ).putHeader("authorization", USER_TOKEN).end();
     }
 }
