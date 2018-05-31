@@ -13,13 +13,17 @@ import compa.exception.RegisterException;
 import compa.models.User;
 import compa.app.DAO;
 import org.bson.types.ObjectId;
+import org.mongodb.morphia.query.Query;
 import org.mongodb.morphia.query.UpdateOperations;
+import sun.rmi.server.UnicastServerRef;
 import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+
+import static compa.email.SendEmail.sendEmail;
 
 public class UserDAO extends DAO<User, ObjectId> {
     private Logger logger = Logger.getLogger("user_dao");
@@ -29,8 +33,19 @@ public class UserDAO extends DAO<User, ObjectId> {
     }
 
     public void getByLoginAndPassword(String login, String password, Handler<AsyncResult<User>> resultHandler){
+        System.out.println("In getByLoginAndPassword DAO");
+
         vertx.executeBlocking( future -> {
-            User u = this.createQuery().filter("login", login).get();
+            Query<User> query = this.createQuery();
+
+            query.or(
+                    query.criteria("email").equal(login),
+                    query.criteria("login").equal(login)
+            ).and(
+                    query.criteria("password").equal(password)
+            );
+            User u = this.findOne(query);
+
             if(u == null){
                 future.complete(null);
                 return;
@@ -46,7 +61,15 @@ public class UserDAO extends DAO<User, ObjectId> {
 
     public void addUser(String email, String name, String login, String password, String salt, Handler<AsyncResult<User>> resultHandler) {
         vertx.executeBlocking( future -> {
-            User user = this.createQuery().filter("login", login).get();
+            //User user = this.createQuery().filter("login", login).get();
+            Query<User> query = this.createQuery();
+
+            query.or(
+                    query.criteria("email").equal(email),
+                    query.criteria("login").equal(login)
+            );
+
+            User user = this.findOne(query);
 
             if(user != null) {
                 future.fail(new RegisterException(RegisterException.USER_ALREADY_EXIST));
@@ -71,6 +94,7 @@ public class UserDAO extends DAO<User, ObjectId> {
         }, resultHandler);
 
     }
+
 
     public void findById(String id, Handler<AsyncResult<User>> resultHandler) {
 
@@ -105,18 +129,28 @@ public class UserDAO extends DAO<User, ObjectId> {
         }, resultHandler);
 
     }
-
-    public void updateProfile(User user, String name, Handler<AsyncResult<User>> resultHandler ){
+    public void updateProfile(User user, String name, String email, Handler<AsyncResult<User>> resultHandler ){
 
         vertx.executeBlocking( future -> {
-            UpdateOperations<User> update = this.createUpdateOperations().set("name", name);
-            this.getDatastore().update(user, update);
-            user.setName(name);
-            this.save(user);
+            UpdateOperations<User> update = this.createUpdateOperations();
+          
+            if(name != user.getName()){
+                update.set("name", name);
+                user.setName(name);
+            }
 
+            if(email != user.getEmail()){
+                update.set("email", email);
+                user.setEmail(email);
+//                sendEmail(email,"titre", "message sans pièce joint", res1 -> {
+//                    if(res1!=null)
+//                        System.out.println("email Ok");
+//                });
+            }
+            this.getDatastore().update(user, update);
+            System.out.println(" après name: " + user.getName());
             future.complete(user);
         }, resultHandler);
-
     }
 
     public void setImgProfile(User user, byte[] imageBytes, Handler<AsyncResult<User>> resultHandler){
@@ -131,6 +165,19 @@ public class UserDAO extends DAO<User, ObjectId> {
             UpdateOperations<User> update = this.createUpdateOperations().set("ghostMode", mode);
             this.getDatastore().update(user, update);
             future.complete();
+        }, resultHandler);
+
+    }
+
+    public void logout(User user, Handler<AsyncResult<User>> resultHandler ){
+        vertx.executeBlocking( future -> {
+            UpdateOperations<User> update = this.createUpdateOperations().set("token", "");
+            this.getDatastore().update(user, update);
+            user.setToken(null);
+            this.save(user);
+            System.out.println(" token : " + user.getToken());
+
+            future.complete(user);
         }, resultHandler);
 
     }

@@ -15,7 +15,7 @@ import java.util.List;
 
 @Entity(value = "user", noClassnameStored = true)
 @Indexes({
-        @Index(value = "login", fields = @Field("login"), unique = true),
+        @Index(value = "username", fields = @Field("username"), unique = true),
 })
 public class User {
     private final static int TOKEN_COUNT = 16;
@@ -23,8 +23,7 @@ public class User {
     @Id
     public ObjectId id;
 
-
-    private String email, name, login, password, token, salt;
+    private String email, name, username, password, token, salt;
 
     @Reference
     private List<Location> locations;
@@ -34,10 +33,11 @@ public class User {
     public User(){
     }
 
-    public User(String email, String name, String login, String password, String salt){
+
+    public User(String email, String name, String username, String password, String salt){
         this.name = name;
         this.email = email;
-        this.login = login;
+        this.username = username;
         this.password = password;
         this.locations = new ArrayList<>();
         this.salt = salt;
@@ -61,8 +61,10 @@ public class User {
         this.token = RandomStringUtils.randomAlphanumeric(TOKEN_COUNT);
     }
 
-    public String getLogin() {
-        return login;
+    public void setToken(String token){this.token = token;}
+
+    public String getUsername() {
+        return username;
     }
 
     public List<Location> getLocations() {
@@ -79,9 +81,7 @@ public class User {
         return name;
     }
 
-    public void setName(String name) {
-        this.name=name;
-    }
+    public void setName(String name) {this.name = name;}
 
     public ObjectId getId() {
         return id;

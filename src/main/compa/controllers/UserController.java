@@ -40,6 +40,9 @@ public class UserController extends Controller {
         this.registerAuthRoute(HttpMethod.PUT, "/updateProfile", this::updateProfile, "application/json");
         this.registerAuthRoute(HttpMethod.PUT, "/ghostmode", this::setGhostMode, "application/json");
         this.registerAuthRoute(HttpMethod.POST, "/uploadPic", this::uploadPic, "application/json");
+        this.registerAuthRoute(HttpMethod.PUT, "/logout", this::logout, "application/json");
+        this.registerAuthRoute(HttpMethod.PUT, "/updateProfile", this::updateProfile, "application/json");
+
 
         userDAO = (UserDAO) container.getDAO(User.class);
     }
@@ -109,15 +112,24 @@ public class UserController extends Controller {
         });
     }
 
+    /**
+     * @api {put} /user/updateProfile Set name and email
+     * @apiName GetMe
+     * @apiGroup User
+     *
+     * @apiSuccess Return 200 without body
+     */
     public void updateProfile(User me, RoutingContext routingContext){
         String name = null;
+        String email = null;
         try {
+            email = this.getParam(routingContext, "email", true, ParamMethod.JSON, String.class);
             name = this.getParam(routingContext, "name", true, ParamMethod.JSON, String.class);
         } catch (ParameterException e) {
             routingContext.response().setStatusCode(400).end(gson.toJson(e));
             return;
         }
-        userDAO.updateProfile(me, name, res -> {
+        userDAO.updateProfile(me, name,email, res -> {
             User u = res.result();
             JsonElement tempEl = this.gson.toJsonTree(userDAO.toDTO(u));
 
@@ -125,10 +137,12 @@ public class UserController extends Controller {
         });
     }
 
+    public void logout(User me, RoutingContext routingContext){
+        userDAO.logout(me, res -> {
+            routingContext.response().end();
+        });
+
     public void setImg(){
-
-    }
-
         public byte[] LoadImage(String filePath) throws Exception {
         File file = new File(filePath);
         int size = (int)file.length();
@@ -137,6 +151,7 @@ public class UserController extends Controller {
         in.read(buffer);
         in.close();
         return buffer;
+
     }
 
 

@@ -69,7 +69,6 @@ public class Friendship {
     }
 
     public void setStatus(Status status, boolean recursive) {
-        // TODO: to test
         this.status = status;
         if(!recursive)
             return;

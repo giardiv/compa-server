@@ -10,6 +10,8 @@ import compa.dtos.UserDTO;
 import compa.models.User;
 import org.bson.types.ObjectId;
 import org.mongodb.morphia.query.*;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -26,7 +28,7 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
 
     public void findFriendsByStatus(User user, Friendship.Status status, Handler<AsyncResult<List<User>>> resultHandler){
         vertx.executeBlocking( future -> {
-            logger.log(Level.INFO, "Looking for {0}'s friends", user.getLogin());
+            logger.log(Level.INFO, "Looking for {0}'s friends", user.getUsername());
             Query<Friendship> query = this.createQuery();
 
             query.and(
@@ -48,7 +50,7 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
 
     public void findFriendshipByUsers(User me, User friend, Handler<AsyncResult<Friendship>> resultHandler){
         vertx.executeBlocking( future -> {
-            logger.log(Level.INFO, "Looking for {0} 's friends", me.getLogin());
+            logger.log(Level.INFO, "Looking for {0} 's friends", me.getUsername());
             QueryResults<Friendship> friendsFriends = this.find(this.createQuery().field("friend").equal(friend));
             Query<Friendship> query = this.createQuery();
             query.and(
@@ -63,21 +65,49 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
         }, resultHandler);
     }
 
+    public void searchFriends(User me, String friends, Handler<AsyncResult<List<User>>> resultHandler){
+        //TODO
+        vertx.executeBlocking(  future -> {
+            logger.log(Level.INFO, "Looking for {0}'s friends", me.getUsername());
+            Query<Friendship> query = this.createQuery();
+            query.or(
+                    query.criteria("friend").equal(me)
+            );
+            query.project("sister",true);
+            List<Friendship> friendships = query.asList();
+
+            List<User> friendList = new ArrayList<>();
+            Query<Friendship> queryUser = this.createQuery();
+            for(Friendship u : friendships){
+                queryUser.criteria("username").contains(friends);
+
+            }
+            query.project("sister",true);
+
+
+            List<Friendship> friendship = query.asList();
+
+            List<User> friendsUser = new ArrayList<>();
+            future.complete(friendsUser);
+
+        }, resultHandler);
+    }
+
     public void addFriendship(User me, User friend, Handler<AsyncResult<Friendship>> resultHandler) {
      vertx.executeBlocking( future -> {
-            logger.log(Level.INFO, "Adding a friendship between {0} and {1}",new Object[]{me.getLogin(), friend.getLogin()});
-            Friendship fs = new Friendship(me, friend);
+            logger.log(Level.INFO, "Adding a friendship between {0} and {1}",new Object[]{me.getUsername(), friend.getUsername()});
+            Friendship fs = new Friendship(friend, me);
             this.save(fs);
             this.save(fs.getSister());
             logger.log(Level.INFO, "Successfully added a friendship between {0} and {1}",
-                    new Object[]{me.getLogin(), friend.getLogin()});
+                    new Object[]{me.getUsername(), friend.getUsername()});
             future.complete(fs);
         }, resultHandler);
     }
 
     public void updateFriendship(Friendship f, Friendship.Status m, Handler<AsyncResult<Friendship>> resultHandler){
+        System.out.println("In updateFriendship DAO");
         vertx.executeBlocking( future -> {
-            // TODO? updateOperations
             f.setStatus(m);
             this.save(f);
             f.getSister().setStatus(Friendship.getReciprocalStatus(m));

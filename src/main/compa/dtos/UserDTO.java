@@ -21,7 +21,7 @@ public class UserDTO {
      */
     public UserDTO(User user){
         this.id = user.getId().toString();
-        this.login = user.getLogin();
+        this.login = user.getUsername();
         this.name = user.getName();
         this.ghostMode = user.getGhostMode();
         List<Location> locs = user.getLocations();
