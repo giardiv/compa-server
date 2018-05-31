@@ -53,7 +53,7 @@ public class AuthController extends Controller {
         userDAO.getByLoginAndPassword(login, password, res -> {
             User u = res.result();
             if(u != null){
-                u.setToken();
+                u.generate_token();
                 userDAO.save(u);
                 routingContext.response().end(
                         gson.toJson(
@@ -80,6 +80,7 @@ public class AuthController extends Controller {
      * @apiSuccess {String} Token    Token is returned
      */
     private void register(RoutingContext routingContext){
+
         String name = null;
         String email = null;
         String  login = null;
@@ -94,8 +95,6 @@ public class AuthController extends Controller {
             routingContext.response().setStatusCode(400).end(gson.toJson(e));
             return;
         }
-        // TODO: login instance of email ?
-
         if(!AuthenticationService.isAcceptablePassword(password)){
             routingContext.response().setStatusCode(400).end(
                     gson.toJson(
@@ -108,21 +107,16 @@ public class AuthController extends Controller {
 
         userDAO.addUser(email, name, login, encryptedPassword, salt, res -> {
             if(res.failed()){
-                // TODO: log
                 System.out.println("fail");
                 routingContext.response().end(gson.toJson(res.cause()));
                 return;
             } else {
-                // TODO: log
-                System.out.println("ok");
-                // TODO: add email to register
-
-                sendEmail("amichi.katia@gmail.comma","titre", "message sans pièce joint", res1 -> {
-                    if(res1!=null)
-                        System.out.println("email Ok");
-                });
-
                 User user = res.result();
+                System.out.println("ok");
+//                sendEmail("amichi.katia@gmail.comma","titre", "message sans pièce joint", res1 -> {
+//                    if(res1!=null)
+//                        System.out.println("email Ok");
+//                });
                 routingContext.response().end(gson.toJson(AuthenticationService.getJsonFromToken(user.getToken())));
                 return;
             }
@@ -167,7 +161,7 @@ public class AuthController extends Controller {
 
         userDAO.updatePassword(me, encryptedNewPassword, res -> {
             User u = res.result();
-            routingContext.response().end(gson.toJson(AuthenticationService.getJsonFromToken(u.getToken()))); //TODO FORMAT
+            routingContext.response().end(gson.toJson(AuthenticationService.getJsonFromToken(u.getToken())));
         });
     }
 }

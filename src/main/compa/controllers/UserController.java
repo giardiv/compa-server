@@ -32,6 +32,9 @@ public class UserController extends Controller {
         this.registerAuthRoute(HttpMethod.PUT, "", this::updateProfile, "application/json");
         this.registerAuthRoute(HttpMethod.PUT, "/ghostmode", this::setGhostMode, "application/json");
         this.registerAuthRoute(HttpMethod.POST, "/uploadPic", this::uploadPic, "application/json");
+        this.registerAuthRoute(HttpMethod.PUT, "/logout", this::logout, "application/json");
+        this.registerAuthRoute(HttpMethod.PUT, "/updateProfile", this::updateProfile, "application/json");
+
 
         userDAO = (UserDAO) container.getDAO(User.class);
     }
@@ -102,8 +105,37 @@ public class UserController extends Controller {
             routingContext.response().end();
         });
     }
+
+    /**
+     * @api {put} /user/updateProfile Set name and email
+     * @apiName GetMe
+     * @apiGroup User
+     *
+     * @apiSuccess Return 200 without body
+     */
     public void updateProfile(User me, RoutingContext routingContext){
-        // TODO
+        String name = null;
+        String email = null;
+        try {
+            email = this.getParam(routingContext, "email", true, ParamMethod.JSON, String.class);
+            name = this.getParam(routingContext, "name", true, ParamMethod.JSON, String.class);
+        } catch (ParameterException e) {
+            routingContext.response().setStatusCode(400).end(gson.toJson(e));
+            return;
+        }
+        userDAO.updateProfile(me, name,email, res -> {
+            User u = res.result();
+            JsonElement tempEl = this.gson.toJsonTree(userDAO.toDTO(u));
+
+            routingContext.response().end(gson.toJson(tempEl));
+        });
+    }
+
+
+    public void logout(User me, RoutingContext routingContext){
+        userDAO.logout(me, res -> {
+            routingContext.response().end();
+        });
     }
 
     public void uploadPic(User me, RoutingContext routingContext){

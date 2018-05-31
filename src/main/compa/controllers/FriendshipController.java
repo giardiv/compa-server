@@ -37,7 +37,9 @@ public class FriendshipController extends Controller{
     }
 
     /**
-     * @api {post} /friend/:status Update the status of a friendship
+     * @api {put} /friend
+     *
+     * us Update the status of a friendship
      * @apiName SetStatus
      * @apiGroup Friendship
      *
@@ -46,6 +48,7 @@ public class FriendshipController extends Controller{
      * @apiSuccess Return 200 without body
      */
     public void setStatus(User me, RoutingContext routingContext){
+        System.out.println("setStatus");
         Friendship.Status status;
         String friend_id;
 
@@ -67,16 +70,41 @@ public class FriendshipController extends Controller{
                 return;
             }
             friendshipDAO.findFriendshipByUsers(me, friend, res -> {
+                System.out.println("yoooooooo !!!!!!!!!!!!");
                 Friendship fs = res.result();
+                System.out.println("fs : " + fs.getStatus());
+                System.out.println("fs de sister  : " + fs.getSister().getStatus());
                 if(fs == null){
                     routingContext.response().setStatusCode(404).end(
                             gson.toJson(
                                     new UserException(FriendshipException.NOT_FRIEND)));
                     return;
                 }
-                // TODO: to test
-                if(status == Friendship.Status.ACCEPTED && fs.getStatus() != Friendship.Status.AWAITING)
+                if(fs.getStatus() == Friendship.Status.PENDING){
+                    routingContext.response().end();
                     return;
+                }
+
+                if(fs.getStatus() == Friendship.Status.BLOCKED){
+                    routingContext.response().end();
+                }
+
+                if(status == Friendship.Status.ACCEPTED && fs.getStatus() != Friendship.Status.AWAITING){
+                    routingContext.response().end();
+                    return;
+                }
+
+                if(status == Friendship.Status.REFUSED && fs.getStatus() != Friendship.Status.AWAITING){
+                    routingContext.response().end();
+                    return;
+
+                }
+
+                if(status == Friendship.Status.BLOCKER && fs.getStatus() != Friendship.Status.ACCEPTED){
+                    routingContext.response().end();
+                    return;
+                }
+
                 friendshipDAO.updateFriendship(fs, status, res2 -> {
                     routingContext.response().end(
                             gson.toJson(""));
@@ -154,6 +182,29 @@ public class FriendshipController extends Controller{
 
         userDAO.findOne("login", tag, res -> {
             User u = res.result();
+            if(u != null){
+                JsonElement tempEl = this.gson.toJsonTree(userDAO.toDTO(u));
+                routingContext.response().end(gson.toJson(tempEl));
+            } else {
+                routingContext.response().setStatusCode(404).end(
+                        gson.toJson(
+                                new UserException(UserException.USER_NOT_FOUND, "login", tag)));
+            }
+        });
+    }
+
+    public void searchFriends(User me, RoutingContext routingContext){
+        String tag;
+
+        try {
+            tag = this.getParam(routingContext, "tag", true, ParamMethod.GET, String.class);
+        } catch (ParameterException e) {
+            routingContext.response().setStatusCode(400).end(gson.toJson(e));
+            return;
+        }
+
+        friendshipDAO.searchFriends(me, tag, res -> {
+            List<User> u = res.result();
             if(u != null){
                 JsonElement tempEl = this.gson.toJsonTree(userDAO.toDTO(u));
                 routingContext.response().end(gson.toJson(tempEl));
