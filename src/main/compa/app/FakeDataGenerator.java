@@ -17,7 +17,7 @@ public class FakeDataGenerator {
 
     public static void main(String... args){
         ClassFinder cf = new ClassFinder();
-        Container c = new Container(null);
+        Container c = new Container(null, Container.MODE.PROD);
         c.run(cf);
 
         List<User> users = new ArrayList<>();;

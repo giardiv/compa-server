@@ -1,4 +1,4 @@
-package compa;
+package compa.Tests;
 
 import compa.app.ClassFinder;
 import compa.app.Container;
@@ -13,13 +13,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(VertxUnitRunner.class)
-public class TestTest {
+public class LocationTest {
 
     Vertx vertx;
 
     @Before
     public void before(TestContext context) {
-        Container c = new Container(context.asyncAssertSuccess());
+        Container c = new Container(context.asyncAssertSuccess(), Container.MODE.TEST);
         c.run(new ClassFinder());
         vertx = c.getVertx();
     }
@@ -31,6 +31,20 @@ public class TestTest {
 
     @Test
     public void test1(TestContext context) {
+        HttpClient client = vertx.createHttpClient();
+        Async async = context.async();
+        client.getNow(8080, "localhost", "/", resp -> {
+            resp.bodyHandler(body -> {
+                context.assertEquals("test", "test");
+                client.close();
+                async.complete();
+            });
+        });
+    }
+
+
+    @Test
+    public void test2(TestContext context) {
         HttpClient client = vertx.createHttpClient();
         Async async = context.async();
         client.getNow(8080, "localhost", "/", resp -> {

@@ -12,10 +12,11 @@ public class MongoUtil {
 
     private Datastore datastore;
 
-    public MongoUtil(String modelDirectory){
+    public MongoUtil(String modelDirectory, Container.MODE mode){
         final Morphia morphia = new Morphia();
         morphia.mapPackage(modelDirectory);
-        datastore = morphia.createDatastore(new MongoClient(DB_HOST, DB_PORT), DB_NAME);
+        String dbname = DB_NAME + (mode == Container.MODE.TEST ? "_test" : "");
+        datastore = morphia.createDatastore(new MongoClient(DB_HOST, DB_PORT), dbname);
         datastore.ensureIndexes();
     }
 

@@ -111,7 +111,8 @@ public class AuthController extends Controller {
         userDAO.addUser(email, name, login, encryptedPassword, salt, res -> {
             if(res.failed()){
                 System.out.println("fail");
-                routingContext.response().end(gson.toJson(res.cause()));
+                routingContext.response().setStatusCode(400).end(gson.toJson(res.cause()));
+                return;
             } else {
                 User user = res.result();
                 System.out.println("ok");

@@ -6,7 +6,7 @@ import compa.app.Container;
 public class Main {
 
 	public static void main(String... args) {
-		new Container(null).run(new ClassFinder());
+		new Container(null, Container.MODE.PROD).run(new ClassFinder());
 	}
 
 }
