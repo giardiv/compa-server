@@ -162,28 +162,6 @@ public class FriendshipController extends Controller{
      *
      * @apiSuccess Return a User
      */
-    public void searchFriend(User me, RoutingContext routingContext){
-        String tag;
-
-        try {
-            tag = this.getParam(routingContext, "tag", true, ParamMethod.GET, String.class);
-        } catch (ParameterException e) {
-            routingContext.response().setStatusCode(400).end(gson.toJson(e));
-            return;
-        }
-
-        userDAO.findOne("login", tag, res -> {
-            User u = res.result();
-            if(u != null){
-                JsonElement tempEl = this.gson.toJsonTree(userDAO.toDTO(u));
-                routingContext.response().end(gson.toJson(tempEl));
-            } else {
-                routingContext.response().setStatusCode(404).end(gson.toJson(
-                        new UserException(UserException.USER_NOT_FOUND, "login", tag)));
-            }
-        });
-    }
-
     public void searchFriends(User me, RoutingContext routingContext){
         String tag;
 
@@ -194,18 +172,19 @@ public class FriendshipController extends Controller{
             return;
         }
 
-        friendshipDAO.searchFriends(me, tag, res -> {
+        userDAO.searchLogin(tag, res -> {
             List<User> u = res.result();
             if(u != null){
                 JsonElement tempEl = this.gson.toJsonTree(userDAO.toDTO(u));
                 routingContext.response().end(gson.toJson(tempEl));
             } else {
-                routingContext.response().setStatusCode(404).end(
-                        gson.toJson(
-                                new UserException(UserException.USER_NOT_FOUND, "login", tag)));
+                routingContext.response().setStatusCode(404).end(gson.toJson(
+                        new UserException(UserException.USER_NOT_FOUND, "login", tag)));
             }
         });
     }
+
+
 
     /**
      * @api {get} /friend/:status Get list of friends filtered by status

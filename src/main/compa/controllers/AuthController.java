@@ -97,7 +97,7 @@ public class AuthController extends Controller {
             routingContext.response().setStatusCode(400).end(gson.toJson(e));
             return;
         }
-        if(!AuthenticationService.isAcceptablePassword(password)){
+        if(AuthenticationService.isNotAcceptablePassword(password)){
             routingContext.response().setStatusCode(400).end(
                     gson.toJson(
                             new RegisterException(compa.exception.RegisterException.PASSWORD_TOO_SHORT)));

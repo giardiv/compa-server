@@ -137,20 +137,20 @@ public class UserController extends Controller {
         });
     }
 
-    public void logout(User me, RoutingContext routingContext){
+    public void logout(User me, RoutingContext routingContext) {
         userDAO.logout(me, res -> {
             routingContext.response().end();
         });
+    }
 
-    public void setImg(){
-        public byte[] LoadImage(String filePath) throws Exception {
-        File file = new File(filePath);
-        int size = (int)file.length();
-        byte[] buffer = new byte[size];
-        FileInputStream in = new FileInputStream(file);
-        in.read(buffer);
-        in.close();
-        return buffer;
+    public byte[] LoadImage(String filePath) throws Exception {
+            File file = new File(filePath);
+            int size = (int) file.length();
+            byte[] buffer = new byte[size];
+            FileInputStream in = new FileInputStream(file);
+            in.read(buffer);
+            in.close();
+            return buffer;
 
     }
 
