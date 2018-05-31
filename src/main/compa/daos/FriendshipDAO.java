@@ -65,9 +65,8 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
         }, resultHandler);
     }
 
-    public void searchFriends(User me, String friends, Handler<AsyncResult<List<User>>> resultHandler){
-        //TODO
-        vertx.executeBlocking(  future -> {
+    public void findFriendshipOfUsers(User me, String friend, Handler<AsyncResult<List<Friendship>>> resultHandler){
+        vertx.executeBlocking( future -> {
             logger.log(Level.INFO, "Looking for {0}'s friends", me.getUsername());
             Query<Friendship> query = this.createQuery();
             query.or(
@@ -76,21 +75,10 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
             query.project("sister",true);
             List<Friendship> friendships = query.asList();
 
-            List<User> friendList = new ArrayList<>();
-            Query<Friendship> queryUser = this.createQuery();
-            for(Friendship u : friendships){
-                queryUser.criteria("username").contains(friends);
-
-            }
-            query.project("sister",true);
-
-
-            List<Friendship> friendship = query.asList();
-
-            List<User> friendsUser = new ArrayList<>();
-            future.complete(friendsUser);
+            future.complete(friendships);
 
         }, resultHandler);
+
     }
 
     public void addFriendship(User me, User friend, Handler<AsyncResult<Friendship>> resultHandler) {

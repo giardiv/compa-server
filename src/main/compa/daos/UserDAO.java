@@ -13,6 +13,7 @@ import compa.exception.RegisterException;
 import compa.models.User;
 import compa.app.DAO;
 import org.bson.types.ObjectId;
+import org.mongodb.morphia.query.FindOptions;
 import org.mongodb.morphia.query.Query;
 import org.mongodb.morphia.query.UpdateOperations;
 import sun.rmi.server.UnicastServerRef;
@@ -86,7 +87,7 @@ public class UserDAO extends DAO<User, ObjectId> {
     public void findOne(String key, Object value, Handler<AsyncResult<User>> resultHandler){
 
         vertx.executeBlocking( future -> {
-            logger.log(Level.INFO, "Looking for user by key {0} and value {1}", new Object[]{key, value});
+            logger.log(Level.INFO, "Looking for user by key {0}", value);
             User u = super.findOne(key, value);
             logger.log(Level.INFO, "User {0} found", u == null ? "not" : "");
             future.complete(u);
@@ -95,6 +96,22 @@ public class UserDAO extends DAO<User, ObjectId> {
 
     }
 
+    public void searchLogin(String value, Handler<AsyncResult<List<User>>> resultHandler){
+        vertx.executeBlocking( future -> {
+            logger.log(Level.INFO, "Looking for user begin with ",value);
+            Query<User> query = this.createQuery();
+            query.or(
+                    query.criteria("username").contains(value),
+                    query.criteria("name").contains(value)
+            );
+
+            List<User> users = query.asList();//new FindOptions().limit(30));
+            logger.log(Level.INFO, "User {0} found", users.size() == 0 ? "not" : "");
+            future.complete(users);
+
+        }, resultHandler);
+
+    }
 
     public void findById(String id, Handler<AsyncResult<User>> resultHandler) {
 
