@@ -1,4 +1,4 @@
-package compa;
+package compa.Tests;
 
 import com.google.gson.JsonObject;
 import compa.app.ClassFinder;
@@ -230,6 +230,6 @@ public class AuthTest {
                         async.complete();
                     });
                 }
-        ).putHeader("authorization", USER_TOKEN).end();
+        ).putHeader("Authorization", USER_TOKEN).end();
     }
 }

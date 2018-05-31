@@ -1,4 +1,4 @@
-package compa;
+package compa.Tests;
 
 import compa.app.ClassFinder;
 import compa.app.Container;
