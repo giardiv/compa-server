@@ -40,9 +40,6 @@ public class UserController extends Controller {
         this.registerAuthRoute(HttpMethod.PUT, "/updateProfile", this::updateProfile, "application/json");
         this.registerAuthRoute(HttpMethod.PUT, "/ghostmode", this::setGhostMode, "application/json");
         this.registerAuthRoute(HttpMethod.POST, "/uploadPic", this::uploadPic, "application/json");
-        this.registerAuthRoute(HttpMethod.PUT, "/logout", this::logout, "application/json");
-        this.registerAuthRoute(HttpMethod.PUT, "/updateProfile", this::updateProfile, "application/json");
-
 
         userDAO = (UserDAO) container.getDAO(User.class);
     }
@@ -137,12 +134,6 @@ public class UserController extends Controller {
         });
     }
 
-    public void logout(User me, RoutingContext routingContext) {
-        userDAO.logout(me, res -> {
-            routingContext.response().end();
-        });
-    }
-
     public byte[] LoadImage(String filePath) throws Exception {
             File file = new File(filePath);
             int size = (int) file.length();
@@ -183,5 +174,7 @@ public class UserController extends Controller {
         }
 
     }
+
+    //TODO : forgot password
 
 }

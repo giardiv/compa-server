@@ -24,6 +24,8 @@ public class AuthController extends Controller {
         this.registerRoute(HttpMethod.POST, "/login", this::login, "application/json");
         this.registerRoute(HttpMethod.POST, "/register", this::register, "application/json");
         this.registerAuthRoute(HttpMethod.PUT, "/updatePassword", this::updatePassword, "application/json");
+        this.registerAuthRoute(HttpMethod.PUT, "/logout", this::logout, "application/json");
+
         userDAO = (UserDAO) container.getDAO(User.class);
     }
 
@@ -80,7 +82,7 @@ public class AuthController extends Controller {
      * @apiSuccess {String} Token    Token is returned
      */
     private void register(RoutingContext routingContext){
-
+        System.out.println("register");
         String name = null;
         String email = null;
         String  login = null;
@@ -91,12 +93,11 @@ public class AuthController extends Controller {
             email = this.getParam(routingContext, "email", true, ParamMethod.JSON, String.class);
             login = this.getParam(routingContext, "login", true, ParamMethod.JSON, String.class);
             password = this.getParam(routingContext, "password", true, ParamMethod.JSON, String.class);
-
-
         } catch (ParameterException e) {
             routingContext.response().setStatusCode(400).end(gson.toJson(e));
             return;
         }
+
         if(AuthenticationService.isNotAcceptablePassword(password)){
             routingContext.response().setStatusCode(400).end(
                     gson.toJson(
@@ -120,6 +121,12 @@ public class AuthController extends Controller {
 //                });
                 routingContext.response().end(gson.toJson(AuthenticationService.getJsonFromToken(user.getToken())));
             }
+        });
+    }
+
+    public void logout(User me, RoutingContext routingContext) {
+        userDAO.logout(me, res -> {
+            routingContext.response().end();
         });
     }
 

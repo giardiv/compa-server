@@ -34,14 +34,12 @@ public class UserDAO extends DAO<User, ObjectId> {
     }
 
     public void getByLoginAndPassword(String login, String password, Handler<AsyncResult<User>> resultHandler){
-        System.out.println("In getByLoginAndPassword DAO");
-
         vertx.executeBlocking( future -> {
             Query<User> query = this.createQuery();
 
             query.or(
                     query.criteria("email").equal(login),
-                    query.criteria("login").equal(login)
+                    query.criteria("username").equal(login)
             ).and(
                     query.criteria("password").equal(password)
             );
@@ -63,15 +61,14 @@ public class UserDAO extends DAO<User, ObjectId> {
     public void addUser(String email, String name, String login, String password, String salt, Handler<AsyncResult<User>> resultHandler) {
         vertx.executeBlocking( future -> {
             //User user = this.createQuery().filter("login", login).get();
-            Query<User> query = this.createQuery();
 
+            Query<User> query = this.createQuery();
             query.or(
                     query.criteria("email").equal(email),
-                    query.criteria("login").equal(login)
+                    query.criteria("username").equal(login)
             );
 
             User user = this.findOne(query);
-
             if(user != null) {
                 future.fail(new RegisterException(RegisterException.USER_ALREADY_EXIST));
                 return;
