@@ -13,8 +13,8 @@ import java.util.Set;
 
 public class Container {
 
-    private final static String SERVER_HOST = "localhost";
-    private final static int SERVER_PORT = 8080;
+    public final static String SERVER_HOST = "localhost";
+    public final static int SERVER_PORT = 8080;
     private Router router;
     private Map<Class, DAO> daos;
     private MongoUtil mongoUtil;
@@ -22,11 +22,18 @@ public class Container {
     private Set<Class<?>> exceptions;
     private Map<Class, Service> services;
     private Vertx vertx;
+    private MODE mode;
 
     private Handler<AsyncResult<HttpServer>> testHandler;
 
-    public Container(Handler<AsyncResult<HttpServer>> testHandler){
+    public enum MODE {
+        TEST,
+        PROD
+    };
+
+    public Container(Handler<AsyncResult<HttpServer>> testHandler, MODE mode){
         this.testHandler = testHandler;
+        this.mode = mode;
     }
 
     public void run(ClassFinder cf) {
@@ -40,7 +47,7 @@ public class Container {
 
         router.route().handler(BodyHandler.create());
 
-        mongoUtil = new MongoUtil(cf.getModelDirectory());
+        mongoUtil = new MongoUtil(cf.getModelDirectory(), this.mode);
 
         daos = cf.getDAOs(this);
         exceptions = cf.getExceptions();
