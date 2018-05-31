@@ -1,10 +1,12 @@
 package compa.models;
 
 
+import com.mongodb.gridfs.GridFSDBFile;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.bson.types.ObjectId;
 import org.mongodb.morphia.annotations.*;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
@@ -40,7 +42,7 @@ public class User {
         this.locations = new ArrayList<>();
         this.salt = salt;
         this.ghostMode = false;
-        this.generate_token();
+        this.generateToken();
     }
 
     public String getEmail() {return email;}
@@ -55,7 +57,7 @@ public class User {
         return this.token;
     }
 
-    public void generate_token(){
+    public void generateToken(){
         this.token = RandomStringUtils.randomAlphanumeric(TOKEN_COUNT);
     }
 

@@ -60,7 +60,7 @@ public class AuthenticationService extends Service {
         return BCrypt.gensalt(SALT_ROUND);
     }
 
-    public static boolean isAcceptablePassword(String rawPassword){
-        return rawPassword.length() >= PASSWORD_MIN_LENGTH;
+    public static boolean isNotAcceptablePassword(String rawPassword){
+        return rawPassword.length() < PASSWORD_MIN_LENGTH;
     }
 }

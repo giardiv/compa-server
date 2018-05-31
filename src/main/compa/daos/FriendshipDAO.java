@@ -1,18 +1,14 @@
 package compa.daos;
 
-import com.mongodb.operation.DeleteOperation;
 import compa.dtos.FriendshipDTO;
 import compa.models.Friendship;
-import compa.models.Location;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import compa.app.Container;
 import compa.app.DAO;
 import compa.dtos.UserDTO;
-import compa.exception.FriendshipException;
 import compa.models.User;
 import org.bson.types.ObjectId;
-import org.mongodb.morphia.Morphia;
 import org.mongodb.morphia.query.*;
 
 import java.util.ArrayList;
@@ -43,7 +39,8 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
                     .stream()
                     .map(Friendship::getSister)
                     .map(Friendship::getFriend)
-                    .collect(Collectors.toList());
+                    .collect(Collectors.toList()); //100% against this how dare you
+
             logger.log(Level.INFO, "Found {0} friends", friendships.size());
 
             future.complete(friendships);
@@ -113,11 +110,8 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
         vertx.executeBlocking( future -> {
             f.setStatus(m);
             this.save(f);
-            f.getSister().setStatus(Friendship.getRiprocalStatus(m));
+            f.getSister().setStatus(Friendship.getReciprocalStatus(m));
             this.save(f.getSister());
-            System.out.println(f.getSister().getStatus());
-            System.out.println(f.getStatus());
-            System.out.println(m);
             future.complete(f);
         }, resultHandler);
     }

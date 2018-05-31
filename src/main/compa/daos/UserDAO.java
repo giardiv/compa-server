@@ -1,5 +1,8 @@
 package compa.daos;
 
+import com.mongodb.DB;
+import com.mongodb.gridfs.GridFS;
+import com.mongodb.gridfs.GridFSInputFile;
 import compa.app.MongoUtil;
 import compa.dtos.UserDTO;
 import compa.services.AuthenticationService;
@@ -13,7 +16,7 @@ import org.bson.types.ObjectId;
 import org.mongodb.morphia.query.Query;
 import org.mongodb.morphia.query.UpdateOperations;
 import sun.rmi.server.UnicastServerRef;
-
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -120,19 +123,17 @@ public class UserDAO extends DAO<User, ObjectId> {
         vertx.executeBlocking( future -> {
             UpdateOperations<User> update = this.createUpdateOperations().set("password", newEncryptedPassword);
             this.getDatastore().update(user, update);
-            user.generate_token();
+            user.generateToken();
             this.save(user);
             future.complete(user);
         }, resultHandler);
 
     }
-
     public void updateProfile(User user, String name, String email, Handler<AsyncResult<User>> resultHandler ){
 
         vertx.executeBlocking( future -> {
             UpdateOperations<User> update = this.createUpdateOperations();
-            System.out.println("Avant  name: " + user.getName());
-
+          
             if(name != user.getName()){
                 update.set("name", name);
                 user.setName(name);
@@ -150,7 +151,12 @@ public class UserDAO extends DAO<User, ObjectId> {
             System.out.println(" après name: " + user.getName());
             future.complete(user);
         }, resultHandler);
+    }
 
+    public void setImgProfile(User user, byte[] imageBytes, Handler<AsyncResult<User>> resultHandler){
+        vertx.executeBlocking( future -> {
+
+        }, resultHandler);
     }
 
     public void setGhostMode(User user, boolean mode, Handler<AsyncResult<User>> resultHandler ){
