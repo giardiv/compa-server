@@ -105,7 +105,7 @@ public class UserController extends Controller {
         }
 
         userDAO.setGhostMode(me, mode, res -> {
-            routingContext.response().end(); // TODO Return something to indicate success
+            routingContext.response().end(gson.toJson("{\"success\":true}"));
         });
     }
 
@@ -174,7 +174,5 @@ public class UserController extends Controller {
         }
 
     }
-
-    //TODO : forgot password
 
 }

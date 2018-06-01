@@ -133,12 +133,14 @@ public class UserDAO extends DAO<User, ObjectId> {
     }
 
     public void updatePassword(User user, String newEncryptedPassword, Handler<AsyncResult<User>> resultHandler ){
+        System.out.println("In updatePassword");
 
         vertx.executeBlocking( future -> {
-            UpdateOperations<User> update = this.createUpdateOperations().set("password", newEncryptedPassword);
-            this.getDatastore().update(user, update);
             user.generateToken();
-            this.save(user);
+            UpdateOperations<User> update = this.createUpdateOperations()
+                    .set("password", newEncryptedPassword)
+                    .set("token", user.getToken());
+            this.getDatastore().update(user, update);
             future.complete(user);
         }, resultHandler);
 

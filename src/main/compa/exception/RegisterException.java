@@ -17,6 +17,12 @@ public class RegisterException extends Exception
      */
     public static final Pair<Integer, String> PASSWORD_TOO_SHORT = new Pair<>(1002, "I'm sure you can do better, gimme a real password");
 
+    /**
+     * @apiDefine SamePassword
+     * @apiError SamePassword 1003 : The <code>password</code> is the same as the old password.
+     */
+    public static final Pair<Integer, String> SAME_PASSWORD = new Pair<>(1003, "It the same password");
+
     public RegisterException(Pair<Integer, String> message, String... values) {
         super(message, values);
     }
