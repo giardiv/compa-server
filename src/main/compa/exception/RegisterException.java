@@ -23,6 +23,13 @@ public class RegisterException extends Exception
      */
     public static final Pair<Integer, String> SAME_PASSWORD = new Pair<>(1003, "It the same password");
 
+    /**
+     * @apiDefine NotValidEmail
+     * @apiError NotValidEmail 1004 : The <code>email</code> is not valid email.
+     */
+    public static final Pair<Integer, String> NOT_VALID_EMAIL = new Pair<>(1004, "Error in email format");
+
+
     public RegisterException(Pair<Integer, String> message, String... values) {
         super(message, values);
     }

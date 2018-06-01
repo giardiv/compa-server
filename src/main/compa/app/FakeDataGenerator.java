@@ -42,9 +42,7 @@ public class FakeDataGenerator {
             String encPassword = AuthenticationService.encrypt("password" + i, salt);
             User u = new User("email" + i + "@toto.fr", "Name "+ i, "user" + i, encPassword, salt);
             for(int j = 0; j < locationsPerUser; ++j){
-
                 LocalDateTime date = LocalDateTime.now().minus(offset, ChronoUnit.SECONDS);
-
                 Location l = new Location(
                         baseLatitude + new Random().nextInt(140) * 0.0001,
                         baseLongitude + new Random().nextInt(140) * 0.0001,
