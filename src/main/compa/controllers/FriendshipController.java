@@ -86,8 +86,7 @@ public class FriendshipController extends Controller{
                 }
 
                 friendshipDAO.updateFriendship(fs, status, res2 -> {
-                    routingContext.response().end(
-                            gson.toJson("{}"));
+                    routingContext.response().end("{}");
                 });
             });
         });
@@ -161,8 +160,7 @@ public class FriendshipController extends Controller{
         userDAO.searchLogin(tag, res -> {
             List<User> u = res.result();
             if(u != null){
-                JsonElement tempEl = this.gson.toJsonTree(userDAO.toDTO(u));
-                routingContext.response().end(gson.toJson(tempEl));
+                routingContext.response().end(gson.toJson(userDAO.toDTO(u)));
             } else {
                 routingContext.response().setStatusCode(404).end(gson.toJson(
                         new UserException(UserException.USER_NOT_FOUND, "login", tag)));
@@ -238,8 +236,7 @@ public class FriendshipController extends Controller{
                     return;
                 }
                 friendshipDAO.addFriendship(me, friend, res2 -> {
-                    routingContext.response().end(
-                            gson.toJson("{}"));
+                    routingContext.response().end("{}");
                 });
             });
         });
