@@ -18,6 +18,8 @@ import org.bson.types.ObjectId;
 
 import java.util.List;
 
+import static compa.models.Friendship.Status.*;
+
 public class FriendshipController extends Controller{
 
     private static final String PREFIX = "/friend";
@@ -73,12 +75,8 @@ public class FriendshipController extends Controller{
                             new UserException(FriendshipException.NOT_FRIEND)));
                     return;
                 }
-                if(fs.getStatus() == Friendship.Status.PENDING
-                        || fs.getStatus() == Friendship.Status.BLOCKED
-                        || status == Friendship.Status.ACCEPTED && fs.getStatus() != Friendship.Status.AWAITING
-                        || status == Friendship.Status.REFUSED && fs.getStatus() != Friendship.Status.AWAITING
-                        || status == Friendship.Status.BLOCKER && fs.getStatus() != Friendship.Status.ACCEPTED){
-
+                if(!validStatusChange(status, fs.getStatus())){
+                   System.out.println("dun dun dun");
                     routingContext.response().setStatusCode(404).end(gson.toJson(
                             new FriendshipException(FriendshipException.NOT_CHANGE_STATUS)));
 
@@ -240,6 +238,28 @@ public class FriendshipController extends Controller{
                 });
             });
         });
+
+    }
+
+    private boolean validStatusChange(Friendship.Status origin, Friendship.Status change) {
+        switch (origin){
+            case PENDING:
+                return false;
+            case AWAITING:
+                return change == ACCEPTED || change == REFUSED;
+            case BLOCKED:
+                return false;
+            case BLOCKER:
+                return change == ACCEPTED;
+            case REFUSED:
+                return false;
+            case SORRY:
+                return false;
+            case ACCEPTED:
+                return change == BLOCKER;
+            default:
+                return false;
+        }
 
     }
 }

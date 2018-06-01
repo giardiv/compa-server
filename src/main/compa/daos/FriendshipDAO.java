@@ -58,7 +58,19 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
                     query.criteria("sister").in(friendsFriends.asList())
             );
             Friendship friendship = this.findOne(query);
-            logger.log(Level.INFO, "Found {0} friends", friendship);
+
+            if(friendship != null){
+                logger.log(Level.INFO, "Found friendship between {0} and {1}",
+                        new Object[]{
+                                friendship.getFriend().getUsername(),
+                                friendship.getSister().getFriend().getUsername()});
+            }
+            else{
+                logger.log(Level.INFO, "Could not find friendship between {0} and {1}",
+                        new Object[]{
+                                friendship.getFriend().getUsername(),
+                                friendship.getSister().getFriend().getUsername()});
+            }
 
             future.complete(friendship);
 
