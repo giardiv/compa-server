@@ -2,6 +2,7 @@ package compa.controllers;
 
 import compa.exception.LoginException;
 import compa.exception.RegisterException;
+import compa.exception.UserException;
 import compa.services.AuthenticationService;
 import compa.exception.ParameterException;
 import io.vertx.core.http.HttpMethod;
@@ -10,12 +11,17 @@ import io.vertx.ext.web.RoutingContext;
 import compa.app.*;
 import compa.models.User;
 import compa.daos.UserDAO;
-
 import static compa.email.SendEmail.sendEmail;
+
+import org.apache.commons.lang3.RandomStringUtils;
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
 
 public class AuthController extends Controller {
 
     private static final String PREFIX = "";
+    private final static int PASSWORD_COUNT = 10;
+
 
     private UserDAO userDAO;
 
@@ -25,6 +31,7 @@ public class AuthController extends Controller {
         this.registerRoute(HttpMethod.POST, "/register", this::register, "application/json");
         this.registerAuthRoute(HttpMethod.PUT, "/updatePassword", this::updatePassword, "application/json");
         this.registerAuthRoute(HttpMethod.PUT, "/logout", this::logout, "application/json");
+        this.registerRoute(HttpMethod.POST, "/forgotPassword", this::forgotPassword, "application/json");
 
         userDAO = (UserDAO) container.getDAO(User.class);
     }
@@ -98,6 +105,8 @@ public class AuthController extends Controller {
             return;
         }
 
+        //TODO : check email if is valide
+
         if(AuthenticationService.isNotAcceptablePassword(password)){
             routingContext.response().setStatusCode(400).end(
                     gson.toJson(
@@ -122,12 +131,6 @@ public class AuthController extends Controller {
 //                });
                 routingContext.response().end(gson.toJson(AuthenticationService.getJsonFromToken(user.getToken())));
             }
-        });
-    }
-
-    public void logout(User me, RoutingContext routingContext) {
-        userDAO.logout(me, res -> {
-            routingContext.response().end();
         });
     }
 
@@ -164,12 +167,101 @@ public class AuthController extends Controller {
                             new RegisterException(compa.exception.RegisterException.PASSWORD_TOO_SHORT)));
             return;
         }
-
         String encryptedNewPassword = AuthenticationService.encrypt(newPassword, me.getSalt());
+
+        if(password == encryptedNewPassword){
+            routingContext.response().setStatusCode(400).end(
+                    gson.toJson(
+                            new RegisterException(RegisterException.SAME_PASSWORD)));
+            return;
+        }
 
         userDAO.updatePassword(me, encryptedNewPassword, res -> {
             User u = res.result();
             routingContext.response().end(gson.toJson(AuthenticationService.getJsonFromToken(u.getToken())));
         });
     }
+
+    /**
+     * @api {put} /logout Logout, put token to null
+     * @apiName Logout
+     * @apiGroup Auth
+     *
+     * @apiUse UserAlreadyExist
+     *
+     * @apiSuccess {String} String    Success true
+     */
+    public void logout(User me, RoutingContext routingContext) {
+        userDAO.logout(me, res -> {
+            routingContext.response().end(gson.toJson("{\"success\":true}"));
+        });
+    }
+
+    private boolean crunchifyEmailValidator(String email) {
+        boolean isValid = false;
+        try {
+            //
+            // Create InternetAddress object and validated the supplied
+            // address which is this case is an email address.
+            InternetAddress internetAddress = new InternetAddress(email);
+            internetAddress.validate();
+            isValid = true;
+        } catch (AddressException e) {
+            System.out.println("You are in catch block -- Exception Occurred for: " + email);
+        }
+        return isValid;
+    }
+
+    private void myLogger(String email, boolean valid) {
+        System.out.println(email + " is " + (valid ? "a" : "not a") + " valid email address\n");
+    }
+
+
+    /**
+     * @api {post} /forgotPassword Forgot password, send a new password
+     * @apiName Forgot Password
+     * @apiGroup Auth
+     *
+     * @apiParam {String} email   Users's raw email
+     *
+     * @apiUse USER_NOT_FOUND
+     * @apiSuccess {String} email    A new password is send by email
+     */
+    public void forgotPassword(RoutingContext routingContext){
+
+        String email;
+        try {
+            email = this.getParam(routingContext, "email", true, ParamMethod.JSON, String.class);
+        } catch (ParameterException e) {
+            routingContext.response().setStatusCode(400).end(gson.toJson(e));
+            return;
+        }
+
+        userDAO.findOne("email",email, res -> {
+            User user = res.result();
+            if(user != null){
+                String newPassword = RandomStringUtils.randomAlphanumeric(PASSWORD_COUNT);
+                sendEmail(email,"Forgot Password", "New password : " + newPassword, res1 -> {
+                    if(res1!=null) {
+                        System.out.println("email Ok");
+                    }else{
+                        System.out.println("non valide !!!!! ");
+                    }
+                });
+
+                String encryptedNewPassword = AuthenticationService.encrypt(newPassword, user.getSalt());
+
+                userDAO.updatePassword(user, encryptedNewPassword, res2 -> {
+                    User u = res2.result();
+                });
+
+                routingContext.response().end(gson.toJson("{\"success\":true}"));
+            } else {
+                routingContext.response().setStatusCode(404).end(gson.toJson(
+                        new UserException(UserException.USER_NOT_FOUND, "email", email)));
+            }
+        });
+    }
+
+
 }

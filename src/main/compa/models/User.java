@@ -1,15 +1,11 @@
 package compa.models;
 
-
-import com.mongodb.gridfs.GridFSDBFile;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.bson.types.ObjectId;
 import org.mongodb.morphia.annotations.*;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 
 
@@ -19,6 +15,7 @@ import java.util.List;
 })
 public class User {
     private final static int TOKEN_COUNT = 16;
+
 
     @Id
     public ObjectId id;
@@ -57,9 +54,7 @@ public class User {
         return this.token;
     }
 
-    public void generateToken(){
-        this.token = RandomStringUtils.randomAlphanumeric(TOKEN_COUNT);
-    }
+    public void generateToken(){this.token = RandomStringUtils.randomAlphanumeric(TOKEN_COUNT);}
 
     public void setToken(String token){this.token = token;}
 
