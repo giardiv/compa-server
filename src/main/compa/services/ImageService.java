@@ -76,6 +76,7 @@ public class ImageService extends Service {
             }
             imageDAO.addImage((String) result.get("public_id"), localPath, ext, res -> {
                 System.out.println(this.getRawUrl(res.result()));
+                System.out.println(this.getThumbnailUrl(res.result()));
                 future.complete(res.result());
             });
         }, resultHandler);

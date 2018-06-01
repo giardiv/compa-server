@@ -28,6 +28,9 @@ public class FriendshipException extends Exception {
 
     public static final Pair<Integer, String> INVALID_STATUS = new Pair<>(6006, "Invalid status requested");
 
+    public static final Pair<Integer, String> NOT_CHANGE_STATUS = new Pair<>(6007, "Impossible to change the status");
+
+    //impossible to change the status
     public FriendshipException(Pair<Integer, String> message) {
         super(message);
     }
