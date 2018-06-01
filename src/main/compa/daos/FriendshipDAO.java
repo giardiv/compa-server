@@ -61,7 +61,7 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
             );
             Friendship friendship = this.findOne(query);
 
-            if(friendship != null){
+            if(friendship == null){
                 logger.log(Level.INFO, "Found friendship between {0} and {1}", params);
                 future.complete(null);
             }
