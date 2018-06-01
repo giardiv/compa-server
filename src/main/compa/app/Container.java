@@ -4,6 +4,7 @@ import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
+import io.vertx.core.net.JksOptions;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
 
@@ -41,6 +42,9 @@ public class Container {
         HttpServerOptions options = new HttpServerOptions();
         options.setHost(SERVER_HOST);
         options.setPort(SERVER_PORT);
+
+        //HttpServerOptions secureOptions = new HttpServerOptions();
+        //secureOptions.setSsl(true);
 
         HttpServer server = vertx.createHttpServer(options);
         router = Router.router(vertx);

@@ -8,6 +8,7 @@ import compa.daos.ImageDAO;
 import compa.daos.UserDAO;
 import compa.exception.LoginException;
 import compa.exception.ParameterException;
+import compa.exception.RegisterException;
 import compa.exception.UserException;
 import compa.models.Image;
 import compa.models.User;
@@ -18,6 +19,7 @@ import io.vertx.core.file.FileSystem;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.web.FileUpload;
 import io.vertx.ext.web.RoutingContext;
+import org.apache.commons.validator.routines.EmailValidator;
 import org.bson.types.ObjectId;
 
 import java.io.File;
@@ -124,6 +126,12 @@ public class UserController extends Controller {
             name = this.getParam(routingContext, "name", true, ParamMethod.JSON, String.class);
         } catch (ParameterException e) {
             routingContext.response().setStatusCode(400).end(gson.toJson(e));
+            return;
+        }
+        if(!EmailValidator.getInstance(true).isValid(email)){
+            routingContext.response().setStatusCode(400).end(
+                    gson.toJson(
+                            new RegisterException(RegisterException.NOT_VALID_EMAIL)));
             return;
         }
         userDAO.updateProfile(me, name,email, res -> {

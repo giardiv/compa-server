@@ -55,20 +55,21 @@ public class AuthTest {
         testRegisterUser.addProperty("name", "Bobby");
     }
 
+    @After
+    public void after(TestContext context) {
+        vertx.close(context.asyncAssertSuccess());
+    }
+
     public static void dropData(){
         datastore.getCollection(User.class).drop();
     }
+
     public static void fakeData(){
         String salt = AuthenticationService.getSalt();
         String encPassword = AuthenticationService.encrypt(USER_RAW_PW, salt);
         User u = new User(USER_EMAIL, USER_NAME,USER_LOGIN, encPassword, salt.toString());
         u.setToken(USER_TOKEN);
         datastore.save(u);
-    }
-
-    @After
-    public void after(TestContext context) {
-        vertx.close(context.asyncAssertSuccess());
     }
 
     @Test

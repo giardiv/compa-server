@@ -16,6 +16,7 @@ import static compa.email.SendEmail.sendEmail;
 import org.apache.commons.lang3.RandomStringUtils;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
+import org.apache.commons.validator.routines.EmailValidator;
 
 public class AuthController extends Controller {
 
@@ -105,7 +106,12 @@ public class AuthController extends Controller {
             return;
         }
 
-        //TODO : check email if is valide
+        if(!EmailValidator.getInstance(true).isValid(email)){
+            routingContext.response().setStatusCode(400).end(
+                    gson.toJson(
+                            new RegisterException(RegisterException.NOT_VALID_EMAIL)));
+            return;
+        }
 
         if(AuthenticationService.isNotAcceptablePassword(password)){
             routingContext.response().setStatusCode(400).end(
@@ -117,6 +123,7 @@ public class AuthController extends Controller {
         String salt = AuthenticationService.getSalt();
         String encryptedPassword = AuthenticationService.encrypt(password, salt);
 
+        String finalEmail = email;
         userDAO.addUser(email, name, login, encryptedPassword, salt, res -> {
             if(res.failed()){
                 System.out.println("fail");
@@ -125,10 +132,10 @@ public class AuthController extends Controller {
             } else {
                 User user = res.result();
                 System.out.println("ok");
-//                sendEmail("amichi.katia@gmail.comma","titre", "message sans pièce joint", res1 -> {
-//                    if(res1!=null)
-//                        System.out.println("email Ok");
-//                });
+                sendEmail(finalEmail,"titre", "message sans pièce joint", res1 -> {
+                    if(res1!=null)
+                        System.out.println("email Ok");
+                });
                 routingContext.response().end(gson.toJson(AuthenticationService.getJsonFromToken(user.getToken())));
             }
         });
@@ -197,26 +204,6 @@ public class AuthController extends Controller {
         });
     }
 
-    private boolean crunchifyEmailValidator(String email) {
-        boolean isValid = false;
-        try {
-            //
-            // Create InternetAddress object and validated the supplied
-            // address which is this case is an email address.
-            InternetAddress internetAddress = new InternetAddress(email);
-            internetAddress.validate();
-            isValid = true;
-        } catch (AddressException e) {
-            System.out.println("You are in catch block -- Exception Occurred for: " + email);
-        }
-        return isValid;
-    }
-
-    private void myLogger(String email, boolean valid) {
-        System.out.println(email + " is " + (valid ? "a" : "not a") + " valid email address\n");
-    }
-
-
     /**
      * @api {post} /forgotPassword Forgot password, send a new password
      * @apiName Forgot Password
@@ -244,8 +231,6 @@ public class AuthController extends Controller {
                 sendEmail(email,"Forgot Password", "New password : " + newPassword, res1 -> {
                     if(res1!=null) {
                         System.out.println("email Ok");
-                    }else{
-                        System.out.println("non valide !!!!! ");
                     }
                 });
 
