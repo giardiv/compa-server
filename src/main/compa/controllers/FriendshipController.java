@@ -28,9 +28,9 @@ public class FriendshipController extends Controller{
     public FriendshipController(Container container) {
         super(PREFIX, container);
         this.registerAuthRoute(HttpMethod.POST, "", this::addFriend, "application/json");
+        this.registerAuthRoute(HttpMethod.GET, "/search", this::searchFriends, "application/json");
         this.registerAuthRoute(HttpMethod.GET, "/:status", this::getFriendsByStatus, "application/json");
         this.registerAuthRoute(HttpMethod.DELETE, "", this::deleteFriendship, "application/json");
-        this.registerAuthRoute(HttpMethod.GET, "/search", this::searchFriends, "application/json");
         this.registerAuthRoute(HttpMethod.PUT, "", this::setStatus, "application/json");
         friendshipDAO = (FriendshipDAO) container.getDAO(Friendship.class);
         userDAO = (UserDAO) container.getDAO(User.class);
