@@ -3,8 +3,6 @@ package compa.Tests;
 import compa.app.ClassFinder;
 import compa.app.Container;
 import io.vertx.core.Vertx;
-import io.vertx.core.http.HttpClient;
-import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import org.junit.After;
@@ -13,8 +11,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(VertxUnitRunner.class)
-public class LocationTest {
-
+public class FriendshipTest {
     Vertx vertx;
 
     @Before
@@ -30,11 +27,29 @@ public class LocationTest {
     }
 
     @Test
-    public void newInstanceWork(TestContext context) {
+    public void addFriendshipWork(TestContext context) {
     }
 
-    // based on fake location
     @Test
-    public void getLocationOnPeriod(TestContext context) {
+    public void addFriendshipBeFriend(TestContext context) {
     }
+
+    @Test
+    public void deleteFriendshipWork(TestContext context) {
+    }
+
+    @Test
+    public void setFriendshipStatus(TestContext context) {
+    }
+
+    @Test
+    public void getFriendshipByStatus(TestContext context) {
+    }
+
+    @Test
+    public void searchFriendshipWork(TestContext context) {
+    }
+
+
+
 }
