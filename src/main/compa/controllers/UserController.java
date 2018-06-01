@@ -107,7 +107,7 @@ public class UserController extends Controller {
         }
 
         userDAO.setGhostMode(me, mode, res -> {
-            routingContext.response().end(gson.toJson("{\"success\":true}"));
+            routingContext.response().end(gson.toJson("{}"));
         });
     }
 

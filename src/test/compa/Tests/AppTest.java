@@ -27,6 +27,7 @@ public class AppTest {
         c.run(new ClassFinder());
         vertx = c.getVertx();
         this.gson = (GsonService) c.getServices().get(GsonService.class);
+        AuthTest.fakeData();
     }
 
     @After
@@ -58,6 +59,9 @@ public class AppTest {
 
 
     // TODO test with token
+    // test parameter cast is the case it doesn't work
+    // must code 400
+    // return custom code PARAM FORMAT
     @Test
     public void wrongParam(TestContext context) {
         HttpClient client = vertx.createHttpClient();
@@ -79,4 +83,12 @@ public class AppTest {
                 .write(json)
                 .end();
     }
+
+    // TODO test with token
+    // test parameter cast is the case it doesn't work
+
+    // must code 200
+    // en fonction de la route utilisée, checker le resultat
+    @Test
+    public void goodParam(TestContext context) {}
 }
