@@ -75,7 +75,7 @@ public class FriendshipController extends Controller{
                             new UserException(FriendshipException.NOT_FRIEND)));
                     return;
                 }
-                if(!validStatusChange(status, fs.getStatus())){
+                if(!validStatusChange(fs.getStatus(), status)){
                    System.out.println("dun dun dun");
                     routingContext.response().setStatusCode(404).end(gson.toJson(
                             new FriendshipException(FriendshipException.NOT_CHANGE_STATUS)));
@@ -242,6 +242,8 @@ public class FriendshipController extends Controller{
     }
 
     private boolean validStatusChange(Friendship.Status origin, Friendship.Status change) {
+        System.out.println(origin.toString());
+        System.out.println(change.toString());
         switch (origin){
             case PENDING:
                 return false;
