@@ -27,7 +27,7 @@ public class LocationDAO extends DAO<Location, ObjectId> {
     }
 
     public List<LocationDTO> toDTO(List<Location> locations){
-        return locations.stream().map(x -> new LocationDTO(x)).collect(Collectors.toList());
+        return locations.stream().map(LocationDTO::new).collect(Collectors.toList());
     }
 
     public void addPosition(User me, Double lat, Double lon, Date date, Handler<AsyncResult<Location>> resultHandler) {

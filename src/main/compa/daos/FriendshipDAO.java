@@ -65,7 +65,7 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
         }, resultHandler);
     }
 
-    public void findFriendshipOfUsers(User me, String friend, Handler<AsyncResult<List<Friendship>>> resultHandler){
+    /*public void findFriendshipOfUsers(User me, String friend, Handler<AsyncResult<List<Friendship>>> resultHandler){
         vertx.executeBlocking( future -> {
             logger.log(Level.INFO, "Looking for {0}'s friends", me.getUsername());
             Query<Friendship> query = this.createQuery();
@@ -79,7 +79,7 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
 
         }, resultHandler);
 
-    }
+    }*/
 
     public void addFriendship(User me, User friend, Handler<AsyncResult<Friendship>> resultHandler) {
      vertx.executeBlocking( future -> {
@@ -94,7 +94,9 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
     }
 
     public void updateFriendship(Friendship f, Friendship.Status m, Handler<AsyncResult<Friendship>> resultHandler){
-        System.out.println("In updateFriendship DAO");
+        logger.log(Level.INFO, "Updating friendship between {0} and {1}",
+        new Object[]{f.getFriend().getUsername(), f.getSister().getFriend().getUsername()});
+
         vertx.executeBlocking( future -> {
             f.setStatus(m);
             this.save(f);
@@ -105,9 +107,12 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
     }
 
     public void deleteFriendship(Friendship fs, Handler<AsyncResult<Boolean>> resultHandler){
+        logger.log(Level.INFO, "Deleting friendship between {0} and {1}",
+                new Object[]{fs.getFriend().getUsername(), fs.getSister().getFriend().getUsername()});
+
         vertx.executeBlocking( future -> {
-            this.getDatastore().delete(fs.getSister());
-            this.getDatastore().delete(fs);
+            this.delete(fs.getSister());
+            this.delete(fs);
             future.complete();
         }, resultHandler);
     }
