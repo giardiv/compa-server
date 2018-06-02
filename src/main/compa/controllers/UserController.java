@@ -153,7 +153,6 @@ public class UserController extends Controller {
 
     }
 
-
     public void uploadPic(User me, RoutingContext routingContext){
         //TODO SURROUND WITH VERTX BLOCKING AS IT MIGHT BE TIME CONSUMING???
         Set<FileUpload> files = routingContext.fileUploads();

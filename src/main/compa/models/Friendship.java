@@ -28,51 +28,54 @@ public class Friendship {
     @Id
     private ObjectId id;
 
+    // Author of the Friendship
     @Reference
-    private User friend;
+    private User friendAId;
 
-    @Reference(lazy = true)
-    private Friendship sister;
+    private Status statusA;
 
-    private Status status;
+    @Reference
+    private User friendBId;
+
+    private Status statusB;
 
     public Friendship(){}
 
-    public Friendship(User me, User friend){
-        this.id = ObjectId.get();
-        this.friend = friend;
-        this.status = PENDING;
-        this.sister = new Friendship(me, this);
-    }
-
-    private Friendship(User friend, Friendship fs){
-        this.id = ObjectId.get();
-        this.friend = friend;
-        this.status = AWAITING;
-        this.sister = fs;
+    public Friendship(User asker, User asked){
+        this.friendAId = asker;
+        this.statusA = PENDING;
+        this.friendBId = asked;
+        this.statusB = AWAITING;
     }
 
     public ObjectId getId() {
         return id;
     }
 
-    public User getFriend() {
-        return friend;
+    public User getFriendA() {
+        return friendAId;
     }
 
-    public Friendship getSister() {
-        return sister;
+    public User getFriendB() {
+        return friendBId;
     }
 
-    public Status getStatus() {
-        return status;
+    public Status getStatusA() {
+        return statusA;
     }
 
-    public void setStatus(Status status, boolean recursive) {
-        this.status = status;
-        if(!recursive)
-            return;
-        sister.setStatus(Friendship.getReciprocalStatus(status), false);
+    public Status getStatusB() {
+        return statusB;
+    }
+
+    public void setStatusA(Status status) {
+        this.statusA = status;
+        this.statusB = Friendship.getReciprocalStatus(status);
+    }
+
+    public void setStatusB(Status status) {
+        this.statusB = status;
+        this.statusA = Friendship.getReciprocalStatus(status);
     }
 
     public static Status getReciprocalStatus(Status s){
@@ -89,15 +92,29 @@ public class Friendship {
                 return SORRY;
             case SORRY:
                 return REFUSED;
-            case ACCEPTED:
-                return ACCEPTED;
             default:
-                System.err.println("Match hasn't been done yet");
                 return s;
         }
     }
 
-    public void setStatus(Status status) {
-        this.status = status;
+    public static boolean validStatusChange(Status origin, Status change) {
+        switch (origin){
+            case PENDING:
+                return false;
+            case AWAITING:
+                return change == ACCEPTED || change == REFUSED;
+            case BLOCKED:
+                return false;
+            case BLOCKER:
+                return change == ACCEPTED;
+            case REFUSED:
+                return false;
+            case SORRY:
+                return false;
+            case ACCEPTED:
+                return change == BLOCKER;
+            default:
+                return false;
+        }
     }
 }

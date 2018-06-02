@@ -19,6 +19,7 @@ import org.mongodb.morphia.query.Query;
 import org.mongodb.morphia.query.UpdateOperations;
 import sun.rmi.server.UnicastServerRef;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -208,7 +209,7 @@ public class UserDAO extends DAO<User, ObjectId> {
     }
 
     public List<UserDTO> toDTO(List<User> users){
-        return users.stream().map(UserDTO::new).collect(Collectors.toList());
+        return users != null ? users.stream().map(UserDTO::new).collect(Collectors.toList()) : new ArrayList<>();
     }
 
     @Override
