@@ -36,7 +36,4 @@ public class GsonService extends Service {
 
     public <T> T toObject(String json, Class<T> type) { return gson.fromJson(json, type); }
 
-    public JsonElement toJsonTree(Object thing){
-        return gson.toJsonTree(thing);
-    };
 }

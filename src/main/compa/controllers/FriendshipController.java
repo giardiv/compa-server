@@ -1,17 +1,14 @@
 package compa.controllers;
 
-import com.google.gson.JsonElement;
 import compa.app.Container;
 import compa.app.Controller;
 import compa.daos.FriendshipDAO;
 import compa.daos.UserDAO;
 import compa.exception.FriendshipException;
-import compa.exception.LoginException;
 import compa.exception.ParameterException;
 import compa.exception.UserException;
 import compa.models.Friendship;
 import compa.models.User;
-import io.vertx.core.Future;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.web.RoutingContext;
 import org.bson.types.ObjectId;
@@ -36,6 +33,35 @@ public class FriendshipController extends Controller{
         userDAO = (UserDAO) container.getDAO(User.class);
     }
 
+
+    /**
+     * @api {get} /friend/:status Get list of friends filtered by status
+     * @apiName GetByStatus
+     * @apiGroup Friendship
+     *
+     * @apiParam {String} status      The Friendship.Status
+     *
+     * @apiSuccess Return a list of User
+     */
+    public void getFriendsByStatus(User me, RoutingContext routingContext){
+        Friendship.Status status;
+
+        try {
+            status = this.getParam(routingContext, "status", true, ParamMethod.GET, Friendship.Status.class);
+        } catch (ParameterException e) {
+            routingContext.response().setStatusCode(400).end(gson.toJson(e));
+            return;
+        }
+
+        //TODO if status equals "blocked", we cant access it ??? perhaps even "sorry"
+
+        friendshipDAO.findFriendsByStatus(me, status, res -> {
+            List<User> friendList = res.result();
+            routingContext.response().end(gson.toJson(userDAO.toDTO(friendList)));
+        });
+    }
+
+
     /**
      * @api {put} /friend
      *
@@ -49,11 +75,11 @@ public class FriendshipController extends Controller{
      */
     public void setStatus(User me, RoutingContext routingContext){
         final Friendship.Status status;
-        final String friend_id;
+        final ObjectId friend_id;
 
         try {
             status = this.getParam(routingContext, "status", true, ParamMethod.JSON, Friendship.Status.class);
-            friend_id = this.getParam(routingContext, "friend_id", true, ParamMethod.JSON, String.class);
+            friend_id = this.getParam(routingContext, "friend_id", true, ParamMethod.JSON, ObjectId.class);
         } catch (ParameterException e) {
             routingContext.response().setStatusCode(400).end(gson.toJson(e));
             return;
@@ -61,34 +87,32 @@ public class FriendshipController extends Controller{
 
         userDAO.findById(friend_id, res1 -> {
             User friend = res1.result();
-            if(friend == null){
+            if (friend == null) {
                 routingContext.response().setStatusCode(404).end(gson.toJson(
-                        new UserException(UserException.USER_NOT_FOUND, "id", friend_id)));
+                        new UserException(UserException.USER_NOT_FOUND, "id", friend_id.toString())));
                 return;
             }
             friendshipDAO.findFriendshipByUsers(me, friend, res -> {
                 Friendship fs = res.result();
 
-                // TODO: s
-                if(fs == null){
+                if (fs == null) {
                     routingContext.response().setStatusCode(404).end(gson.toJson(
                             new UserException(FriendshipException.NOT_FRIEND)));
                     return;
                 }
-                if(fs.getStatus() == Friendship.Status.PENDING
-                        || fs.getStatus() == Friendship.Status.BLOCKED
-                        || status == Friendship.Status.ACCEPTED && fs.getStatus() != Friendship.Status.AWAITING
-                        || status == Friendship.Status.REFUSED && fs.getStatus() != Friendship.Status.AWAITING
-                        || status == Friendship.Status.BLOCKER && fs.getStatus() != Friendship.Status.ACCEPTED){
 
+                boolean meIsA = me.getId() == fs.getUserA().getId();
 
+                if (
+                        (meIsA && !Friendship.validStatusChange(fs.getStatusA(), status)) ||
+                                (!meIsA && !Friendship.validStatusChange(fs.getStatusB(), status))
+                        ) {
                     routingContext.response().setStatusCode(404).end(gson.toJson(
                             new FriendshipException(FriendshipException.NOT_CHANGE_STATUS)));
-
                     return;
                 }
 
-                friendshipDAO.updateFriendship(fs, status, res2 -> {
+                friendshipDAO.updateFriendship(fs, status, meIsA, res2 -> {
                     routingContext.response().end("{}");
                 });
             });
@@ -126,7 +150,7 @@ public class FriendshipController extends Controller{
                         new FriendshipException(FriendshipException.BEFRIEND_YOURSELF)));
                 return;
             }
-            friendshipDAO.findFriendshipByUsers(me, friend, res -> {
+            /**friendshipDAO.findFriendshipByUsersIds(me, friend, res -> {
                 Friendship fs = res.result();
 
                 if(fs == null){
@@ -137,7 +161,7 @@ public class FriendshipController extends Controller{
                 friendshipDAO.deleteFriendship(fs, res2 -> {
                     routingContext.response().end("{}");
                 });
-            });
+            });**/
         });
     }
 
@@ -160,7 +184,7 @@ public class FriendshipController extends Controller{
             return;
         }
 
-        userDAO.searchLogin(tag, res -> {
+        userDAO.search(tag, res -> {
             List<User> u = res.result();
             if(u != null){
                 routingContext.response().end(gson.toJson(userDAO.toDTO(u)));
@@ -168,33 +192,6 @@ public class FriendshipController extends Controller{
                 routingContext.response().setStatusCode(404).end(gson.toJson(
                         new UserException(UserException.USER_NOT_FOUND, "login", tag)));
             }
-        });
-    }
-
-
-
-    /**
-     * @api {get} /friend/:status Get list of friends filtered by status
-     * @apiName GetByStatus
-     * @apiGroup Friendship
-     *
-     * @apiParam {String} status      The Friendship.Status
-     *
-     * @apiSuccess Return a list of User
-     */
-    public void getFriendsByStatus(User me, RoutingContext routingContext){
-        Friendship.Status status;
-
-        try {
-            status = this.getParam(routingContext, "status", true, ParamMethod.GET, Friendship.Status.class);
-        } catch (ParameterException e) {
-            routingContext.response().setStatusCode(400).end(gson.toJson(e));
-            return;
-        }
-
-        friendshipDAO.findFriendsByStatus(me, status, res -> {
-            List<User> friendshipList = res.result();
-            routingContext.response().end(gson.toJson(userDAO.toDTO(friendshipList)));
         });
     }
 
@@ -230,6 +227,7 @@ public class FriendshipController extends Controller{
                         new FriendshipException(FriendshipException.BEFRIEND_YOURSELF)));
                 return;
             }
+
             friendshipDAO.findFriendshipByUsers(me, friend, res -> {
                 Friendship fs = res.result();
 

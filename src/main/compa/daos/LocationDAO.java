@@ -12,9 +12,14 @@ import org.bson.types.ObjectId;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class LocationDAO extends DAO<Location, ObjectId> {
+
+
+    private Logger logger = Logger.getLogger("location_dao");
 
     private UserDAO userDAO;
 
@@ -33,13 +38,13 @@ public class LocationDAO extends DAO<Location, ObjectId> {
     public void addPosition(User me, Double lat, Double lon, Date date, Handler<AsyncResult<Location>> resultHandler) {
         vertx.executeBlocking( future -> {
 
+            logger.log(Level.INFO, "Creating a new location for {0}", me.getUsername());
             Location location = new Location(lat, lon, date);
             this.save(location);
             me.addLocation(location);
             this.userDAO.save(me);
+            logger.log(Level.INFO, "Created a new location for {0}", me.getUsername());
             future.complete(location);
-
-            return;
 
         }, resultHandler);
     }
@@ -57,9 +62,10 @@ public class LocationDAO extends DAO<Location, ObjectId> {
     }
 
 
-    public void getLocationFromUser(User me, Handler<AsyncResult<List<Location>>> resultHandler){
+    public void getLocationsFromUser(User me, Handler<AsyncResult<List<Location>>> resultHandler){
         vertx.executeBlocking( future -> {
             List<Location> locationList = me.getLocations();
+            //TODO WHY WAS THIS THERE WHEN THE LOCATIONS WERENT LAZILY LOADED??
             future.complete(locationList);
         }, resultHandler);
     }
