@@ -28,23 +28,17 @@ public class Friendship {
     @Id
     private ObjectId id;
 
-    // Author of the Friendship
+    // A is the author of the Friendship
     @Reference
-    private User friendAId;
-
-    private Status statusA;
-
-    @Reference
-    private User friendBId;
-
-    private Status statusB;
+    private User userA, userB;
+    private Status statusA, statusB;
 
     public Friendship(){}
 
     public Friendship(User asker, User asked){
-        this.friendAId = asker;
+        this.userA = asker;
         this.statusA = PENDING;
-        this.friendBId = asked;
+        this.userB = asked;
         this.statusB = AWAITING;
     }
 
@@ -52,12 +46,12 @@ public class Friendship {
         return id;
     }
 
-    public User getFriendA() {
-        return friendAId;
+    public User getUserA() {
+        return userA;
     }
 
-    public User getFriendB() {
-        return friendBId;
+    public User getUserB() {
+        return userB;
     }
 
     public Status getStatusA() {

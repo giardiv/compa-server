@@ -17,7 +17,7 @@ public class FriendshipDTO {
         this.id = friendship.getId().toString();
         this.statusA = friendship.getStatusA().toString();
         this.statusB = friendship.getStatusB().toString();
-        this.friendAId = friendship.getFriendA().getId().toString();
-        this.friendBId = friendship.getFriendB().getId().toString();
+        this.friendAId = friendship.getUserA().getId().toString();
+        this.friendBId = friendship.getUserB().getId().toString();
     }
 }

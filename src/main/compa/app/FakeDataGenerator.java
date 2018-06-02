@@ -78,6 +78,7 @@ public class FakeDataGenerator {
                 datastore.save(fs);
             }
         }
+        System.out.println("over");
     }
 
 }

@@ -90,7 +90,7 @@ public class FriendshipController extends Controller{
                         new UserException(UserException.USER_NOT_FOUND, "id", friend_id.toString())));
                 return;
             }
-            friendshipDAO.findFriendshipByUser(me, friend, res -> {
+            friendshipDAO.findFriendshipByUsers(me, friend, res -> {
                 Friendship fs = res.result();
 
                 if (fs == null) {
@@ -99,7 +99,7 @@ public class FriendshipController extends Controller{
                     return;
                 }
 
-                boolean meIsA = me.getId() == fs.getFriendA().getId();
+                boolean meIsA = me.getId() == fs.getUserA().getId();
 
                 if (
                         (meIsA && !Friendship.validStatusChange(fs.getStatusA(), status)) ||
@@ -225,7 +225,8 @@ public class FriendshipController extends Controller{
                         new FriendshipException(FriendshipException.BEFRIEND_YOURSELF)));
                 return;
             }
-            /**friendshipDAO.findFriendshipByUsers(me, friend, res -> {
+
+            friendshipDAO.findFriendshipByUsers(me, friend, res -> {
                 Friendship fs = res.result();
 
                 if(fs != null){
@@ -236,7 +237,7 @@ public class FriendshipController extends Controller{
                 friendshipDAO.addFriendship(me, friend, res2 -> {
                     routingContext.response().end("{}");
                 });
-            });**/
+            });
         });
 
     }
