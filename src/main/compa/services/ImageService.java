@@ -19,6 +19,7 @@ import compa.models.Image;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
+import io.vertx.ext.web.FileUpload;
 import org.apache.tika.Tika;
 
 public class ImageService extends Service {
@@ -43,7 +44,7 @@ public class ImageService extends Service {
         this.imageDAO = (ImageDAO) container.getDAO(Image.class);
     }
 
-    public void upload(File file, Handler<AsyncResult<Image>> resultHandler){
+    public void upload(FileUpload uploadedFile, Handler<AsyncResult<Image>> resultHandler){
         // TODO: add constraint
         // TODO: work this file directly
         vertx.executeBlocking( future -> {
@@ -52,6 +53,8 @@ public class ImageService extends Service {
             String ext;
 
             Tika tika = new Tika();
+
+            File file = new File(uploadedFile.uploadedFileName());
 
             try {
                 String type = tika.detect(file);
@@ -66,6 +69,7 @@ public class ImageService extends Service {
                 File localCopy = new File(localPath);
                 Files.copy(file.toPath(), localCopy.toPath());
 
+                new File(uploadedFile.uploadedFileName()).delete();
             } catch (IOException e) {
                 e.printStackTrace();
                 future.fail(new ImageException(ImageException.IO_EXCEPTION));
@@ -74,6 +78,7 @@ public class ImageService extends Service {
                 future.fail(e);
                 return;
             }
+
             imageDAO.addImage((String) result.get("public_id"), localPath, ext, res -> {
                 System.out.println(this.getRawUrl(res.result()));
                 System.out.println(this.getThumbnailUrl(res.result()));
@@ -90,7 +95,6 @@ public class ImageService extends Service {
                         .crop("fill"))
                 .generate(image.getPublicId());
     }
-
 
     public String getRawUrl(Image image){
         return cloudinary.url().generate(image.getPublicId());

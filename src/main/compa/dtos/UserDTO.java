@@ -7,7 +7,7 @@ import java.util.List;
 
 public class UserDTO {
 
-    private String id, login, name;
+    private String id, login, name, profilePicId;
     private LocationDTO lastLocation;
     private boolean ghostMode;
 
@@ -27,5 +27,6 @@ public class UserDTO {
         List<Location> locs = user.getLocations();
         Location loc = (locs.size() > 0 && !ghostMode)? locs.get(locs.size() - 1) : null;
         this.lastLocation = loc == null ? null : new LocationDTO(loc);
+        this.profilePicId = user.getProfilePic() == null ? null : user.getProfilePic().getPublicId();
     }
 }

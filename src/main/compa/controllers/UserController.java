@@ -155,27 +155,20 @@ public class UserController extends Controller {
 
 
     public void uploadPic(User me, RoutingContext routingContext){
-
-        String encryptedId = me.getId().toString(); //why encryptedid? why not just id?
-        //new File("profile-images/" + encryptedId + ".png").delete();
-        // Refresh
         //TODO SURROUND WITH VERTX BLOCKING AS IT MIGHT BE TIME CONSUMING???
         Set<FileUpload> files = routingContext.fileUploads();
 
         for(FileUpload file : files) {
-            File uploadedFile = new File(file.uploadedFileName());
-
             ImageService imageService = (ImageService) this.get(ImageService.class);
-            imageService.upload(uploadedFile, mapAsyncResult -> {
+            imageService.upload(file, mapAsyncResult -> {
                 if(mapAsyncResult.failed()){
                     routingContext.response().setStatusCode(400).end(gson.toJson(mapAsyncResult.cause()));
                 } else {
                     Image image = mapAsyncResult.result();
-                    System.out.println(image);
-                    new File(file.uploadedFileName()).delete();
-
-                    routingContext.response().setStatusCode(201).end(gson.toJson(ImageDAO.toDTO(image)));
-                    routingContext.response().close();
+                    userDAO.setProfilePic(me, image, res -> {
+                        routingContext.response().setStatusCode(201).end(gson.toJson(ImageDAO.toDTO(image)));
+                        routingContext.response().close();
+                    });
                 }
             });
 

@@ -5,6 +5,7 @@ import com.mongodb.gridfs.GridFS;
 import com.mongodb.gridfs.GridFSInputFile;
 import compa.app.MongoUtil;
 import compa.dtos.UserDTO;
+import compa.models.Image;
 import compa.services.AuthenticationService;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
@@ -169,16 +170,20 @@ public class UserDAO extends DAO<User, ObjectId> {
         }, resultHandler);
     }
 
-    public void setImgProfile(User user, byte[] imageBytes, Handler<AsyncResult<User>> resultHandler){
-        vertx.executeBlocking( future -> {
-
-        }, resultHandler);
-    }
-
     public void setGhostMode(User user, boolean mode, Handler<AsyncResult<User>> resultHandler ){
 
         vertx.executeBlocking( future -> {
             UpdateOperations<User> update = this.createUpdateOperations().set("ghostMode", mode);
+            this.getDatastore().update(user, update);
+            future.complete();
+        }, resultHandler);
+
+    }
+
+    public void setProfilePic(User user, Image image, Handler<AsyncResult<User>> resultHandler ){
+
+        vertx.executeBlocking( future -> {
+            UpdateOperations<User> update = this.createUpdateOperations().set("profilePic", image);
             this.getDatastore().update(user, update);
             future.complete();
         }, resultHandler);
