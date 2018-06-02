@@ -68,13 +68,15 @@ public class FriendshipController extends Controller{
             }
             friendshipDAO.findFriendshipByUsers(me, friend, res -> {
                 Friendship fs = res.result();
+
+                // TODO: s
                 if(fs == null){
                     routingContext.response().setStatusCode(404).end(gson.toJson(
                             new UserException(FriendshipException.NOT_FRIEND)));
                     return;
                 }
                 if(fs.getStatus() == Friendship.Status.PENDING){
-                    routingContext.response().end();
+                    routingContext.response().setStatusCode(404).end();
                     return;
                 }
 
@@ -101,7 +103,7 @@ public class FriendshipController extends Controller{
 
                 friendshipDAO.updateFriendship(fs, status, res2 -> {
                     routingContext.response().end(
-                            gson.toJson("{\"success\":true}"));
+                            gson.toJson("{}"));
                 });
             });
         });
@@ -147,7 +149,7 @@ public class FriendshipController extends Controller{
                     return;
                 }
                 friendshipDAO.deleteFriendship(fs, res2 -> {
-                    routingContext.response().end("{\"success\":true}");
+                    routingContext.response().end("{}");
                 });
             });
         });
