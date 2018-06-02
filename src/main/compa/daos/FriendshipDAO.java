@@ -35,6 +35,7 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
                     query.criteria("friend").equal(user),
                     query.criteria("status").equal(status)
             );
+
             List<User> friendships = query.asList()
                     .stream()
                     .map(Friendship::getSister)

@@ -57,6 +57,7 @@ public class LocationController extends Controller {
         });
     }
 
+
     /**
      * @api {get} /location Get all location of the current user
      * @apiName GetLocations

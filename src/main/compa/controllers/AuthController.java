@@ -50,11 +50,11 @@ public class AuthController extends Controller {
      * @apiSuccess {String} Token    Token is returned
      */
     private void login(RoutingContext routingContext){
-        String login = null;
-        String password = null;
+        String login, password;
+
         try {
-            login = (String) this.getParam(routingContext, "login", true, ParamMethod.JSON, String.class);
-            password = (String) this.getParam(routingContext, "password", true, ParamMethod.JSON, String.class);
+            login = this.getParam(routingContext, "login", true, ParamMethod.JSON, String.class);
+            password = this.getParam(routingContext, "password", true, ParamMethod.JSON, String.class);
         } catch (ParameterException e) {
             routingContext.response().setStatusCode(400).end(gson.toJson(e));
             return;
@@ -91,11 +91,8 @@ public class AuthController extends Controller {
      */
     private void register(RoutingContext routingContext){
         System.out.println("register");
-        String name = null;
-        String email = null;
-        String  login = null;
-        String password = null;
-      
+        final String name, email, login, password;
+
         try {
             name = this.getParam(routingContext, "name", true, ParamMethod.JSON, String.class);
             email = this.getParam(routingContext, "email", true, ParamMethod.JSON, String.class);
@@ -123,7 +120,6 @@ public class AuthController extends Controller {
         String salt = AuthenticationService.getSalt();
         String encryptedPassword = AuthenticationService.encrypt(password, salt);
 
-        String finalEmail = email;
         userDAO.addUser(email, name, login, encryptedPassword, salt, res -> {
             if(res.failed()){
                 System.out.println("fail");
@@ -132,10 +128,11 @@ public class AuthController extends Controller {
             } else {
                 User user = res.result();
                 System.out.println("ok");
-                sendEmail(finalEmail,"titre", "message sans pièce joint", res1 -> {
+                sendEmail(email,"titre", "message sans pièce joint", res1 -> {
                     if(res1!=null)
                         System.out.println("email Ok");
                 });
+
                 routingContext.response().end(gson.toJson(AuthenticationService.getJsonFromToken(user.getToken())));
             }
         });
@@ -200,7 +197,7 @@ public class AuthController extends Controller {
      */
     public void logout(User me, RoutingContext routingContext) {
         userDAO.logout(me, res -> {
-            routingContext.response().end(gson.toJson("{\"success\":true}"));
+            routingContext.response().end("{}");
         });
     }
 
@@ -227,6 +224,8 @@ public class AuthController extends Controller {
         userDAO.findOne("email",email, res -> {
             User user = res.result();
             if(user != null){
+                routingContext.response().end("{}");
+
                 String newPassword = RandomStringUtils.randomAlphanumeric(PASSWORD_COUNT);
                 sendEmail(email,"Forgot Password", "New password : " + newPassword, res1 -> {
                     if(res1!=null) {
@@ -240,7 +239,7 @@ public class AuthController extends Controller {
                     User u = res2.result();
                 });
 
-                routingContext.response().end(gson.toJson("{\"success\":true}"));
+
             } else {
                 routingContext.response().setStatusCode(404).end(gson.toJson(
                         new UserException(UserException.USER_NOT_FOUND, "email", email)));
