@@ -67,13 +67,20 @@ public class FakeDataGenerator {
 
                 Friendship fs = new Friendship(me, friend);
 
-                int n = r.nextInt(1000);
-                if(n % 11 == 0)
-                    fs.setStatusA(Friendship.Status.BLOCKED);
-                if(n % 7 == 0)
-                    fs.setStatusA(Friendship.Status.REFUSED);
-                if(n % 2 == 0)
-                    fs.setStatusA(Friendship.Status.ACCEPTED);
+                int n = r.nextInt(4);
+                switch(n){
+                    case 0:
+                        fs.setStatusA(Friendship.Status.BLOCKED);
+                        break;
+                    case 1:
+                        fs.setStatusA(Friendship.Status.REFUSED);
+                        break;
+                    case 2:
+                        fs.setStatusA(Friendship.Status.ACCEPTED);
+                        break;
+                    default:
+                        break; //will be pending
+                }
 
                 datastore.save(fs);
             }

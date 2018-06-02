@@ -232,7 +232,7 @@ public class AuthController extends Controller {
                     User u = res2.result();
                 });
 
-                routingContext.response().end(gson.toJson("{\"success\":true}"));
+                routingContext.response().end("{}");
             } else {
                 routingContext.response().setStatusCode(404).end(gson.toJson(
                         new UserException(UserException.USER_NOT_FOUND, "email", email)));
