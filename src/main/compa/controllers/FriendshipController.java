@@ -182,7 +182,7 @@ public class FriendshipController extends Controller{
             return;
         }
 
-        userDAO.searchLogin(tag, res -> {
+        userDAO.search(tag, res -> {
             List<User> u = res.result();
             if(u != null){
                 routingContext.response().end(gson.toJson(userDAO.toDTO(u)));

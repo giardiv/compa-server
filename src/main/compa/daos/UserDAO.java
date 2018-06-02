@@ -37,6 +37,8 @@ public class UserDAO extends DAO<User, ObjectId> {
 
     public void getByLoginAndPassword(String login, String password, Handler<AsyncResult<User>> resultHandler){
         vertx.executeBlocking( future -> {
+            logger.log(Level.INFO, "{0} is attempting to log in", login);
+
             Query<User> query = this.createQuery();
 
             query.or(
@@ -48,6 +50,7 @@ public class UserDAO extends DAO<User, ObjectId> {
             User u = this.findOne(query);
 
             if(u == null){
+                logger.log(Level.INFO, "False credentials");
                 future.complete(null);
                 return;
             }
@@ -93,25 +96,20 @@ public class UserDAO extends DAO<User, ObjectId> {
     public void findOne(String key, Object value, Handler<AsyncResult<User>> resultHandler){
 
         vertx.executeBlocking( future -> {
-            logger.log(Level.INFO, "Looking for user by id {0}", value);
-
+            logger.log(Level.INFO, "Looking for user by {0} : {1} : ",  new Object[]{key, value});
             User u = super.findOne(key, value);
-
-            if(u == null)
-                logger.log(Level.INFO, "User {0} not found", value);
-            else
-                logger.log(Level.INFO, "User {0} found", value);
-
+            logger.log(Level.INFO, u == null ? "No user found" : "User found");
             future.complete(u);
-
         }, resultHandler);
 
     }
 
-    public void searchLogin(String value, Handler<AsyncResult<List<User>>> resultHandler){
+    public void search(String value, Handler<AsyncResult<List<User>>> resultHandler){
         vertx.executeBlocking( future -> {
+
             logger.log(Level.INFO, "Looking for user containing {0} ", value);
             Query<User> query = this.createQuery();
+
             query.or(
                     query.criteria("username").contains(value),
                     query.criteria("name").contains(value)
@@ -150,9 +148,10 @@ public class UserDAO extends DAO<User, ObjectId> {
 
     public void updatePassword(User user, String newEncryptedPassword, Handler<AsyncResult<User>> resultHandler ){
 
-        logger.log(Level.INFO, "Updating {0}'s password", user.getUsername());
-
         vertx.executeBlocking( future -> {
+
+            logger.log(Level.INFO, "Updating {0}'s password", user.getUsername());
+
             user.generateToken();
             UpdateOperations<User> update = this.createUpdateOperations()
                     .set("password", newEncryptedPassword)
@@ -160,15 +159,17 @@ public class UserDAO extends DAO<User, ObjectId> {
 
             this.getDatastore().update(user, update);
 
+            logger.log(Level.INFO, "Updated {0}'s password", user.getUsername());
+
             future.complete(user);
+
         }, resultHandler);
 
     }
     public void updateProfile(User user, String name, String email, Handler<AsyncResult<User>> resultHandler ){
 
         vertx.executeBlocking( future -> {
-            UpdateOperations<User> update = this.createUpdateOperations();
-          
+            /*UpdateOperations<User> update = this.createUpdateOperations();
             if(name.equals(user.getName())){
                 update.set("name", name);
                 user.setName(name);
@@ -182,17 +183,37 @@ public class UserDAO extends DAO<User, ObjectId> {
 //                        System.out.println("email Ok");
 //                });
             }
-            this.getDatastore().update(user, update);
-            System.out.println(" après name: " + user.getName());
+            this.getDatastore().update(user, update);*/
+
+            String msg = "The following changes were made to" + user.getUsername() + ":\n";
+
+            if(name != null  && !name.equals(user.getName())){
+                user.setName(name);
+                msg += user.getName() + ": " + name + "\n";
+            }
+
+            if(email != null && !email.equals(user.getEmail())){
+                user.setEmail(email);
+                msg += user.getEmail() + ": " + email + "\n";
+            }
+
+            this.save(user);
+            logger.log(Level.INFO, msg);
+
             future.complete(user);
+
         }, resultHandler);
     }
 
     public void setGhostMode(User user, boolean mode, Handler<AsyncResult<User>> resultHandler ){
 
+        Object[] params = new Object[]{user.getUsername(), mode};
+
         vertx.executeBlocking( future -> {
+            logger.log(Level.INFO, "Changing {0}'s ghost mode to {1}", params);
             UpdateOperations<User> update = this.createUpdateOperations().set("ghostMode", mode);
             this.getDatastore().update(user, update);
+            logger.log(Level.INFO, "Changed {0}'s ghost mode to {1}", params);
             future.complete();
         }, resultHandler);
 
@@ -201,8 +222,10 @@ public class UserDAO extends DAO<User, ObjectId> {
     public void setProfilePic(User user, Image image, Handler<AsyncResult<User>> resultHandler ){
 
         vertx.executeBlocking( future -> {
+            logger.log(Level.INFO, "Changing {0}'s profile pic", user.getUsername());
             UpdateOperations<User> update = this.createUpdateOperations().set("profilePic", image);
             this.getDatastore().update(user, update);
+            logger.log(Level.INFO, "Changed {0}'s profile pic", user.getUsername());
             future.complete();
         }, resultHandler);
 
@@ -210,12 +233,10 @@ public class UserDAO extends DAO<User, ObjectId> {
 
     public void logout(User user, Handler<AsyncResult<User>> resultHandler ){
         vertx.executeBlocking( future -> {
-            UpdateOperations<User> update = this.createUpdateOperations().set("token", "");
+            logger.log(Level.INFO, "Logging out {0}", user.getUsername());
+            UpdateOperations<User> update = this.createUpdateOperations().unset("token");
             this.getDatastore().update(user, update);
-            user.setToken(null);
-            this.save(user);
-            System.out.println(" token : " + user.getToken());
-
+            logger.log(Level.INFO, "{0} is logged out", user.getUsername());
             future.complete(user);
         }, resultHandler);
 
