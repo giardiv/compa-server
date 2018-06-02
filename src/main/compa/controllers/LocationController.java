@@ -64,6 +64,12 @@ public class LocationController extends Controller {
      * @apiSuccess Return an array of locationDTO
      */
     private void getAll(User me, RoutingContext routingContext){
+        //TODO ANOTHER ROUTE LIKE THIS ONE BUT
+        // GET THE FRIEND_ID PARAM (GET IN THE URL)
+        // AND THEN CHECK IF WE'RE FRIEND WITH THAT PERSON AND IF SO
+        //CHECK THEIR GHOST MODE AND IF ITS TO FALSE THEN WE CAN RETURN THE LOCATIONS
+        //SIMILAR TO GET PROFILE WITH THE :id
+        
         locationDAO.getLocationsFromUser(me,res -> {
             //TODO RETURN ONLY A LIMITED NUMBER (EITHER A NUMBER OF LOCATIONS OR DEFINE A TIMEINTERVAL FROM CURRENT DATE
             List<Location> list = res.result();

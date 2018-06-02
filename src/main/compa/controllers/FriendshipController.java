@@ -53,6 +53,8 @@ public class FriendshipController extends Controller{
             return;
         }
 
+        //TODO if status equals "blocked", we cant access it ??? perhaps even "sorry"
+
         friendshipDAO.findFriendsByStatus(me, status, res -> {
             List<User> friendList = res.result();
             routingContext.response().end(gson.toJson(userDAO.toDTO(friendList)));
