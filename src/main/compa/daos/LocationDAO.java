@@ -65,6 +65,7 @@ public class LocationDAO extends DAO<Location, ObjectId> {
     public void getLocationsFromUser(User me, Handler<AsyncResult<List<Location>>> resultHandler){
         vertx.executeBlocking( future -> {
             List<Location> locationList = me.getLocations();
+            //TODO WHY WAS THIS THERE WHEN THE LOCATIONS WERENT LAZILY LOADED??
             future.complete(locationList);
         }, resultHandler);
     }

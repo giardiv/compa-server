@@ -52,8 +52,7 @@ public class LocationController extends Controller {
         }
         locationDAO.addPosition(me,latitude,longitude,date,res -> {
             Location locations = res.result();
-            JsonElement tempEl = this.gson.toJsonTree(locationDAO.toDTO(locations));
-            routingContext.response().end(gson.toJson(tempEl));
+            routingContext.response().end(gson.toJson(locationDAO.toDTO(locations)));
         });
     }
 
@@ -65,7 +64,8 @@ public class LocationController extends Controller {
      * @apiSuccess Return an array of locationDTO
      */
     private void getAll(User me, RoutingContext routingContext){
-        locationDAO.getLocationFromUser(me,res -> {
+        locationDAO.getLocationsFromUser(me,res -> {
+            //TODO RETURN ONLY A LIMITED NUMBER (EITHER A NUMBER OF LOCATIONS OR DEFINE A TIMEINTERVAL FROM CURRENT DATE
             List<Location> list = res.result();
             routingContext.response().end(gson.toJson(locationDAO.toDTO(list)));
         });
@@ -95,8 +95,7 @@ public class LocationController extends Controller {
 
         locationDAO.getLocationFromDateInterval(me,startDate,endDate,res -> {
             List<Location> locations = res.result();
-            JsonElement tempEl = this.gson.toJsonTree(locationDAO.toDTO(locations));
-            routingContext.response().end(gson.toJson(tempEl));
+            routingContext.response().end(gson.toJson(locationDAO.toDTO(locations)));
         });
     }
 }
