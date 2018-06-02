@@ -28,9 +28,9 @@ public class FriendshipController extends Controller{
     public FriendshipController(Container container) {
         super(PREFIX, container);
         this.registerAuthRoute(HttpMethod.POST, "", this::addFriend, "application/json");
+        this.registerAuthRoute(HttpMethod.GET, "/search", this::searchFriends, "application/json");
         this.registerAuthRoute(HttpMethod.GET, "/:status", this::getFriendsByStatus, "application/json");
         this.registerAuthRoute(HttpMethod.DELETE, "", this::deleteFriendship, "application/json");
-        this.registerAuthRoute(HttpMethod.GET, "/search", this::searchFriends, "application/json");
         this.registerAuthRoute(HttpMethod.PUT, "", this::setStatus, "application/json");
         friendshipDAO = (FriendshipDAO) container.getDAO(Friendship.class);
         userDAO = (UserDAO) container.getDAO(User.class);
@@ -119,11 +119,7 @@ public class FriendshipController extends Controller{
                         new UserException(UserException.USER_NOT_FOUND, "id", friend_id)));
                 return;
             }
-            if(friend.equals(me)){
-                routingContext.response().setStatusCode(400).end(gson.toJson(
-                        new FriendshipException(FriendshipException.BEFRIEND_YOURSELF)));
-                return;
-            }
+
             friendshipDAO.findFriendshipByUsers(me, friend, res -> {
                 Friendship fs = res.result();
 

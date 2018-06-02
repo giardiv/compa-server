@@ -161,7 +161,7 @@ public class AuthTest {
 
         final String json = credentials.toString();
         final String length = Integer.toString(json.length());
-        client.post(Container.SERVER_PORT, Container.SERVER_HOST, "/login")
+        client.delete(Container.SERVER_PORT, Container.SERVER_HOST, "/login")
             .putHeader("content-type", "application/json")
             .putHeader("content-length", length)
             .handler( resp -> {

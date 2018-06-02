@@ -99,4 +99,8 @@ public class LocationController extends Controller {
             routingContext.response().end(gson.toJson(tempEl));
         });
     }
+
+    /*private void getLocationFromDateInterval(User me, RoutingContext routingContext){
+
+    }*/
 }
