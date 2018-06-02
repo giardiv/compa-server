@@ -55,9 +55,15 @@ public class AuthTest {
         testRegisterUser.addProperty("name", "Bobby");
     }
 
+    @After
+    public void after(TestContext context) {
+        vertx.close(context.asyncAssertSuccess());
+    }
+
     public static void dropData(){
         datastore.getCollection(User.class).drop();
     }
+
     public static void fakeData(){
         String salt = AuthenticationService.getSalt();
         String encPassword = AuthenticationService.encrypt(USER_RAW_PW, salt);
@@ -66,20 +72,18 @@ public class AuthTest {
         datastore.save(u);
     }
 
-    @After
-    public void after(TestContext context) {
-        vertx.close(context.asyncAssertSuccess());
-    }
-
     @Test
     public void registerPasswordTooShort(TestContext context) {
         HttpClient client = vertx.createHttpClient();
         Async async = context.async();
+
         JsonObject localUser = this.testRegisterUser.deepCopy();
         localUser.remove("password");
         localUser.addProperty("password", "tacos");
+
         final String json = localUser.toString();
         final String length = Integer.toString(json.length());
+
         client.post(Container.SERVER_PORT, Container.SERVER_HOST, "/register")
             .putHeader("content-type", "application/json")
             .putHeader("content-length", length)
@@ -87,6 +91,7 @@ public class AuthTest {
                 context.assertEquals(resp.statusCode(), 400);
                 resp.bodyHandler(body -> {
                     Exception e = gson.toObject(body.toString(), Exception.class);
+
                     context.assertEquals(e.getCode(), RegisterException.PASSWORD_TOO_SHORT.getKey());
                     client.close();
                     async.complete();

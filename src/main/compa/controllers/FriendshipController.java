@@ -28,9 +28,9 @@ public class FriendshipController extends Controller{
     public FriendshipController(Container container) {
         super(PREFIX, container);
         this.registerAuthRoute(HttpMethod.POST, "", this::addFriend, "application/json");
+        this.registerAuthRoute(HttpMethod.GET, "/search", this::searchFriends, "application/json");
         this.registerAuthRoute(HttpMethod.GET, "/:status", this::getFriendsByStatus, "application/json");
         this.registerAuthRoute(HttpMethod.DELETE, "", this::deleteFriendship, "application/json");
-        this.registerAuthRoute(HttpMethod.GET, "/search/:tag", this::searchFriends, "application/json");
         this.registerAuthRoute(HttpMethod.PUT, "", this::setStatus, "application/json");
         friendshipDAO = (FriendshipDAO) container.getDAO(Friendship.class);
         userDAO = (UserDAO) container.getDAO(User.class);
@@ -75,35 +75,21 @@ public class FriendshipController extends Controller{
                             new UserException(FriendshipException.NOT_FRIEND)));
                     return;
                 }
-                if(fs.getStatus() == Friendship.Status.PENDING){
-                    routingContext.response().setStatusCode(404).end();
-                    return;
-                }
+                if(fs.getStatus() == Friendship.Status.PENDING
+                        || fs.getStatus() == Friendship.Status.BLOCKED
+                        || status == Friendship.Status.ACCEPTED && fs.getStatus() != Friendship.Status.AWAITING
+                        || status == Friendship.Status.REFUSED && fs.getStatus() != Friendship.Status.AWAITING
+                        || status == Friendship.Status.BLOCKER && fs.getStatus() != Friendship.Status.ACCEPTED){
 
-                if(fs.getStatus() == Friendship.Status.BLOCKED){
-                    routingContext.response().end();
-                    return;
-                }
 
-                if(status == Friendship.Status.ACCEPTED && fs.getStatus() != Friendship.Status.AWAITING){
-                    routingContext.response().end();
-                    return;
-                }
+                    routingContext.response().setStatusCode(404).end(gson.toJson(
+                            new FriendshipException(FriendshipException.NOT_CHANGE_STATUS)));
 
-                if(status == Friendship.Status.REFUSED && fs.getStatus() != Friendship.Status.AWAITING){
-                    routingContext.response().end();
-                    return;
-
-                }
-
-                if(status == Friendship.Status.BLOCKER && fs.getStatus() != Friendship.Status.ACCEPTED){
-                    routingContext.response().end();
                     return;
                 }
 
                 friendshipDAO.updateFriendship(fs, status, res2 -> {
-                    routingContext.response().end(
-                            gson.toJson("{}"));
+                    routingContext.response().end("{}");
                 });
             });
         });
@@ -156,7 +142,7 @@ public class FriendshipController extends Controller{
     }
 
     /**
-     * @api {get} /friend/search/:tag Get list of users with <code>login == tag</code>
+     * @api {get} /friend/search Get list of users with <code>login == tag</code>
      * @apiName Search
      * @apiGroup Friendship
      *
@@ -177,8 +163,7 @@ public class FriendshipController extends Controller{
         userDAO.searchLogin(tag, res -> {
             List<User> u = res.result();
             if(u != null){
-                JsonElement tempEl = this.gson.toJsonTree(userDAO.toDTO(u));
-                routingContext.response().end(gson.toJson(tempEl));
+                routingContext.response().end(gson.toJson(userDAO.toDTO(u)));
             } else {
                 routingContext.response().setStatusCode(404).end(gson.toJson(
                         new UserException(UserException.USER_NOT_FOUND, "login", tag)));
@@ -254,8 +239,7 @@ public class FriendshipController extends Controller{
                     return;
                 }
                 friendshipDAO.addFriendship(me, friend, res2 -> {
-                    routingContext.response().end(
-                            gson.toJson("{\"success\":true}"));
+                    routingContext.response().end("{}");
                 });
             });
         });
