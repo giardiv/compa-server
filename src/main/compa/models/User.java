@@ -14,14 +14,14 @@ import java.util.List;
         @Index(value = "username", fields = @Field("username"), unique = true),
 })
 public class User {
-    private final static int TOKEN_COUNT = 16;
+    private final static int TOKEN_SIZE = 16;
 
     @Id
     public ObjectId id;
 
     private String email, name, username, password, token, salt;
 
-    @Reference
+    @Reference(lazy=true)
     private List<Location> locations;
 
     private boolean ghostMode;
@@ -56,7 +56,7 @@ public class User {
         return this.token;
     }
 
-    public void generateToken(){this.token = RandomStringUtils.randomAlphanumeric(TOKEN_COUNT);}
+    public void generateToken(){this.token = RandomStringUtils.randomAlphanumeric(TOKEN_SIZE);}
 
     public void setToken(String token){this.token = token;}
 
@@ -71,7 +71,7 @@ public class User {
     public Location getLastLocation() {
         return this.getLocations().size() > 0 ?
                 this.getLocations().stream().max(Comparator.comparing(Location::getDatetime)).get() :
-                null;
+                null; //TODO CHANGE ????
     }
 
     public String getName() {

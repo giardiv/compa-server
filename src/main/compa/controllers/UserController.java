@@ -54,10 +54,7 @@ public class UserController extends Controller {
      * @apiUse UserDTO
      */
     public void getCurrentProfile(User me, RoutingContext routingContext){
-        final String status = routingContext.request().getParam("id");
-        JsonElement tempEl = this.gson.toJsonTree(userDAO.toDTO(me));
-        // todo? add friendships
-        routingContext.response().end(gson.toJson(tempEl));
+        routingContext.response().end(gson.toJson(userDAO.toDTO(me)));
     }
 
     /**
@@ -107,7 +104,7 @@ public class UserController extends Controller {
         }
 
         userDAO.setGhostMode(me, mode, res -> {
-            routingContext.response().end(gson.toJson("{}"));
+            routingContext.response().end("{}");
         });
     }
 
@@ -119,8 +116,7 @@ public class UserController extends Controller {
      * @apiSuccess Return 200 without body
      */
     public void updateProfile(User me, RoutingContext routingContext){
-        String name = null;
-        String email = null;
+        String name, email;
         try {
             email = this.getParam(routingContext, "email", true, ParamMethod.JSON, String.class);
             name = this.getParam(routingContext, "name", true, ParamMethod.JSON, String.class);
@@ -129,16 +125,13 @@ public class UserController extends Controller {
             return;
         }
         if(!EmailValidator.getInstance(true).isValid(email)){
-            routingContext.response().setStatusCode(400).end(
-                    gson.toJson(
+            routingContext.response().setStatusCode(400).end(gson.toJson(
                             new RegisterException(RegisterException.NOT_VALID_EMAIL)));
             return;
         }
         userDAO.updateProfile(me, name,email, res -> {
             User u = res.result();
-            JsonElement tempEl = this.gson.toJsonTree(userDAO.toDTO(u));
-
-            routingContext.response().end(gson.toJson(tempEl));
+            routingContext.response().end(gson.toJson(userDAO.toDTO(u)));
         });
     }
 

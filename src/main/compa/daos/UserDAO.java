@@ -44,9 +44,8 @@ public class UserDAO extends DAO<User, ObjectId> {
             query.or(
                     query.criteria("email").equal(login),
                     query.criteria("username").equal(login)
-            ).and(
-                    query.criteria("password").equal(password)
             );
+
             User u = this.findOne(query);
 
             if(u == null){
@@ -54,10 +53,13 @@ public class UserDAO extends DAO<User, ObjectId> {
                 future.complete(null);
                 return;
             }
+
             String encPassword = AuthenticationService.encrypt(password, u.getSalt());
             if(u.isPassword(encPassword)) {
+                logger.log(Level.INFO, "Successful log in");
                 future.complete(u);
             } else {
+                logger.log(Level.INFO, "False credentials");
                 future.complete(null);
             }
         }, resultHandler);
@@ -96,7 +98,7 @@ public class UserDAO extends DAO<User, ObjectId> {
     public void findOne(String key, Object value, Handler<AsyncResult<User>> resultHandler){
 
         vertx.executeBlocking( future -> {
-            logger.log(Level.INFO, "Looking for user by {0} : {1} : ",  new Object[]{key, value});
+            logger.log(Level.INFO, "Looking for user by {0} : {1}",  new Object[]{key, value});
             User u = super.findOne(key, value);
             logger.log(Level.INFO, u == null ? "No user found" : "User found");
             future.complete(u);
@@ -107,7 +109,7 @@ public class UserDAO extends DAO<User, ObjectId> {
     public void search(String value, Handler<AsyncResult<List<User>>> resultHandler){
         vertx.executeBlocking( future -> {
 
-            logger.log(Level.INFO, "Looking for user containing {0} ", value);
+            logger.log(Level.INFO, "Looking for user containing {0}", value);
             Query<User> query = this.createQuery();
 
             query.or(
