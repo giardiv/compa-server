@@ -68,6 +68,8 @@ public class FriendshipController extends Controller{
             }
             friendshipDAO.findFriendshipByUsers(me, friend, res -> {
                 Friendship fs = res.result();
+
+                // TODO: s
                 if(fs == null){
                     routingContext.response().setStatusCode(404).end(gson.toJson(
                             new UserException(FriendshipException.NOT_FRIEND)));
@@ -78,6 +80,7 @@ public class FriendshipController extends Controller{
                         || status == Friendship.Status.ACCEPTED && fs.getStatus() != Friendship.Status.AWAITING
                         || status == Friendship.Status.REFUSED && fs.getStatus() != Friendship.Status.AWAITING
                         || status == Friendship.Status.BLOCKER && fs.getStatus() != Friendship.Status.ACCEPTED){
+
 
                     routingContext.response().setStatusCode(404).end(gson.toJson(
                             new FriendshipException(FriendshipException.NOT_CHANGE_STATUS)));

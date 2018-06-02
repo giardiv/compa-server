@@ -16,7 +16,6 @@ import java.util.List;
 public class User {
     private final static int TOKEN_COUNT = 16;
 
-
     @Id
     public ObjectId id;
 
@@ -26,6 +25,8 @@ public class User {
     private List<Location> locations;
 
     private boolean ghostMode;
+
+    private Image profilePic;
 
     public User(){
     }
@@ -40,6 +41,7 @@ public class User {
         this.salt = salt;
         this.ghostMode = false;
         this.generateToken();
+
     }
 
     public String getEmail() {return email;}
@@ -93,5 +95,9 @@ public class User {
     @Override
     public boolean equals(Object obj){
         return this.id.toString().equals(((User) obj).id.toString());
+    }
+
+    public Image getProfilePic(){
+        return this.profilePic;
     }
 }
