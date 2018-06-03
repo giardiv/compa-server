@@ -18,7 +18,6 @@ public class Container {
     private Router router;
     private Map<Class, DAO> daos;
     private MongoUtil mongoUtil;
-    private List<Controller> controllers;
     private Set<Class<?>> exceptions;
     private Map<Class, Service> services;
     private Vertx vertx;
@@ -55,7 +54,6 @@ public class Container {
         daos = cf.getDAOs(this);
         exceptions = cf.getExceptions();
         services = cf.getServices(this);
-        controllers = cf.getControllers(this);
 
         server.requestHandler(router::accept);
 

@@ -56,7 +56,7 @@ public class FriendshipTest {
         Container c = new Container(context.asyncAssertSuccess(), Container.MODE.TEST);
         c.run(new ClassFinder());
         vertx = c.getVertx();
-        this.gson = (GsonService) c.getServices().get(GsonService.class);
+        gson = (GsonService) c.getServices().get(GsonService.class);
         datastore = c.getMongoUtil().getDatastore();
         dropData();
         fakeData();
@@ -66,17 +66,17 @@ public class FriendshipTest {
     public void after(TestContext context) {vertx.close(context.asyncAssertSuccess());}
 
     public static void fakeData(){
-        int userNb = 5;
-
+        int cpt = 0;
         for(String username : USER_LIST) {
             String salt = AuthenticationService.getSalt();
-            String encPassword = AuthenticationService.encrypt("password" + i, salt);
+            String encPassword = AuthenticationService.encrypt("password" + cpt++, salt);
             User u = new User( username + "@mail.fr", username, username, encPassword, salt);
             u.setToken(USER_TOKEN);
             users.add(u);
             datastore.save(u);
         }
-        Random r = new Random();
+
+        int userNb = 5;
 
         for(int i = 0; i < userNb - 1; ++i){
             User me = users.get(i);
@@ -85,7 +85,6 @@ public class FriendshipTest {
 
                 Friendship fs_me = new Friendship(me, friend);
 
-                int n = j;
                 switch(j){
                     case 0:
                         fs_me.setStatusA(Friendship.Status.BLOCKED);
