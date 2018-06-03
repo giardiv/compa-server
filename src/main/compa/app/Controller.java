@@ -2,14 +2,12 @@ package compa.app;
 
 import compa.exception.ParameterException;
 import compa.models.Friendship;
-import compa.services.ImageService;
-import io.vertx.core.Handler;
-import io.vertx.core.http.HttpMethod;
-
-import io.vertx.ext.web.RoutingContext;
 import compa.models.User;
 import compa.services.AuthenticationService;
 import compa.services.GsonService;
+import io.vertx.core.Handler;
+import io.vertx.core.http.HttpMethod;
+import io.vertx.ext.web.RoutingContext;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -65,7 +63,7 @@ public abstract class Controller {
 
         if(method.equals(ParamMethod.JSON)){
             try{
-                value = (String) context.getBodyAsJson().getValue(mandatoryParam);
+                value = context.getBodyAsJson().getValue(mandatoryParam).toString();
                 //considering there is no nesting of objects
             }
             catch(io.vertx.core.json.DecodeException e){
@@ -92,16 +90,18 @@ public abstract class Controller {
             return type.cast(value);
         }
         else if (type.equals(Boolean.class)) {
-            if(value.equals("true"))
-                return type.cast(true);
-            else if(value.equals("false"))
-                return type.cast(false);
-            else
-                throw new ParameterException(ParameterException.PARAM_WRONG_FORMAT, value, Boolean.class.toString());
+            switch (value) {
+                case "true":
+                    return type.cast(true);
+                case "false":
+                    return type.cast(false);
+                default:
+                    throw new ParameterException(ParameterException.PARAM_WRONG_FORMAT, value, Boolean.class.toString());
+            }
         }
         else if(type.equals(Date.class)){
             try{
-                return type.cast(new SimpleDateFormat("dd-MM-yyyy_HH:mm:ss").parse(value));
+                return type.cast(new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").parse(value));
             }
             catch(ParseException e){
                 throw new ParameterException(ParameterException.PARAM_WRONG_FORMAT, value, Date.class.toString());

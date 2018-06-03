@@ -148,6 +148,7 @@ public class FriendshipController extends Controller{
                 return;
             }
             /**friendshipDAO.findFriendshipByUsersIds(me, friend, res -> {
+<<<<<<< HEAD
              Friendship fs = res.result();
              if(fs == null){
              routingContext.response().setStatusCode(400).end(gson.toJson(
@@ -158,6 +159,19 @@ public class FriendshipController extends Controller{
              routingContext.response().end("{}");
              });
              });**/
+=======
+                Friendship fs = res.result();
+
+                if(fs == null){
+                    routingContext.response().setStatusCode(400).end(gson.toJson(
+                            new FriendshipException(FriendshipException.NOT_FRIEND)));
+                    return;
+                }
+                friendshipDAO.deleteFriendship(fs, res2 -> {
+                    routingContext.response().end("{}");
+                });
+            });**/
+>>>>>>> 1321e88c2ac3558291cffdb0180ba9af788a6b1a
         });
     }
 

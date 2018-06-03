@@ -1,8 +1,6 @@
 package compa.app;
 
-import com.google.gson.annotations.Expose;
 import javafx.util.Pair;
-
 import java.text.MessageFormat;
 
 public class Exception extends java.lang.Exception {

@@ -1,14 +1,13 @@
 package compa.controllers;
 
-import com.google.gson.JsonElement;
+import compa.app.Container;
+import compa.app.Controller;
+import compa.daos.LocationDAO;
 import compa.exception.ParameterException;
+import compa.models.Location;
 import compa.models.User;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.web.RoutingContext;
-import compa.app.Container;
-import compa.models.Location;
-import compa.app.Controller;
-import compa.daos.LocationDAO;
 
 import java.util.Date;
 import java.util.List;
@@ -52,8 +51,7 @@ public class LocationController extends Controller {
         }
         locationDAO.addPosition(me,latitude,longitude,date,res -> {
             Location locations = res.result();
-            JsonElement tempEl = this.gson.toJsonTree(locationDAO.toDTO(locations));
-            routingContext.response().end(gson.toJson(tempEl));
+            routingContext.response().end(gson.toJson(locationDAO.toDTO(locations)));
         });
     }
 
@@ -65,7 +63,14 @@ public class LocationController extends Controller {
      * @apiSuccess Return an array of locationDTO
      */
     private void getAll(User me, RoutingContext routingContext){
-        locationDAO.getLocationFromUser(me,res -> {
+        //TODO ANOTHER ROUTE LIKE THIS ONE BUT
+        // GET THE FRIEND_ID PARAM (GET IN THE URL)
+        // AND THEN CHECK IF WE'RE FRIEND WITH THAT PERSON AND IF SO
+        //CHECK THEIR GHOST MODE AND IF ITS TO FALSE THEN WE CAN RETURN THE LOCATIONS
+        //SIMILAR TO GET PROFILE WITH THE :id
+
+        locationDAO.getLocationsFromUser(me,res -> {
+            //TODO RETURN ONLY A LIMITED NUMBER (EITHER A NUMBER OF LOCATIONS OR DEFINE A TIMEINTERVAL FROM CURRENT DATE
             List<Location> list = res.result();
             routingContext.response().end(gson.toJson(locationDAO.toDTO(list)));
         });
@@ -95,8 +100,7 @@ public class LocationController extends Controller {
 
         locationDAO.getLocationFromDateInterval(me,startDate,endDate,res -> {
             List<Location> locations = res.result();
-            JsonElement tempEl = this.gson.toJsonTree(locationDAO.toDTO(locations));
-            routingContext.response().end(gson.toJson(tempEl));
+            routingContext.response().end(gson.toJson(locationDAO.toDTO(locations)));
         });
     }
 

@@ -19,6 +19,7 @@ import org.mongodb.morphia.query.Query;
 import org.mongodb.morphia.query.UpdateOperations;
 import sun.rmi.server.UnicastServerRef;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -36,24 +37,29 @@ public class UserDAO extends DAO<User, ObjectId> {
 
     public void getByLoginAndPassword(String login, String password, Handler<AsyncResult<User>> resultHandler){
         vertx.executeBlocking( future -> {
+            logger.log(Level.INFO, "{0} is attempting to log in", login);
+
             Query<User> query = this.createQuery();
 
             query.or(
                     query.criteria("email").equal(login),
                     query.criteria("username").equal(login)
-            ).and(
-                    query.criteria("password").equal(password)
             );
+
             User u = this.findOne(query);
 
             if(u == null){
+                logger.log(Level.INFO, "False credentials");
                 future.complete(null);
                 return;
             }
+
             String encPassword = AuthenticationService.encrypt(password, u.getSalt());
             if(u.isPassword(encPassword)) {
+                logger.log(Level.INFO, "Successful log in");
                 future.complete(u);
             } else {
+                logger.log(Level.INFO, "False credentials");
                 future.complete(null);
             }
         }, resultHandler);
@@ -61,7 +67,10 @@ public class UserDAO extends DAO<User, ObjectId> {
 
     public void addUser(String email, String name, String login, String password, String salt, Handler<AsyncResult<User>> resultHandler) {
         vertx.executeBlocking( future -> {
-            //User user = this.createQuery().filter("login", login).get();
+
+            Object[] params = new Object[]{login, email};
+
+            logger.log(Level.INFO, "Looking for users with existing login {0} or existing email {1}", params);
 
             Query<User> query = this.createQuery();
             query.or(
@@ -71,12 +80,16 @@ public class UserDAO extends DAO<User, ObjectId> {
 
             User user = this.findOne(query);
             if(user != null) {
+                logger.log(Level.INFO, "User with login {0} or email {1} already exists", params);
                 future.fail(new RegisterException(RegisterException.USER_ALREADY_EXIST));
                 return;
             }
 
+            logger.log(Level.INFO, "No user with login {0} or email {1}, creating new user", params);
             user = new User(email, name, login, password, salt);
             this.save(user);
+            logger.log(Level.INFO, "Created new user");
+
             future.complete(user);
 
         }, resultHandler);
@@ -85,26 +98,27 @@ public class UserDAO extends DAO<User, ObjectId> {
     public void findOne(String key, Object value, Handler<AsyncResult<User>> resultHandler){
 
         vertx.executeBlocking( future -> {
-            logger.log(Level.INFO, "Looking for user by key {0}", value);
+            logger.log(Level.INFO, "Looking for user by {0} : {1}",  new Object[]{key, value});
             User u = super.findOne(key, value);
-            logger.log(Level.INFO, "User {0} found", u == null ? "not" : "");
+            logger.log(Level.INFO, u == null ? "No user found" : "User found");
             future.complete(u);
-
         }, resultHandler);
 
     }
 
-    public void searchLogin(String value, Handler<AsyncResult<List<User>>> resultHandler){
+    public void search(String value, Handler<AsyncResult<List<User>>> resultHandler){
         vertx.executeBlocking( future -> {
-            logger.log(Level.INFO, "Looking for user begin with ",value);
+
+            logger.log(Level.INFO, "Looking for user containing {0}", value);
             Query<User> query = this.createQuery();
+
             query.or(
                     query.criteria("username").contains(value),
                     query.criteria("name").contains(value)
             );
 
             List<User> users = query.asList();//new FindOptions().limit(30));
-            logger.log(Level.INFO, "User {0} found", users.size() == 0 ? "not" : "");
+            logger.log(Level.INFO, "{0} user(s) found", users.size());
             future.complete(users);
 
         }, resultHandler);
@@ -112,46 +126,53 @@ public class UserDAO extends DAO<User, ObjectId> {
     }
 
     public void findById(String id, Handler<AsyncResult<User>> resultHandler) {
-
-        vertx.executeBlocking( future -> {
-            logger.log(Level.INFO, "Looking for user with id {0}", id);
-            User u = super.findById(id);
-            logger.log(Level.INFO, "User {0}found", u == null ? "not " : "");
-            future.complete(u);
-        }, resultHandler);
-
+        this.findById(new ObjectId(id), resultHandler);
     }
 
     public void findById(ObjectId id, Handler<AsyncResult<User>> resultHandler) {
 
         vertx.executeBlocking( future -> {
-            logger.log(Level.INFO, "Looking for user with ObjectId {0}", id);
+
+            logger.log(Level.INFO, "Looking for user with id {0}", id.toString());
+
             User u = super.findOne("id", id);
-            logger.log(Level.INFO, "User {0}found", u == null ? "not " : "");
+
+            if(u != null)
+                logger.log(Level.INFO, "User {0} found", id.toString());
+            else
+                logger.log(Level.INFO, "User {0} not found", id.toString());
+
             future.complete(u);
+
         }, resultHandler);
 
     }
 
     public void updatePassword(User user, String newEncryptedPassword, Handler<AsyncResult<User>> resultHandler ){
-        System.out.println("In updatePassword");
 
         vertx.executeBlocking( future -> {
+
+            logger.log(Level.INFO, "Updating {0}'s password", user.getUsername());
+
             user.generateToken();
             UpdateOperations<User> update = this.createUpdateOperations()
                     .set("password", newEncryptedPassword)
                     .set("token", user.getToken());
+
             this.getDatastore().update(user, update);
+
+            logger.log(Level.INFO, "Updated {0}'s password", user.getUsername());
+
             future.complete(user);
+
         }, resultHandler);
 
     }
     public void updateProfile(User user, String name, String email, Handler<AsyncResult<User>> resultHandler ){
 
         vertx.executeBlocking( future -> {
-            UpdateOperations<User> update = this.createUpdateOperations();
-          
-            if(name != user.getName()){
+            /*UpdateOperations<User> update = this.createUpdateOperations();
+            if(name.equals(user.getName())){
                 update.set("name", name);
                 user.setName(name);
             }
@@ -164,17 +185,37 @@ public class UserDAO extends DAO<User, ObjectId> {
 //                        System.out.println("email Ok");
 //                });
             }
-            this.getDatastore().update(user, update);
-            System.out.println(" après name: " + user.getName());
+            this.getDatastore().update(user, update);*/
+
+            String msg = "The following changes were made to" + user.getUsername() + ":\n";
+
+            if(name != null  && !name.equals(user.getName())){
+                user.setName(name);
+                msg += user.getName() + ": " + name + "\n";
+            }
+
+            if(email != null && !email.equals(user.getEmail())){
+                user.setEmail(email);
+                msg += user.getEmail() + ": " + email + "\n";
+            }
+
+            this.save(user);
+            logger.log(Level.INFO, msg);
+
             future.complete(user);
+
         }, resultHandler);
     }
 
     public void setGhostMode(User user, boolean mode, Handler<AsyncResult<User>> resultHandler ){
 
+        Object[] params = new Object[]{user.getUsername(), mode};
+
         vertx.executeBlocking( future -> {
+            logger.log(Level.INFO, "Changing {0}'s ghost mode to {1}", params);
             UpdateOperations<User> update = this.createUpdateOperations().set("ghostMode", mode);
             this.getDatastore().update(user, update);
+            logger.log(Level.INFO, "Changed {0}'s ghost mode to {1}", params);
             future.complete();
         }, resultHandler);
 
@@ -183,8 +224,10 @@ public class UserDAO extends DAO<User, ObjectId> {
     public void setProfilePic(User user, Image image, Handler<AsyncResult<User>> resultHandler ){
 
         vertx.executeBlocking( future -> {
+            logger.log(Level.INFO, "Changing {0}'s profile pic", user.getUsername());
             UpdateOperations<User> update = this.createUpdateOperations().set("profilePic", image);
             this.getDatastore().update(user, update);
+            logger.log(Level.INFO, "Changed {0}'s profile pic", user.getUsername());
             future.complete();
         }, resultHandler);
 
@@ -192,12 +235,10 @@ public class UserDAO extends DAO<User, ObjectId> {
 
     public void logout(User user, Handler<AsyncResult<User>> resultHandler ){
         vertx.executeBlocking( future -> {
-            UpdateOperations<User> update = this.createUpdateOperations().set("token", "");
+            logger.log(Level.INFO, "Logging out {0}", user.getUsername());
+            UpdateOperations<User> update = this.createUpdateOperations().unset("token");
             this.getDatastore().update(user, update);
-            user.setToken(null);
-            this.save(user);
-            System.out.println(" token : " + user.getToken());
-
+            logger.log(Level.INFO, "{0} is logged out", user.getUsername());
             future.complete(user);
         }, resultHandler);
 
@@ -208,7 +249,7 @@ public class UserDAO extends DAO<User, ObjectId> {
     }
 
     public List<UserDTO> toDTO(List<User> users){
-        return users.stream().map(UserDTO::new).collect(Collectors.toList());
+        return users != null ? users.stream().map(UserDTO::new).collect(Collectors.toList()) : new ArrayList<>();
     }
 
     @Override

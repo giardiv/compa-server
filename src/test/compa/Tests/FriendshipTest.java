@@ -74,17 +74,25 @@ public class FriendshipTest {
                 Friendship fs_me = new Friendship(me, friend);
 
                 int n = r.nextInt(1000);
+<<<<<<< HEAD
+=======
+                /**if(n % 2 == 0)
+                    fs_me.setStatus(Friendship.Status.PENDING, true);
+>>>>>>> 1321e88c2ac3558291cffdb0180ba9af788a6b1a
                 if(n % 5 == 0)
                     fs_me.setStatus(Friendship.Status.ACCEPTED, true);
                 if(n % 7 == 0)
                     fs_me.setStatus(Friendship.Status.REFUSED, true);
                 if(n % 11 == 0)
+<<<<<<< HEAD
                     fs_me.setStatus(Friendship.Status.BLOCKED, true);
+=======
+                    fs_me.setStatus(Friendship.Status.ACCEPTED, true);**/
+>>>>>>> 1321e88c2ac3558291cffdb0180ba9af788a6b1a
                 datastore.save(fs_me);
-                datastore.save(fs_me.getSister());
+                //datastore.save(fs_me.getSister());
             }
         }
-
     }
 
     public static void dropData(){

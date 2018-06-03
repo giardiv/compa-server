@@ -3,7 +3,6 @@ package compa.dtos;
 import compa.models.Image;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
 
 public class ImageDTO {
 

@@ -30,7 +30,6 @@ public class ImageDAO extends DAO<Image, ObjectId>  {
             Image image = new Image(publicId, localPath, format);
             this.save(image);
             future.complete(image);
-            return;
         }, resultHandler);
     }
 

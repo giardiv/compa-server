@@ -1,0 +1,722 @@
+{
+	"id": "9372ce8f-5e7d-46cc-9c8c-d534007f71e2",
+	"name": "Compa",
+	"description": "",
+	"auth": null,
+	"events": null,
+	"variables": [],
+	"order": [],
+	"folders_order": [
+		"9a85973e-d2ad-40ab-8d5b-594d39cb35c4",
+		"40062ea0-5216-4b12-bb59-6815f9b663c8",
+		"7cee2216-68d0-46b1-b54f-d5f1097564ad",
+		"c5ab28a4-98f6-4909-9399-17d697d05a90"
+	],
+	"folders": [
+		{
+			"id": "40062ea0-5216-4b12-bb59-6815f9b663c8",
+			"name": "Authentication",
+			"description": "",
+			"auth": null,
+			"events": null,
+			"collection": "9372ce8f-5e7d-46cc-9c8c-d534007f71e2",
+			"folder": null,
+			"order": [
+				"498f2434-2da2-4896-abf5-fdf70dbaae6f",
+				"56f20005-b5d2-47d8-9df0-b47b2abe6684",
+				"9bbbb3ba-e12d-465d-9f87-e797abd5d017",
+				"6811965d-2c0e-4895-8e39-18717005a57e",
+				"e3d4f4f3-423f-4272-9624-4f6d5568f97f"
+			],
+			"folders_order": []
+		},
+		{
+			"id": "9a85973e-d2ad-40ab-8d5b-594d39cb35c4",
+			"name": "Friendship",
+			"description": "",
+			"auth": null,
+			"events": null,
+			"collection": "9372ce8f-5e7d-46cc-9c8c-d534007f71e2",
+			"folder": null,
+			"order": [
+				"df9fe5c2-dfd9-4d0c-aba5-de7023be87ad",
+				"cf045813-5b06-4883-8c05-7216d1564eb0",
+				"97bb9d5b-baae-48c8-8fdd-b4dac67c4175",
+				"86b8c515-9fc4-4871-8904-78fc962f5525",
+				"39f8a21c-00cc-43fc-9068-1c59886163b5",
+				"a545cc55-c520-47af-8876-02c6bc0477c0",
+				"f10305e6-bdb9-4303-9675-4ecc6e1ea7dc",
+				"4a93bce6-68b0-40e9-9ee6-984119fb3e85",
+				"b7b98858-2bbb-4f0f-beb5-5443b54a816a",
+				"be1fc25b-b6be-41d1-acfe-6774d401a5ea",
+				"4cebfcb1-c666-48a3-88bf-1aa90e985850"
+			],
+			"folders_order": []
+		},
+		{
+			"id": "c5ab28a4-98f6-4909-9399-17d697d05a90",
+			"name": "Location",
+			"description": "",
+			"auth": null,
+			"events": null,
+			"collection": "9372ce8f-5e7d-46cc-9c8c-d534007f71e2",
+			"folder": null,
+			"order": [
+				"11c94690-83c6-44ef-adbe-6d12fa7cca5e",
+				"f48ee56c-0d00-450c-b0b7-9694c8b8067f",
+				"0df2788d-c781-4f52-a30c-71f3643d2a9e"
+			],
+			"folders_order": []
+		},
+		{
+			"id": "7cee2216-68d0-46b1-b54f-d5f1097564ad",
+			"name": "User",
+			"description": "",
+			"auth": null,
+			"events": null,
+			"collection": "9372ce8f-5e7d-46cc-9c8c-d534007f71e2",
+			"folder": null,
+			"order": [
+				"c1757676-6d57-4796-8f08-454295331317",
+				"cdcbf749-463a-438f-9e98-0845d72a45fa",
+				"a7cb3086-f8c5-4996-91e2-d80cff9a669e",
+				"63583018-87af-4c6b-8088-0c7f1b7b730c",
+				"6d9ec061-669c-46e9-a9c9-70930bd8353c"
+			],
+			"folders_order": []
+		}
+	],
+	"requests": [
+		{
+			"id": "0df2788d-c781-4f52-a30c-71f3643d2a9e",
+			"name": "Get friend's last locations",
+			"url": "localhost:8080/location/friendsid",
+			"description": "",
+			"data": null,
+			"dataMode": "params",
+			"headerData": [
+				{
+					"key": "Authorization",
+					"value": "TEST",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"method": "GET",
+			"pathVariableData": [],
+			"queryParams": [],
+			"auth": null,
+			"events": [],
+			"folder": "c5ab28a4-98f6-4909-9399-17d697d05a90",
+			"headers": "Authorization: TEST\n",
+			"pathVariables": {}
+		},
+		{
+			"id": "11c94690-83c6-44ef-adbe-6d12fa7cca5e",
+			"name": "New Location",
+			"url": "localhost:8080/location",
+			"description": "",
+			"data": [],
+			"dataMode": "raw",
+			"headerData": [
+				{
+					"key": "Authorization",
+					"value": "TEST",
+					"description": "",
+					"enabled": true
+				},
+				{
+					"key": "Content-Type",
+					"value": "application/json"
+				}
+			],
+			"method": "POST",
+			"pathVariableData": [],
+			"queryParams": [],
+			"auth": null,
+			"events": [],
+			"folder": "c5ab28a4-98f6-4909-9399-17d697d05a90",
+			"rawModeData": "{\"latitude\":10.0, \"longitude\": 12.0, \"datetime\":\"10-01-2017 10:12:10\"}",
+			"headers": "Authorization: TEST\nContent-Type: application/json\n",
+			"pathVariables": {}
+		},
+		{
+			"id": "39f8a21c-00cc-43fc-9068-1c59886163b5",
+			"name": "Block Friend",
+			"url": "localhost:8080/friend",
+			"description": "",
+			"data": [],
+			"dataMode": "raw",
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/json"
+				},
+				{
+					"key": "Authorization",
+					"value": "TEST",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"method": "PUT",
+			"pathVariableData": [],
+			"queryParams": [],
+			"auth": null,
+			"events": [],
+			"folder": "9a85973e-d2ad-40ab-8d5b-594d39cb35c4",
+			"rawModeData": "{\"friend_id\":\"TEST\", \"status\":\"BLOCKER\"}",
+			"headers": "Content-Type: application/json\nAuthorization: TEST\n",
+			"pathVariables": {}
+		},
+		{
+			"id": "498f2434-2da2-4896-abf5-fdf70dbaae6f",
+			"name": "Login",
+			"url": "localhost:8080/login",
+			"description": "",
+			"data": [],
+			"dataMode": "raw",
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/json"
+				}
+			],
+			"method": "POST",
+			"pathVariableData": [],
+			"queryParams": [],
+			"auth": null,
+			"events": [],
+			"folder": "40062ea0-5216-4b12-bb59-6815f9b663c8",
+			"rawModeData": "{\"password\":\"password8\", \"login\":\"user8\"}",
+			"headers": "Content-Type: application/json\n",
+			"pathVariables": {}
+		},
+		{
+			"id": "4a93bce6-68b0-40e9-9ee6-984119fb3e85",
+			"name": "Find Friends",
+			"url": "localhost:8080/friend/accepted",
+			"description": "",
+			"data": null,
+			"dataMode": "params",
+			"headerData": [
+				{
+					"key": "Authorization",
+					"value": "",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"method": "GET",
+			"pathVariableData": [],
+			"queryParams": [],
+			"auth": null,
+			"events": [],
+			"folder": "9a85973e-d2ad-40ab-8d5b-594d39cb35c4",
+			"headers": "Authorization: \n",
+			"pathVariables": {}
+		},
+		{
+			"id": "4cebfcb1-c666-48a3-88bf-1aa90e985850",
+			"name": "Find people I blocked",
+			"url": "localhost:8080/friend/blocker",
+			"description": "",
+			"data": null,
+			"dataMode": "params",
+			"headerData": [
+				{
+					"key": "Authorization",
+					"value": "TEST",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"method": "GET",
+			"pathVariableData": [],
+			"queryParams": [],
+			"auth": null,
+			"events": [],
+			"folder": "9a85973e-d2ad-40ab-8d5b-594d39cb35c4",
+			"headers": "Authorization: TEST\n",
+			"pathVariables": {}
+		},
+		{
+			"id": "56f20005-b5d2-47d8-9df0-b47b2abe6684",
+			"name": "Register",
+			"url": "localhost:8080/register",
+			"description": "",
+			"data": [],
+			"dataMode": "raw",
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/json",
+					"description": ""
+				}
+			],
+			"method": "POST",
+			"pathVariableData": [],
+			"queryParams": [],
+			"auth": null,
+			"events": [],
+			"folder": "40062ea0-5216-4b12-bb59-6815f9b663c8",
+			"rawModeData": "{\"password\":\"password8\", \"login\":\"user8\", \"name\":\"name\", \"email\":\"test@test.com\"}",
+			"headers": "Content-Type: application/json\n",
+			"pathVariables": {}
+		},
+		{
+			"id": "63583018-87af-4c6b-8088-0c7f1b7b730c",
+			"name": "Change ghost mode",
+			"url": "localhost:8080/user/ghostmode",
+			"description": "",
+			"data": [],
+			"dataMode": "raw",
+			"headerData": [
+				{
+					"key": "Authorization",
+					"value": "TEST",
+					"description": "",
+					"enabled": true
+				},
+				{
+					"key": "Content-Type",
+					"value": "application/json"
+				}
+			],
+			"method": "PUT",
+			"pathVariableData": [],
+			"queryParams": [],
+			"auth": null,
+			"events": [],
+			"folder": "7cee2216-68d0-46b1-b54f-d5f1097564ad",
+			"rawModeData": "{\"mode\": true}",
+			"headers": "Authorization: TEST\nContent-Type: application/json\n",
+			"pathVariables": {}
+		},
+		{
+			"id": "6811965d-2c0e-4895-8e39-18717005a57e",
+			"name": "Update Password",
+			"url": "localhost:8080/updatePassword",
+			"description": "",
+			"data": [],
+			"dataMode": "raw",
+			"headerData": [
+				{
+					"key": "Authorization",
+					"value": "TEST",
+					"description": "",
+					"enabled": true
+				},
+				{
+					"key": "Content-Type",
+					"value": "application/json"
+				}
+			],
+			"method": "PUT",
+			"pathVariableData": [],
+			"queryParams": [],
+			"auth": null,
+			"events": [],
+			"folder": "40062ea0-5216-4b12-bb59-6815f9b663c8",
+			"rawModeData": "{\"password\":\"password8\", \"new_password\":\"password9\"}",
+			"headers": "Authorization: TEST\nContent-Type: application/json\n",
+			"pathVariables": {}
+		},
+		{
+			"id": "6d9ec061-669c-46e9-a9c9-70930bd8353c",
+			"name": "Upload Picture",
+			"url": "localhost:8080/uploadPic",
+			"description": "",
+			"data": [],
+			"dataMode": "binary",
+			"headerData": [
+				{
+					"key": "Authorization",
+					"value": "TEST",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"method": "POST",
+			"pathVariableData": [],
+			"queryParams": [],
+			"auth": null,
+			"events": [],
+			"folder": "7cee2216-68d0-46b1-b54f-d5f1097564ad",
+			"headers": "Authorization: TEST\n",
+			"pathVariables": {}
+		},
+		{
+			"id": "86b8c515-9fc4-4871-8904-78fc962f5525",
+			"name": "Refuse Friendship",
+			"url": "localhost:8080/friend",
+			"description": "",
+			"data": [],
+			"dataMode": "raw",
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/json"
+				},
+				{
+					"key": "Authorization",
+					"value": "TEST",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"method": "PUT",
+			"pathVariableData": [],
+			"queryParams": [],
+			"auth": null,
+			"events": [],
+			"folder": "9a85973e-d2ad-40ab-8d5b-594d39cb35c4",
+			"rawModeData": "{\"friend_id\":\"TEST\", \"status\":\"REFUSED\"}",
+			"headers": "Content-Type: application/json\nAuthorization: TEST\n",
+			"pathVariables": {}
+		},
+		{
+			"id": "97bb9d5b-baae-48c8-8fdd-b4dac67c4175",
+			"name": "Accept Friendship",
+			"url": "localhost:8080/friend",
+			"description": "",
+			"data": [],
+			"dataMode": "raw",
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/json"
+				},
+				{
+					"key": "Authorization",
+					"value": "TEST",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"method": "PUT",
+			"pathVariableData": [],
+			"queryParams": [],
+			"auth": null,
+			"events": [],
+			"folder": "9a85973e-d2ad-40ab-8d5b-594d39cb35c4",
+			"rawModeData": "{\"friend_id\":\"TEST\", \"status\":\"ACCEPTED\"}",
+			"headers": "Content-Type: application/json\nAuthorization: TEST\n",
+			"pathVariables": {}
+		},
+		{
+			"id": "9bbbb3ba-e12d-465d-9f87-e797abd5d017",
+			"name": "Logout",
+			"url": "localhost:8080/logout",
+			"description": "",
+			"data": null,
+			"dataMode": "params",
+			"headerData": [
+				{
+					"key": "Authorization",
+					"value": "TEST",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"method": "PUT",
+			"pathVariableData": [],
+			"queryParams": [],
+			"auth": null,
+			"events": [],
+			"folder": "40062ea0-5216-4b12-bb59-6815f9b663c8",
+			"headers": "Authorization: TEST\n",
+			"pathVariables": {}
+		},
+		{
+			"id": "a545cc55-c520-47af-8876-02c6bc0477c0",
+			"name": "Unblock friend",
+			"url": "localhost:8080/friend",
+			"description": "",
+			"data": [],
+			"dataMode": "raw",
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/json"
+				},
+				{
+					"key": "Authorization",
+					"value": "",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"method": "PUT",
+			"pathVariableData": [],
+			"queryParams": [],
+			"auth": null,
+			"events": [],
+			"folder": "9a85973e-d2ad-40ab-8d5b-594d39cb35c4",
+			"rawModeData": "{\"friend_id\":\"TEST\", \"status\":\"ACCEPTED\"}",
+			"headers": "Content-Type: application/json\nAuthorization: \n",
+			"pathVariables": {}
+		},
+		{
+			"id": "a7cb3086-f8c5-4996-91e2-d80cff9a669e",
+			"name": "Update Profile",
+			"url": "localhost:8080/user/updateProfile",
+			"description": "",
+			"data": [],
+			"dataMode": "raw",
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/json"
+				},
+				{
+					"key": "Authorization",
+					"value": "TEST",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"method": "PUT",
+			"pathVariableData": [],
+			"queryParams": [],
+			"auth": null,
+			"events": [],
+			"folder": "7cee2216-68d0-46b1-b54f-d5f1097564ad",
+			"rawModeData": "{\"name\":\"blip\", \"email\":\"mail@mail.com\"}",
+			"headers": "Content-Type: application/json\nAuthorization: TEST\n",
+			"pathVariables": {}
+		},
+		{
+			"id": "b7b98858-2bbb-4f0f-beb5-5443b54a816a",
+			"name": "Find people I asked to",
+			"url": "localhost:8080/friend/pending",
+			"description": "",
+			"data": null,
+			"dataMode": "params",
+			"headerData": [
+				{
+					"key": "Authorization",
+					"value": "TEST",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"method": "GET",
+			"pathVariableData": [],
+			"queryParams": [],
+			"auth": null,
+			"events": [],
+			"folder": "9a85973e-d2ad-40ab-8d5b-594d39cb35c4",
+			"headers": "Authorization: TEST\n",
+			"pathVariables": {}
+		},
+		{
+			"id": "be1fc25b-b6be-41d1-acfe-6774d401a5ea",
+			"name": "Find people who asked me",
+			"url": "localhost:8080/friend/awaiting",
+			"description": "",
+			"data": null,
+			"dataMode": "params",
+			"headerData": [
+				{
+					"key": "Authorization",
+					"value": "TEST",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"method": "GET",
+			"pathVariableData": [],
+			"queryParams": [],
+			"auth": null,
+			"events": [],
+			"folder": "9a85973e-d2ad-40ab-8d5b-594d39cb35c4",
+			"headers": "Authorization: TEST\n",
+			"pathVariables": {}
+		},
+		{
+			"id": "c1757676-6d57-4796-8f08-454295331317",
+			"name": "Get Profile",
+			"url": "localhost:8080/user",
+			"description": "",
+			"data": null,
+			"dataMode": "params",
+			"headerData": [
+				{
+					"key": "Authorization",
+					"value": "TEST",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"method": "GET",
+			"pathVariableData": [],
+			"queryParams": [],
+			"auth": null,
+			"events": [],
+			"folder": "7cee2216-68d0-46b1-b54f-d5f1097564ad",
+			"headers": "Authorization: TEST\n",
+			"pathVariables": {}
+		},
+		{
+			"id": "cdcbf749-463a-438f-9e98-0845d72a45fa",
+			"name": "Get friend's profile",
+			"url": "localhost:8080/user/friendsid",
+			"description": "",
+			"data": null,
+			"dataMode": "params",
+			"headerData": [],
+			"method": "GET",
+			"pathVariableData": [],
+			"queryParams": [],
+			"auth": null,
+			"events": [],
+			"folder": "7cee2216-68d0-46b1-b54f-d5f1097564ad",
+			"headers": "",
+			"pathVariables": {}
+		},
+		{
+			"id": "cf045813-5b06-4883-8c05-7216d1564eb0",
+			"name": "Delete friendship",
+			"url": "localhost:8080/friend",
+			"description": "",
+			"data": [],
+			"dataMode": "raw",
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/json"
+				},
+				{
+					"key": "Authorization",
+					"value": "TEST",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"method": "DELETE",
+			"pathVariableData": [],
+			"queryParams": [],
+			"auth": null,
+			"events": [],
+			"folder": "9a85973e-d2ad-40ab-8d5b-594d39cb35c4",
+			"rawModeData": "{\"friend_id\":\"TEST\"}",
+			"headers": "Content-Type: application/json\nAuthorization: TEST\n",
+			"pathVariables": {}
+		},
+		{
+			"id": "df9fe5c2-dfd9-4d0c-aba5-de7023be87ad",
+			"name": "Request Friendship",
+			"url": "localhost:8080/friend",
+			"description": "",
+			"data": [],
+			"dataMode": "raw",
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/json"
+				},
+				{
+					"key": "Authorization",
+					"value": "TEST",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"method": "POST",
+			"pathVariableData": [],
+			"queryParams": [],
+			"auth": null,
+			"events": [],
+			"folder": "9a85973e-d2ad-40ab-8d5b-594d39cb35c4",
+			"rawModeData": "{\"friend_id\": \"test\"}",
+			"headers": "Content-Type: application/json\nAuthorization: TEST\n",
+			"pathVariables": {}
+		},
+		{
+			"id": "e3d4f4f3-423f-4272-9624-4f6d5568f97f",
+			"name": "Forgot Password",
+			"url": "localhost:8080/forgotPassword",
+			"description": "",
+			"data": [],
+			"dataMode": "raw",
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/json"
+				}
+			],
+			"method": "POST",
+			"pathVariableData": [],
+			"queryParams": [],
+			"auth": null,
+			"events": [],
+			"folder": "40062ea0-5216-4b12-bb59-6815f9b663c8",
+			"rawModeData": "{\"email\":\"mail@mail.com\"}",
+			"headers": "Content-Type: application/json\n",
+			"pathVariables": {}
+		},
+		{
+			"id": "f10305e6-bdb9-4303-9675-4ecc6e1ea7dc",
+			"name": "Search friends",
+			"url": "localhost:8080/friend/search?tag=user",
+			"description": "",
+			"data": null,
+			"dataMode": "params",
+			"headerData": [
+				{
+					"key": "Authorization",
+					"value": "TEST",
+					"description": "",
+					"enabled": true
+				},
+				{
+					"key": "",
+					"value": "",
+					"description": "",
+					"enabled": false
+				}
+			],
+			"method": "GET",
+			"pathVariableData": [],
+			"queryParams": [
+				{
+					"key": "tag",
+					"value": "user",
+					"equals": true,
+					"description": "",
+					"enabled": true
+				}
+			],
+			"auth": null,
+			"events": [],
+			"folder": "9a85973e-d2ad-40ab-8d5b-594d39cb35c4",
+			"headers": "Authorization: TEST\n",
+			"pathVariables": {}
+		},
+		{
+			"id": "f48ee56c-0d00-450c-b0b7-9694c8b8067f",
+			"name": "Get My Last Locations",
+			"url": "localhost:8080/location",
+			"description": "",
+			"data": null,
+			"dataMode": "params",
+			"headerData": [
+				{
+					"key": "Authorization",
+					"value": "TEST",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"method": "GET",
+			"pathVariableData": [],
+			"queryParams": [],
+			"auth": null,
+			"events": [],
+			"folder": "c5ab28a4-98f6-4909-9399-17d697d05a90",
+			"headers": "Authorization: TEST\n",
+			"pathVariables": {}
+		}
+	]
+}

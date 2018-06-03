@@ -5,7 +5,6 @@ import compa.models.Location;
 import compa.models.User;
 import compa.services.AuthenticationService;
 import org.mongodb.morphia.Datastore;
-import org.mongodb.morphia.query.UpdateOperations;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -20,7 +19,7 @@ public class FakeDataGenerator {
         Container c = new Container(null, Container.MODE.PROD);
         c.run(cf);
 
-        List<User> users = new ArrayList<>();;
+        List<User> users = new ArrayList<>();
 
         Datastore datastore = c.getMongoUtil().getDatastore();
 
@@ -62,23 +61,30 @@ public class FakeDataGenerator {
 
         for(int i = 0; i < userNb - 1; ++i){
             User me = users.get(i);
-            for(int j = i; j < userNb - 1; ++j){
+            for(int j = i+1; j < userNb - 1; ++j){
                 User friend = users.get(j);
 
-                Friendship fs_me = new Friendship(me, friend);
+                Friendship fs = new Friendship(me, friend);
 
-                int n = r.nextInt(1000);
-                if(n % 11 == 0)
-                    fs_me.setStatus(Friendship.Status.BLOCKED, true);
-                if(n % 7 == 0)
-                    fs_me.setStatus(Friendship.Status.REFUSED, true);
-                if(n % 2 == 0)
-                    fs_me.setStatus(Friendship.Status.ACCEPTED, true);
+                int n = r.nextInt(4);
+                switch(n){
+                    case 0:
+                        fs.setStatusA(Friendship.Status.BLOCKED);
+                        break;
+                    case 1:
+                        fs.setStatusA(Friendship.Status.REFUSED);
+                        break;
+                    case 2:
+                        fs.setStatusA(Friendship.Status.ACCEPTED);
+                        break;
+                    default:
+                        break; //will be pending
+                }
 
-                datastore.save(fs_me);
-                datastore.save(fs_me.getSister());
+                datastore.save(fs);
             }
         }
+        System.out.println("over");
     }
 
 }

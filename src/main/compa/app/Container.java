@@ -4,7 +4,6 @@ import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
-import io.vertx.core.net.JksOptions;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
 
@@ -30,7 +29,7 @@ public class Container {
     public enum MODE {
         TEST,
         PROD
-    };
+    }
 
     public Container(Handler<AsyncResult<HttpServer>> testHandler, MODE mode){
         this.testHandler = testHandler;
