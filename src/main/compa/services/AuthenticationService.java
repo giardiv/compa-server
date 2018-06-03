@@ -30,7 +30,7 @@ public class AuthenticationService extends Service {
             Future<User> f = Future.failedFuture(new LoginException(LoginException.INCORRECT_TOKEN));
             f.setHandler(resultHandler);
         } else {
-            ((UserDAO) container.getDAO(User.class)).findOne("token", token, res -> {
+            userDAO.findOne("token", token, res -> {
                 User u = res.result();
                 Future<User> f = (res.result() == null)
                         ? Future.failedFuture(new LoginException(LoginException.INCORRECT_TOKEN))
