@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-
+//findFriendshipByUsersIds
 public class FriendshipDAO extends DAO<Friendship, ObjectId> {
 
     private Logger logger = Logger.getLogger("friendship_dao");
@@ -97,6 +97,7 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
     }
 
     public void updateFriendship(Friendship f, Friendship.Status m, boolean isA, Handler<AsyncResult<Friendship>> resultHandler){
+        System.out.println("...........................................................................;");
         Object[] params = isA
                 ? new Object[]{f.getUserA().getUsername(), f.getUserB().getUsername(), m.toString()}
                 : new Object[]{f.getUserB().getUsername(), f.getUserA().getUsername(), m.toString()};
@@ -114,7 +115,7 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
             logger.log(Level.INFO, "{0} has updated his friendship with {1} to {2}", params);
             future.complete(f);
 
-            }, resultHandler);
+        }, resultHandler);
     }
 
     public void deleteFriendship(Friendship fs, Handler<AsyncResult<Boolean>> resultHandler){
