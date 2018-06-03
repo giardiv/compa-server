@@ -1,9 +1,5 @@
 package compa.app;
 
-import compa.services.ImageService;
-import io.vertx.ext.web.Router;
-import org.mongodb.morphia.Datastore;
-import org.mongodb.morphia.dao.BasicDAO;
 import org.mongodb.morphia.utils.ReflectionUtils;
 
 import java.io.IOException;
@@ -102,7 +98,7 @@ public class ClassFinder {
 
             Map<Class, Service> services = new HashMap<>();
 
-            for (Class clazz : classes) {
+            for (Class<?> clazz : classes) {
 
                 try{
                     services.put(clazz, (Service)  clazz.getDeclaredConstructor(Container.class).newInstance(container));

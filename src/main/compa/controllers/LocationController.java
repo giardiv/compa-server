@@ -1,14 +1,13 @@
 package compa.controllers;
 
-import com.google.gson.JsonElement;
+import compa.app.Container;
+import compa.app.Controller;
+import compa.daos.LocationDAO;
 import compa.exception.ParameterException;
+import compa.models.Location;
 import compa.models.User;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.web.RoutingContext;
-import compa.app.Container;
-import compa.models.Location;
-import compa.app.Controller;
-import compa.daos.LocationDAO;
 
 import java.util.Date;
 import java.util.List;

@@ -10,10 +10,6 @@ public class FriendshipDTO {
     private Date datetime;
 
     public FriendshipDTO(Friendship friendship){
-        this(friendship, 1);
-    }
-
-    public FriendshipDTO(Friendship friendship, int depth){
         this.id = friendship.getId().toString();
         this.statusA = friendship.getStatusA().toString();
         this.statusB = friendship.getStatusB().toString();

@@ -5,7 +5,6 @@ import compa.models.Location;
 import compa.models.User;
 import compa.services.AuthenticationService;
 import org.mongodb.morphia.Datastore;
-import org.mongodb.morphia.query.UpdateOperations;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -20,7 +19,7 @@ public class FakeDataGenerator {
         Container c = new Container(null, Container.MODE.PROD);
         c.run(cf);
 
-        List<User> users = new ArrayList<>();;
+        List<User> users = new ArrayList<>();
 
         Datastore datastore = c.getMongoUtil().getDatastore();
 
