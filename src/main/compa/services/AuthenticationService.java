@@ -12,10 +12,6 @@ import compa.daos.UserDAO;
 import compa.models.User;
 import org.mindrot.jbcrypt.BCrypt;
 
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.PBEKeySpec;
-import java.math.BigInteger;
-
 public class AuthenticationService extends Service {
     private final static int SALT_ROUND = 12;
     public static final int PASSWORD_MIN_LENGTH = 8;

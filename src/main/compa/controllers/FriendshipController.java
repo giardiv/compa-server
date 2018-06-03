@@ -18,7 +18,6 @@ import java.util.List;
 public class FriendshipController extends Controller{
 
     private static final String PREFIX = "/friend";
-
     private FriendshipDAO friendshipDAO;
     private UserDAO userDAO;
 
@@ -43,7 +42,7 @@ public class FriendshipController extends Controller{
      *
      * @apiSuccess Return a list of User
      */
-    public void getFriendsByStatus(User me, RoutingContext routingContext){
+    private void getFriendsByStatus(User me, RoutingContext routingContext){
         Friendship.Status status;
 
         try {
@@ -73,7 +72,7 @@ public class FriendshipController extends Controller{
      *
      * @apiSuccess Return 200 without body
      */
-    public void setStatus(User me, RoutingContext routingContext){
+    private void setStatus(User me, RoutingContext routingContext){
         final Friendship.Status status;
         final ObjectId friend_id;
 
@@ -112,9 +111,7 @@ public class FriendshipController extends Controller{
                     return;
                 }
 
-                friendshipDAO.updateFriendship(fs, status, meIsA, res2 -> {
-                    routingContext.response().end("{}");
-                });
+                friendshipDAO.updateFriendship(fs, status, meIsA, res2 -> routingContext.response().end("{}"));
             });
         });
     }
@@ -128,7 +125,7 @@ public class FriendshipController extends Controller{
      *
      * @apiSuccess Return 200 without body
      */
-    public void deleteFriendship(User me, RoutingContext routingContext){
+    private void deleteFriendship(User me, RoutingContext routingContext){
         final String friend_id;
 
         try {
@@ -174,7 +171,7 @@ public class FriendshipController extends Controller{
      *
      * @apiSuccess Return a User
      */
-    public void searchFriends(User me, RoutingContext routingContext){
+    private void searchFriends(User me, RoutingContext routingContext){
         String tag;
 
         try {
@@ -236,9 +233,7 @@ public class FriendshipController extends Controller{
                             new FriendshipException(FriendshipException.FRIENDSHIP_ALREADY_EXISTS)));
                     return;
                 }
-                friendshipDAO.addFriendship(me, friend, res2 -> {
-                    routingContext.response().end("{}");
-                });
+                friendshipDAO.addFriendship(me, friend, res2 -> routingContext.response().end("{}"));
             });
         });
 

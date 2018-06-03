@@ -7,7 +7,7 @@ import compa.app.Service;
 
 public class GsonService extends Service {
 
-    Gson gson;
+    private Gson gson;
 
     public GsonService(Container container) {
         super(container);
