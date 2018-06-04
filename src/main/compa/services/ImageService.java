@@ -67,7 +67,7 @@ public class ImageService extends Service {
                 ext = (String) result.get("format");
                 localPath += "." + ext;
                 File localCopy = new File(localPath);
-                Files.copy(file.toPath(), localCopy.toPath());
+                //Files.copy(file.toPath(), localCopy.toPath());
 
                 new File(uploadedFile.uploadedFileName()).delete();
             } catch (IOException e) {

@@ -83,7 +83,7 @@ public class FriendshipTest {
                         fs_me.setStatusA(Friendship.Status.ACCEPTED);
                         break;
                     default:
-                        break;
+                        break; //will be pending
                 }
                 datastore.save(fs_me);
             }
@@ -121,23 +121,35 @@ public class FriendshipTest {
                 })
                 .end(json);
     }
-    /*
+
     @Test
     public void addFriendshipWork(TestContext context) {
-//        HttpClient client = vertx.createHttpClient();
-//        Async async = context.async();
-//
-//        //JsonObject localUser = this.testRegisterUser.deepCopy();
-//        localUser.remove("password");
-//        localUser.addProperty("password", "tacos");
-//
-//        final String json = localUser.toString();
-//        final String length = Integer.toString(json.length());
+//usre
+        HttpClient client = vertx.createHttpClient();
+        Async async = context.async();
+        JsonObject localUser = this.testFriendship.deepCopy();
 
+
+        localUser.remove("friend_id");
+        localUser.addProperty("friend_id", users.get(1).getId().toString());
+
+        final String json = localUser.toString();
+        final String length = Integer.toString(json.length());
+        client.post(Container.SERVER_PORT, Container.SERVER_HOST, "/friend")
+                .putHeader("content-type", "application/json")
+                .putHeader("content-length", length)
+                .handler( resp -> {
+                    context.assertEquals(resp.statusCode(), 400);
+                    resp.bodyHandler(body -> {
+                        JsonObject e = gson.toObject(body.toString(), JsonObject.class);
+                        context.assertNotNull(e.get("_id"));
+                        client.close();
+                        async.complete();
+                    });
+                })
+                .end(json);
 
     }
-
-
 
     @Test
     public void addFriendshipBeFriend(TestContext context) {
@@ -149,6 +161,7 @@ public class FriendshipTest {
 
     @Test
     public void setFriendshipStatus(TestContext context) {
+
     }
 
     @Test
@@ -158,5 +171,5 @@ public class FriendshipTest {
     @Test
     public void searchFriendshipWork(TestContext context) {
     }
-*/
+
 }
