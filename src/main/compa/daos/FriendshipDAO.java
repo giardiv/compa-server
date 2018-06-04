@@ -1,6 +1,5 @@
 package compa.daos;
 
-import compa.dtos.FriendshipDTO;
 import compa.models.Friendship;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
@@ -127,10 +126,6 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
             logger.log(Level.INFO, "Deleted friendship between {0} and {1}", params);
             future.complete();
         }, resultHandler);
-    }
-
-    public List<FriendshipDTO> toDTO(List<Friendship> friendships){
-        return friendships.stream().map(FriendshipDTO::new).collect(Collectors.toList());
     }
 
     @Override

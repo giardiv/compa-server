@@ -5,7 +5,6 @@ import com.cloudinary.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URLConnection;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Map;
@@ -36,12 +35,20 @@ public class ImageService extends Service {
 
     public ImageService(Container container) {
         super(container);
-         cloudinary = new Cloudinary(ObjectUtils.asMap(
-            "cloud_name", CLOUD_NAME,
-            "api_key", API_KEY,
-            "api_secret", API_SECRET));
+        this.cloudinary = getNewCloudinary();
         this.vertx = container.getVertx();
         this.imageDAO = (ImageDAO) container.getDAO(Image.class);
+    }
+
+    public Cloudinary getCloudinary(){
+        return this.cloudinary;
+    }
+
+    private static Cloudinary getNewCloudinary(){
+        return new Cloudinary(ObjectUtils.asMap(
+                "cloud_name", CLOUD_NAME,
+                "api_key", API_KEY,
+                "api_secret", API_SECRET));
     }
 
     public void upload(FileUpload uploadedFile, Handler<AsyncResult<Image>> resultHandler){
@@ -92,6 +99,15 @@ public class ImageService extends Service {
                 new Transformation()
                         .width(90)
                         .height(90)
+                        .crop("fill"))
+                .generate(image.getPublicId());
+    }
+
+    public static String getUrl(int width, int height, Image image){
+        return getNewCloudinary().url().transformation(
+                new Transformation()
+                        .width(width)
+                        .height(height)
                         .crop("fill"))
                 .generate(image.getPublicId());
     }

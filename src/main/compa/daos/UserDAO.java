@@ -217,10 +217,10 @@ public class UserDAO extends DAO<User, ObjectId> {
 
         vertx.executeBlocking( future -> {
             logger.log(Level.INFO, "Changing {0}'s profile pic", user.getUsername());
-            UpdateOperations<User> update = this.createUpdateOperations().set("profilePic", image);
-            this.getDatastore().update(user, update);
+            user.setProfilePic(image);
+            this.save(user);
             logger.log(Level.INFO, "Changed {0}'s profile pic", user.getUsername());
-            future.complete();
+            future.complete(user);
         }, resultHandler);
 
     }
@@ -233,15 +233,22 @@ public class UserDAO extends DAO<User, ObjectId> {
             logger.log(Level.INFO, "{0} is logged out", user.getUsername());
             future.complete(user);
         }, resultHandler);
-
     }
 
     public UserDTO toDTO(User me){
         return new UserDTO(me);
     }
 
+    public UserDTO toDTO(User me, int picWidth, int picHeight){
+        return new UserDTO(me, picWidth, picHeight);
+    }
+
     public List<UserDTO> toDTO(List<User> users){
         return users != null ? users.stream().map(UserDTO::new).collect(Collectors.toList()) : new ArrayList<>();
+    }
+
+    public List<UserDTO> toDTO(List<User> users, int picWidth, int picHeight){
+        return users != null ? users.stream().map(user -> new UserDTO(user, picWidth, picHeight)).collect(Collectors.toList()) : new ArrayList<>();
     }
 
     @Override

@@ -78,6 +78,9 @@ public abstract class Controller {
             throw new ParameterException(ParameterException.PARAM_REQUIRED, mandatoryParam, method.toString());
         }
 
+        if(value == null)
+            return null;
+
         if(type.equals(Integer.class)) {
             try {
                 return type.cast(Integer.parseInt(value));

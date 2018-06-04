@@ -31,7 +31,7 @@ public class UserController extends Controller {
         this.registerAuthRoute(HttpMethod.GET, "", this::getCurrentProfile, "application/json");
         this.registerAuthRoute(HttpMethod.PUT, "/updateProfile", this::updateProfile, "application/json");
         this.registerAuthRoute(HttpMethod.PUT, "/ghostmode", this::setGhostMode, "application/json");
-        this.registerAuthRoute(HttpMethod.POST, "/uploadPic", this::uploadPic, "application/json");
+        this.registerAuthRoute(HttpMethod.POST, "/uploadPic/:image_size", this::uploadPic, "application/json");
 
         userDAO = (UserDAO) container.getDAO(User.class);
     }
@@ -125,22 +125,18 @@ public class UserController extends Controller {
             User u = res.result();
             routingContext.response().end(gson.toJson(userDAO.toDTO(u)));
         });
-
-    }
-
-    public byte[] LoadImage(String filePath) throws Exception {
-        File file = new File(filePath);
-        int size = (int) file.length();
-        byte[] buffer = new byte[size];
-        FileInputStream in = new FileInputStream(file);
-        in.read(buffer);
-        in.close();
-        return buffer;
     }
 
     private void uploadPic(User me, RoutingContext routingContext){
-        //TODO SURROUND WITH VERTX BLOCKING AS IT MIGHT BE TIME CONSUMING???
         Set<FileUpload> files = routingContext.fileUploads();
+
+        Integer size;
+        try {
+            size = this.getParam(routingContext, "image_size", false, ParamMethod.GET, Integer.class);
+        } catch (ParameterException e) {
+            routingContext.response().setStatusCode(400).end(gson.toJson(e));
+            return;
+        }
 
         for(FileUpload file : files) {
             ImageService imageService = (ImageService) this.get(ImageService.class);
@@ -150,14 +146,15 @@ public class UserController extends Controller {
                 } else {
                     Image image = mapAsyncResult.result();
                     userDAO.setProfilePic(me, image, res -> {
-                        routingContext.response().setStatusCode(201).end(gson.toJson(ImageDAO.toDTO(image)));
+                        if(size != null)
+                            routingContext.response().setStatusCode(201).end(gson.toJson(userDAO.toDTO(res.result(), size, size)));
+                        else
+                            routingContext.response().setStatusCode(201).end(gson.toJson(userDAO.toDTO(res.result())));
                         routingContext.response().close();
                     });
                 }
             });
-
+            return;
         }
-
     }
-
 }
