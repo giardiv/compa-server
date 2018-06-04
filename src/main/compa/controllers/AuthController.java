@@ -14,7 +14,7 @@ import io.vertx.ext.web.RoutingContext;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.validator.routines.EmailValidator;
 
-import static compa.email.SendEmail.sendEmail;
+import static compa.services.EmailService.sendEmail;
 
 public class AuthController extends Controller {
 

@@ -79,18 +79,22 @@ public class FriendshipController extends Controller{
      */
     private void setStatus(User me, RoutingContext routingContext){
         final Friendship.Status status;
-        final ObjectId friend_id;
+        final String friend_id;
 
         try {
             status = this.getParam(routingContext, "status", true, ParamMethod.JSON, Friendship.Status.class);
-            friend_id = this.getParam(routingContext, "friend_id", true, ParamMethod.JSON, ObjectId.class);
+            friend_id = this.getParam(routingContext, "friend_id", true, ParamMethod.JSON, String.class);
         } catch (ParameterException e) {
             routingContext.response().setStatusCode(400).end(gson.toJson(e));
             return;
         }
 
+        System.out.println("status : " + status);
+        System.out.println("friend id : " + friend_id);
         userDAO.findById(friend_id, res1 -> {
             User friend = res1.result();
+            System.out.println("friend: " + friend);
+
             if (friend == null) {
                 routingContext.response().setStatusCode(404).end(gson.toJson(
                         new UserException(UserException.USER_NOT_FOUND, "id", friend_id.toString())));
@@ -105,7 +109,7 @@ public class FriendshipController extends Controller{
                     return;
                 }
 
-                boolean meIsA = me.getId() == fs.getUserA().getId();
+                boolean meIsA = me.getId().equals(fs.getUserA().getId());
 
                 if (
                         (meIsA && !Friendship.validStatusChange(fs.getStatusA(), status)) ||
@@ -117,6 +121,8 @@ public class FriendshipController extends Controller{
                 }
 
                 friendshipDAO.updateFriendship(fs, status, meIsA, res2 -> routingContext.response().end("{}"));
+
+
             });
         });
     }
@@ -152,7 +158,7 @@ public class FriendshipController extends Controller{
                         new FriendshipException(FriendshipException.BEFRIEND_YOURSELF)));
                 return;
             }
-            /**friendshipDAO.findFriendshipByUsersIds(me, friend, res -> {
+            friendshipDAO.findFriendshipByUsers(me, friend, res -> {
                 Friendship fs = res.result();
 
                 if(fs == null){
@@ -163,7 +169,7 @@ public class FriendshipController extends Controller{
                 friendshipDAO.deleteFriendship(fs, res2 -> {
                     routingContext.response().end("{}");
                 });
-            });**/
+            });
         });
     }
 
@@ -207,6 +213,7 @@ public class FriendshipController extends Controller{
      * @apiSuccess Return 200 without body
      */
     private void addFriend(User me, RoutingContext routingContext) {
+        System.out.println("In addFriend");
         final String friend_id;
 
         try {
