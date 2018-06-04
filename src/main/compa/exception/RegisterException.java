@@ -21,7 +21,7 @@ public class RegisterException extends Exception
      * @apiDefine SamePassword
      * @apiError SamePassword 1003 : The <code>password</code> is the same as the old password.
      */
-    public static final Pair<Integer, String> SAME_PASSWORD = new Pair<>(1003, "It the same password");
+    public static final Pair<Integer, String> SAME_PASSWORD = new Pair<>(1003, "It's the same password");
 
     /**
      * @apiDefine NotValidEmail

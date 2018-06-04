@@ -42,7 +42,7 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
             );
 
             List<User> friends = query.asList().stream()
-                    .map((fs) -> fs.getUserA() == user ? fs.getUserB() : fs.getUserA())
+                    .map((fs) -> fs.getUserA().equals(user) ? fs.getUserB() : fs.getUserA())
                     .collect(Collectors.toList());
 
             logger.log(Level.INFO, "Found {0} friends", friends.size());
