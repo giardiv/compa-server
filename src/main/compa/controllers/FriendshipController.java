@@ -44,9 +44,11 @@ public class FriendshipController extends Controller{
      */
     private void getFriendsByStatus(User me, RoutingContext routingContext){
         Friendship.Status status;
+        Integer size;
 
         try {
             status = this.getParam(routingContext, "status", true, ParamMethod.GET, Friendship.Status.class);
+            size = this.getParam(routingContext, "size", false, ParamMethod.GET, Integer.class);
         } catch (ParameterException e) {
             routingContext.response().setStatusCode(400).end(gson.toJson(e));
             return;
@@ -56,7 +58,10 @@ public class FriendshipController extends Controller{
 
         friendshipDAO.findFriendsByStatus(me, status, res -> {
             List<User> friendList = res.result();
-            routingContext.response().end(gson.toJson(userDAO.toDTO(friendList)));
+            if(size != null)
+                routingContext.response().end(gson.toJson(userDAO.toDTO(friendList, size, size)));
+            else
+                routingContext.response().end(gson.toJson(userDAO.toDTO(friendList)));
         });
     }
 

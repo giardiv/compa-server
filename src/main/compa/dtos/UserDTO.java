@@ -2,6 +2,8 @@ package compa.dtos;
 
 import compa.models.Location;
 import compa.models.User;
+import compa.services.ImageService;
+
 import java.util.List;
 
 
@@ -10,6 +12,9 @@ public class UserDTO {
     private String email,id, login, name, profilePicId;
     private LocationDTO lastLocation;
     private boolean ghostMode;
+
+    public static int DEFAULT_PP_WIDTH = 100;
+    public static int DEFAULT_PP_HEIGHT = 100;
 
     /**
      * @apiDefine UserDTO
@@ -29,6 +34,15 @@ public class UserDTO {
         List<Location> locs = user.getLocations();
         Location loc = (locs.size() > 0 && !ghostMode)? locs.get(locs.size() - 1) : null; //TODO CHANGE THIS DEFINETELY
         this.lastLocation = loc == null ? null : new LocationDTO(loc);
-        this.profilePicId = user.getProfilePic() == null ? null : user.getProfilePic().getPublicId();
+        if(user.getProfilePic() != null)
+            this.profilePicUrl = ImageService.getUrl(DEFAULT_PP_WIDTH, DEFAULT_PP_HEIGHT, user.getProfilePic());
+    }
+
+    public UserDTO(User user, Integer width, Integer height){
+        this(user);
+        if(width == null || height == null)
+            return;
+        if(user.getProfilePic() != null)
+            this.profilePicUrl = ImageService.getUrl(width, height, user.getProfilePic());
     }
 }

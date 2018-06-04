@@ -1,9 +1,5 @@
 package compa.daos;
 
-import com.mongodb.DB;
-import com.mongodb.gridfs.GridFS;
-import com.mongodb.gridfs.GridFSInputFile;
-import compa.app.MongoUtil;
 import compa.dtos.UserDTO;
 import compa.models.Image;
 import compa.services.AuthenticationService;
@@ -14,19 +10,15 @@ import compa.exception.RegisterException;
 import compa.models.User;
 import compa.app.DAO;
 import org.bson.types.ObjectId;
-import org.mongodb.morphia.query.FindOptions;
 import org.mongodb.morphia.query.Query;
 import org.mongodb.morphia.query.UpdateOperations;
-import sun.rmi.server.UnicastServerRef;
-import java.io.File;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-
-import static compa.email.SendEmail.sendEmail;
 
 public class UserDAO extends DAO<User, ObjectId> {
     private Logger logger = Logger.getLogger("user_dao");
@@ -225,10 +217,10 @@ public class UserDAO extends DAO<User, ObjectId> {
 
         vertx.executeBlocking( future -> {
             logger.log(Level.INFO, "Changing {0}'s profile pic", user.getUsername());
-            UpdateOperations<User> update = this.createUpdateOperations().set("profilePic", image);
-            this.getDatastore().update(user, update);
+            user.setProfilePic(image);
+            this.save(user);
             logger.log(Level.INFO, "Changed {0}'s profile pic", user.getUsername());
-            future.complete();
+            future.complete(user);
         }, resultHandler);
 
     }
@@ -241,15 +233,22 @@ public class UserDAO extends DAO<User, ObjectId> {
             logger.log(Level.INFO, "{0} is logged out", user.getUsername());
             future.complete(user);
         }, resultHandler);
-
     }
 
     public UserDTO toDTO(User me){
         return new UserDTO(me);
     }
 
+    public UserDTO toDTO(User me, int picWidth, int picHeight){
+        return new UserDTO(me, picWidth, picHeight);
+    }
+
     public List<UserDTO> toDTO(List<User> users){
         return users != null ? users.stream().map(UserDTO::new).collect(Collectors.toList()) : new ArrayList<>();
+    }
+
+    public List<UserDTO> toDTO(List<User> users, int picWidth, int picHeight){
+        return users != null ? users.stream().map(user -> new UserDTO(user, picWidth, picHeight)).collect(Collectors.toList()) : new ArrayList<>();
     }
 
     @Override

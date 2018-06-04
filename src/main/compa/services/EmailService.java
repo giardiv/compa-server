@@ -1,5 +1,6 @@
-package compa.email;
+package compa.services;
 
+import compa.app.Container;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
@@ -13,11 +14,14 @@ import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
-//TODO put sendEmail in package of services
-public class SendEmail {
+public class EmailService extends compa.app.Service {
 
     private static final String login = "compa.map@gmail.com";
     private static final String password = "Compa-2605";
+
+    public EmailService(Container container) {
+        super(container);
+    }
 
     public static void sendEmail(final String toEmail, final String subject, final String body, Handler<AsyncResult<Message>> resultHandler) {
 
