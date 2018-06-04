@@ -31,6 +31,19 @@ import java.util.Random;
 
 @RunWith(VertxUnitRunner.class)
 public class FriendshipTest {
+    public static String USER_TOKEN = "q5ZV67c7MOBSNv97";
+    public static int N_FAKE_USER = 10;
+    public static String MAIL_POST = "@email.com";
+    public static String[] USER_LIST = {
+            "BASIC", //   1 ACCEPTED, 1 PENDING, 1 AWAITING, 1 BLOCKED, 1 BLOCKER
+            "ALONE", //   0 ACCEPTED, 0 PENDING, 0 AWAITING, 0 BLOCKED, 0 BLOCKER
+
+            "OTHER1", //  1 ACCEPTED, 0 PENDING, 0 AWAITING, 0 BLOCKED, 0 BLOCKER
+            "OTHER2", //  0 ACCEPTED, 1 PENDING, 0 AWAITING, 0 BLOCKED, 0 BLOCKER
+            "OTHER3", //  0 ACCEPTED, 0 PENDING, 1 AWAITING, 0 BLOCKED, 0 BLOCKER
+            "OTHER4", //  0 ACCEPTED, 0 PENDING, 0 AWAITING, 1 BLOCKED, 0 BLOCKER
+            "OTHER5" //   0 ACCEPTED, 0 PENDING, 0 AWAITING, 0 BLOCKED, 1 BLOCKER
+    };
 
     Vertx vertx;
     static GsonService gson;
@@ -55,10 +68,11 @@ public class FriendshipTest {
     public static void fakeData(){
         int userNb = 5;
 
-        for(int i = 0; i < userNb; ++i) {
+        for(String username : USER_LIST) {
             String salt = AuthenticationService.getSalt();
             String encPassword = AuthenticationService.encrypt("password" + i, salt);
-            User u = new User("email" + i + "@mail.fr", "Name " + i, "user" + i, encPassword, salt);
+            User u = new User( username + "@mail.fr", username, username, encPassword, salt);
+            u.setToken(USER_TOKEN);
             users.add(u);
             datastore.save(u);
         }
