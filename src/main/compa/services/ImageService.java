@@ -35,12 +35,16 @@ public class ImageService extends Service {
 
     public ImageService(Container container) {
         super(container);
-        this.cloudinary = getCloudinary();
+        this.cloudinary = getNewCloudinary();
         this.vertx = container.getVertx();
         this.imageDAO = (ImageDAO) container.getDAO(Image.class);
     }
 
-    private static Cloudinary getCloudinary(){
+    public Cloudinary getCloudinary(){
+        return this.cloudinary;
+    }
+
+    private static Cloudinary getNewCloudinary(){
         return new Cloudinary(ObjectUtils.asMap(
                 "cloud_name", CLOUD_NAME,
                 "api_key", API_KEY,
@@ -100,7 +104,7 @@ public class ImageService extends Service {
     }
 
     public static String getUrl(int width, int height, Image image){
-        return getCloudinary().url().transformation(
+        return getNewCloudinary().url().transformation(
                 new Transformation()
                         .width(width)
                         .height(height)

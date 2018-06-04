@@ -1,16 +1,19 @@
 package compa.app;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import compa.models.Friendship;
+import compa.models.Image;
 import compa.models.Location;
 import compa.models.User;
 import compa.services.AuthenticationService;
+import compa.services.ImageService;
 import org.mongodb.morphia.Datastore;
 
+import java.lang.Exception;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class FakeDataGenerator {
 
@@ -36,10 +39,34 @@ public class FakeDataGenerator {
         int userNb = 50;
         int locationsPerUser = 5;
 
+        ArrayList<String> imagesPublicIds = new ArrayList<>();
+        Cloudinary cl = ((ImageService) c.getServices().get(ImageService.class)).getCloudinary();
+        try {
+            Map options = ObjectUtils.asMap(
+                    "max_results", 100);
+            Map images = cl.api().resources(options);
+            Iterator it = images.values().iterator();
+            if(it.hasNext()){
+                for (Object i : (ArrayList) it.next()) {
+                    String r = (String) ((HashMap) i).get("public_id");
+                    imagesPublicIds.add(r);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if(imagesPublicIds.size() == 0)
+            System.out.println("No profile pic image found");
+        else
+            System.out.println(imagesPublicIds.size() + " pictures found");
+
+
         for(int i = 0; i < userNb; ++i){
             String salt = AuthenticationService.getSalt();
             String encPassword = AuthenticationService.encrypt("password" + i, salt);
             User u = new User("email" + i + "@toto.fr", "Name "+ i, "user" + i, encPassword, salt);
+            if(imagesPublicIds.size() != 0)
+                u.setProfilePic(new Image(imagesPublicIds.get(i % imagesPublicIds.size()), "", "jpg"));
             for(int j = 0; j < locationsPerUser; ++j){
                 LocalDateTime date = LocalDateTime.now().minus(offset, ChronoUnit.SECONDS);
                 Location l = new Location(
@@ -56,6 +83,7 @@ public class FakeDataGenerator {
             users.add(u);
             datastore.save(u);
         }
+        System.out.println(userNb + " users created");
 
        Random r = new Random();
 
@@ -65,8 +93,6 @@ public class FakeDataGenerator {
                 User friend = users.get(j);
 
                 Friendship fs = new Friendship(me, friend);
-
-                fs.setStatusB(Friendship.Status.ACCEPTED);
 
                 int n = r.nextInt(4);
                 switch(n){
@@ -86,7 +112,7 @@ public class FakeDataGenerator {
                 datastore.save(fs);
             }
         }
-        System.out.println("over");
+        System.out.println("friendships created");
+        System.out.println("...over");
     }
-
 }
