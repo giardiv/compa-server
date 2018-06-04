@@ -100,4 +100,7 @@ public class User {
     public Image getProfilePic(){
         return this.profilePic;
     }
+    public void setProfilePic(Image image){
+        this.profilePic = image;
+    }
 }

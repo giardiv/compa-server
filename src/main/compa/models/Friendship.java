@@ -91,7 +91,7 @@ public class Friendship {
         }
     }
 
-    public static boolean validStatusChange(Status origin, Status change) {
+    public static boolean validStatusChange(Status origin, Status change){
         switch (origin){
             case PENDING:
                 return false;
