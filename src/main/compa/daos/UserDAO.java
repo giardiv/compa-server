@@ -241,7 +241,6 @@ public class UserDAO extends DAO<User, ObjectId> {
             logger.log(Level.INFO, "{0} is logged out", user.getUsername());
             future.complete(user);
         }, resultHandler);
-
     }
 
     public UserDTO toDTO(User me){

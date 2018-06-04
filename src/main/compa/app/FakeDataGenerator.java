@@ -66,6 +66,8 @@ public class FakeDataGenerator {
 
                 Friendship fs = new Friendship(me, friend);
 
+                fs.setStatusB(Friendship.Status.ACCEPTED);
+
                 int n = r.nextInt(4);
                 switch(n){
                     case 0:

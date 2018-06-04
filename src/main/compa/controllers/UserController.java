@@ -125,7 +125,6 @@ public class UserController extends Controller {
             User u = res.result();
             routingContext.response().end(gson.toJson(userDAO.toDTO(u)));
         });
-
     }
 
     private void uploadPic(User me, RoutingContext routingContext){

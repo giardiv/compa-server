@@ -17,7 +17,6 @@ public class ImageDAO extends DAO<Image, ObjectId>  {
 
     @Override
     public void init(Map<Class, DAO> daos) {
-
     }
 
     public void addImage(String publicId, String localPath, String format, Handler<AsyncResult<Image>> resultHandler) {
