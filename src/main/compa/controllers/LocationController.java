@@ -96,7 +96,7 @@ public class LocationController extends Controller {
 
         Date startDate, endDate;
         Calendar calendar = Calendar.getInstance();
-        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+       // SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
         startDate = calendar.getTime();
         calendar.add(Calendar.DAY_OF_WEEK, PERIOD);
         endDate = calendar.getTime();
