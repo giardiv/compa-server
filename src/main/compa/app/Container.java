@@ -54,7 +54,7 @@ public class Container {
         daos = cf.getDAOs(this);
         exceptions = cf.getExceptions();
         services = cf.getServices(this);
-
+        cf.getControllers(this);
         server.requestHandler(router::accept);
 
         if(testHandler != null)
