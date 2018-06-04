@@ -40,6 +40,7 @@ public class Container {
         HttpServerOptions options = new HttpServerOptions();
         options.setHost(SERVER_HOST);
         options.setPort(SERVER_PORT);
+        //options.setSsl(true);
 
         //HttpServerOptions secureOptions = new HttpServerOptions();
         //secureOptions.setSsl(true);

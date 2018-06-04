@@ -136,11 +136,11 @@ public class FriendshipTest {
                 .end(json);
     }
 
-
     @Test
     public void addFriendshipExist(TestContext context) {
 
         HttpClient client = vertx.createHttpClient();
+
         Async async = context.async();
 
         JsonObject body = new JsonObject();
@@ -194,6 +194,7 @@ public class FriendshipTest {
 
     @Test
     public void setFriendshipStatus(TestContext context) {
+
     }
 
     @Test
@@ -203,4 +204,5 @@ public class FriendshipTest {
     @Test
     public void searchFriendshipWork(TestContext context) {
     }**/
+
 }
