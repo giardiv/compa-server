@@ -18,7 +18,7 @@ import org.apache.commons.validator.routines.EmailValidator;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.Set;
-
+//?=nil user repos
 
 public class UserController extends Controller {
     private static final String PREFIX = "/user";
@@ -108,6 +108,7 @@ public class UserController extends Controller {
      * @apiSuccess Return 200 without body
      */
     private void updateProfile(User me, RoutingContext routingContext){
+        System.out.println("In updateProfile");
         String name, email;
         try {
             email = this.getParam(routingContext, "email", true, ParamMethod.JSON, String.class);
@@ -121,6 +122,8 @@ public class UserController extends Controller {
                             new RegisterException(RegisterException.NOT_VALID_EMAIL)));
             return;
         }
+        System.out.println("email : " + email);
+        System.out.println("name : " + name);
         userDAO.updateProfile(me, name,email, res -> {
             User u = res.result();
             routingContext.response().end(gson.toJson(userDAO.toDTO(u)));
@@ -128,6 +131,7 @@ public class UserController extends Controller {
     }
 
     private void uploadPic(User me, RoutingContext routingContext){
+      
         Set<FileUpload> files = routingContext.fileUploads();
 
         Integer size;
@@ -146,6 +150,7 @@ public class UserController extends Controller {
                 } else {
                     Image image = mapAsyncResult.result();
                     userDAO.setProfilePic(me, image, res -> {
+
                         if(size != null)
                             routingContext.response().setStatusCode(201).end(gson.toJson(userDAO.toDTO(res.result(), size, size)));
                         else

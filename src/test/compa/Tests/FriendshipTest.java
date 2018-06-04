@@ -75,7 +75,7 @@ public class FriendshipTest {
             u.setToken(USER_TOKEN);
             users.put(un, u);
         }
-      
+     
         datastore.save(users);
 
         List<Friendship> fs = new ArrayList<>();
@@ -124,9 +124,14 @@ public class FriendshipTest {
                 })
                 .end(json);
     }
-    /*
+
     @Test
     public void addFriendshipWork(TestContext context) {
+
+        HttpClient client = vertx.createHttpClient();
+        Async async = context.async();
+        JsonObject localUser = this.testFriendship.deepCopy();
+
 
         /**HttpClient client = vertx.createHttpClient();
         Async async = context.async();
@@ -149,7 +154,23 @@ public class FriendshipTest {
                 .end(json);**/
     }
 
+        final String json = localUser.toString();
+        final String length = Integer.toString(json.length());
+        client.post(Container.SERVER_PORT, Container.SERVER_HOST, "/friend")
+                .putHeader("content-type", "application/json")
+                .putHeader("content-length", length)
+                .handler( resp -> {
+                    context.assertEquals(resp.statusCode(), 400);
+                    resp.bodyHandler(body -> {
+                        JsonObject e = gson.toObject(body.toString(), JsonObject.class);
+                        context.assertNotNull(e.get("_id"));
+                        client.close();
+                        async.complete();
+                    });
+                })
+                .end(json);
 
+    }
 
     @Test
     public void addFriendshipBeFriend(TestContext context) {
@@ -161,6 +182,7 @@ public class FriendshipTest {
 
     @Test
     public void setFriendshipStatus(TestContext context) {
+
     }
 
     @Test
@@ -170,5 +192,5 @@ public class FriendshipTest {
     @Test
     public void searchFriendshipWork(TestContext context) {
     }
-*/
+
 }
