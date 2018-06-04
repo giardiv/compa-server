@@ -9,12 +9,17 @@ import compa.models.User;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.web.RoutingContext;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
 public class LocationController extends Controller {
 
     private static final String PREFIX = "/location";
+    private static final int PERIOD = -5;
 
     private LocationDAO locationDAO;
 
@@ -22,7 +27,7 @@ public class LocationController extends Controller {
         super(PREFIX, container);
         this.registerAuthRoute(HttpMethod.POST, "", this::newInstance, "application/json");
         this.registerAuthRoute(HttpMethod.GET, "", this::getAll, "application/json");
-        this.registerAuthRoute(HttpMethod.GET, "/getLocationsList/:startDate/:endDate", this::getLocationFromDateInterval, "application/json");
+        this.registerAuthRoute(HttpMethod.GET, "/getLocationsList", this::getLocationFromDateInterval, "application/json");///:startDate/:endDate
 
         locationDAO = (LocationDAO) container.getDAO(Location.class);
     }
@@ -88,15 +93,13 @@ public class LocationController extends Controller {
      * @apiSuccess Return an array of locationDTO
      */
     private void getLocationFromDateInterval(User me, RoutingContext routingContext) {
-        Date startDate, endDate;
 
-        try {
-            startDate = this.getParam(routingContext, "startDate", true, ParamMethod.GET, Date.class);
-            endDate = this.getParam(routingContext, "endDate", true, ParamMethod.GET, Date.class);
-        } catch (ParameterException e) {
-            routingContext.response().setStatusCode(400).end(gson.toJson(e));
-            return;
-        }
+        Date startDate, endDate;
+        Calendar calendar = Calendar.getInstance();
+       // SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+        startDate = calendar.getTime();
+        calendar.add(Calendar.DAY_OF_WEEK, PERIOD);
+        endDate = calendar.getTime();
 
         locationDAO.getLocationFromDateInterval(me,startDate,endDate,res -> {
             List<Location> locations = res.result();

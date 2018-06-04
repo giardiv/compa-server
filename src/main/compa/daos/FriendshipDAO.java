@@ -14,7 +14,6 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-//findFriendshipByUsersIds
 public class FriendshipDAO extends DAO<Friendship, ObjectId> {
 
     private Logger logger = Logger.getLogger("friendship_dao");

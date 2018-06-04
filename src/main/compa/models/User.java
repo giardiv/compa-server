@@ -59,7 +59,7 @@ public class User {
     public void generateToken(){this.token = RandomStringUtils.randomAlphanumeric(TOKEN_SIZE);}
 
     public void setToken(String token){this.token = token;}
-    
+
     public String getUsername() {
         return username;
     }

@@ -9,7 +9,8 @@ import java.util.List;
 
 public class UserDTO {
 
-    private String id, login, name, profilePicUrl, email;
+    private String id, login, name, email, profilePicUrl;
+
     private LocationDTO lastLocation;
     private boolean ghostMode;
 
@@ -19,15 +20,16 @@ public class UserDTO {
     /**
      * @apiDefine UserDTO
      * @apiSuccess {String} id                    The current User Id
-     * @apiSuccess {String} login                 User e-mail
+     * @apiSuccess {String} login                 User login
      * @apiSuccess {String} name                  Name
+     * @apiSuccess {String} email                 User e-mail
      * @apiSuccess {Boolean} ghostMode            If ghost more is enable
      * @apiSuccess {LocationDTO} lastLocation     The current User Id
      */
     public UserDTO(User user){
         this.id = user.getId().toString();
-        this.email = user.getEmail();
         this.login = user.getUsername();
+        this.email = user.getEmail();
         this.name = user.getName();
         this.ghostMode = user.getGhostMode();
         List<Location> locs = user.getLocations();

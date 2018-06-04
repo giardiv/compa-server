@@ -4,12 +4,17 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.google.gson.JsonObject;
 import compa.app.ClassFinder;
 import compa.app.Container;
+import compa.app.Exception;
+import compa.exception.FriendshipException;
+import compa.exception.LoginException;
+import compa.exception.RegisterException;
 import compa.models.Friendship;
 import compa.models.User;
 import compa.services.AuthenticationService;
 import compa.services.GsonService;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpClient;
+import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
@@ -41,13 +46,12 @@ public class FriendshipTest {
             OTHER1,
             OTHER2,
             OTHER3,
-    };
+    }
 
     Vertx vertx;
     static GsonService gson;
     static Datastore datastore;
-    static List<User> users = new ArrayList<>();;
-    private JsonObject testFriendship;
+    static Map<TestUser, User> users = new HashMap<>();
 
     @Before
     public void before(TestContext context) {
@@ -63,25 +67,22 @@ public class FriendshipTest {
     @After
     public void after(TestContext context) {vertx.close(context.asyncAssertSuccess());}
 
-    public static void fakeData(){
-
-        Map<String , User> users = new HashMap<>();
+    public void fakeData(){
 
         for(TestUser username : TestUser.values()) {
             String un = username.toString();
             String salt = AuthenticationService.getSalt();
             String encPassword = AuthenticationService.encrypt(PASSWORD, salt);
             User u = new User( un + MAIL_POST, un, un, encPassword, salt);
-            u.setToken(USER_TOKEN);
-            users.put(un, u);
+            u.setToken(getUserToken(un));
+            users.put(username, u);
         }
-      
-        datastore.save(users);
+
+        datastore.save(users.values());
 
         List<Friendship> fs = new ArrayList<>();
 
-        for (TestUser username: TestUser.values()
-             ) {
+        for (TestUser username: TestUser.values()) {
             if(username != TestUser.BASIC && username != TestUser.ALONE && !username.toString().contains("OTHER")){
                 Friendship f = new Friendship(users.get(TestUser.BASIC), users.get(username));
                 f.setStatusB(Friendship.Status.valueOf(username.toString().toUpperCase()));
@@ -89,7 +90,16 @@ public class FriendshipTest {
             }
         }
 
+        // For delete test
+        Friendship f = new Friendship(users.get(TestUser.OTHER3), users.get(TestUser.OTHER2));
+        f.setStatusB(Friendship.Status.ACCEPTED);
+        fs.add(f);
+
         datastore.save(fs);
+    }
+
+    private String getUserToken(String un){
+        return USER_TOKEN + "." + un;
     }
 
     public static void dropData(){
@@ -98,69 +108,88 @@ public class FriendshipTest {
     }
 
     @Test
-    public void addFriendshipExist(TestContext context){
-        //usre
+    public void addFriendshipWork(TestContext context){
         HttpClient client = vertx.createHttpClient();
         Async async = context.async();
-        JsonObject localUser = this.testFriendship.deepCopy();
 
+        JsonObject body = new JsonObject();
+        body.addProperty("friend_id", users.get(TestUser.OTHER1).getId().toString());
 
-        localUser.remove("friend_id");
-        localUser.addProperty("friend_id", users.get(2).getId().toString());
+        final String json = body.toString();
+        final String length = Integer.toString(json.length());
+        client.post(Container.SERVER_PORT, Container.SERVER_HOST, "/friend")
+                .putHeader("content-type", "application/json")
+                .putHeader("content-length", length)
+                .handler( resp -> {
+                    context.assertEquals(resp.statusCode(), 200);
+                    resp.bodyHandler(response -> {
+                        client.close();
+                        async.complete();
+                    });
+                })
+                .putHeader("Authorization", getUserToken(TestUser.OTHER2.toString()))
+                .end(json);
+    }
 
-        final String json = localUser.toString();
+    @Test
+    public void addFriendshipExist(TestContext context) {
+
+        HttpClient client = vertx.createHttpClient();
+
+        Async async = context.async();
+
+        JsonObject body = new JsonObject();
+        body.addProperty("friend_id", users.get(TestUser.ACCEPTED).getId().toString());
+
+        final String json = body.toString();
         final String length = Integer.toString(json.length());
         client.post(Container.SERVER_PORT, Container.SERVER_HOST, "/friend")
                 .putHeader("content-type", "application/json")
                 .putHeader("content-length", length)
                 .handler( resp -> {
                     context.assertEquals(resp.statusCode(), 400);
-                    resp.bodyHandler(body -> {
-                        Exception e = gson.toObject(body.toString(), Exception.class);
-                       // context.assertEquals(e.getCode(), FriendshipException.FRIENDSHIP_ALREADY_EXISTS.getKey());
+                    resp.bodyHandler(response -> {
+                        Exception e = gson.toObject(response.toString(), Exception.class);
+                        context.assertEquals(e.getCode(), FriendshipException.FRIENDSHIP_ALREADY_EXISTS.getKey());
                         client.close();
                         async.complete();
                     });
                 })
+                .putHeader("Authorization", getUserToken(TestUser.BASIC.toString()))
                 .end(json);
     }
 
     @Test
-    public void addFriendshipWork(TestContext context) {
-
-        /**HttpClient client = vertx.createHttpClient();
+    public void deleteFriendshipWork(TestContext context) {
+        HttpClient client = vertx.createHttpClient();
         Async async = context.async();
-        JsonObject credentials = new JsonObject();
 
-        final String json = credentials.toString();
+        JsonObject body = new JsonObject();
+        body.addProperty("friend_id", users.get(TestUser.OTHER2).getId().toString());
+
+        final String json = body.toString();
         final String length = Integer.toString(json.length());
-        client.post(Container.SERVER_PORT, Container.SERVER_HOST, "/login")
+
+        client.delete(Container.SERVER_PORT, Container.SERVER_HOST, "/friend")
                 .putHeader("content-type", "application/json")
                 .putHeader("content-length", length)
                 .handler( resp -> {
                     context.assertEquals(resp.statusCode(), 200);
-                    resp.bodyHandler(body -> {
-                        JsonObject e = gson.toObject(body.toString(), JsonObject.class);
-                        context.assertNotNull(e.get("token"));
+                    resp.bodyHandler(response -> {
                         client.close();
                         async.complete();
                     });
                 })
-                .end(json);**/
+                .putHeader("Authorization", getUserToken(TestUser.OTHER3.toString()))
+                .end(json);
     }
 
+/**
 
-
-    @Test
-    public void addFriendshipBeFriend(TestContext context) {
-    }
-
-    @Test
-    public void deleteFriendshipWork(TestContext context) {
-    }
 
     @Test
     public void setFriendshipStatus(TestContext context) {
+
     }
 
     @Test
@@ -169,6 +198,5 @@ public class FriendshipTest {
 
     @Test
     public void searchFriendshipWork(TestContext context) {
-    }
-
+*/
 }
