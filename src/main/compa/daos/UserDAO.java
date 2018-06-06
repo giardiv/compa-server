@@ -1,7 +1,10 @@
 package compa.daos;
 
+import com.mongodb.BasicDBObject;
 import compa.dtos.UserDTO;
+import compa.models.Friendship;
 import compa.models.Image;
+import compa.models.Location;
 import compa.services.AuthenticationService;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
@@ -10,21 +13,31 @@ import compa.exception.RegisterException;
 import compa.models.User;
 import compa.app.DAO;
 import org.bson.types.ObjectId;
-import org.mongodb.morphia.query.Query;
-import org.mongodb.morphia.query.UpdateOperations;
+import org.mongodb.morphia.query.*;
 
+import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import com.mongodb.client.model.Sorts.*;
 
 public class UserDAO extends DAO<User, ObjectId> {
     private Logger logger = Logger.getLogger("user_dao");
 
     public UserDAO(Container container){
         super(User.class, container);
+    }
+
+    private void getLastLocation(User user){
+        Query<Location> query = getDatastore().createQuery(Location.class);
+        query.filter("user_id",user.getId().toString());
+        query.order(Sort.ascending("datetime"));
+        Location lastLocation = query.get();
+
+        user.setLastLocation(lastLocation);
     }
 
     public void getByLoginAndPassword(String login, String password, Handler<AsyncResult<User>> resultHandler){
@@ -45,6 +58,8 @@ public class UserDAO extends DAO<User, ObjectId> {
                 future.complete(null);
                 return;
             }
+
+            this.getLastLocation(u);
 
             String encPassword = AuthenticationService.encrypt(password, u.getSalt());
             if(u.isPassword(encPassword)) {
@@ -93,6 +108,7 @@ public class UserDAO extends DAO<User, ObjectId> {
             logger.log(Level.INFO, "Looking for user by {0} : {1}",  new Object[]{key, value});
             User u = super.findOne(key, value);
             logger.log(Level.INFO, u == null ? "No user found" : "User found");
+            this.getLastLocation(u);
             future.complete(u);
         }, resultHandler);
 
@@ -134,6 +150,7 @@ public class UserDAO extends DAO<User, ObjectId> {
             else
                 logger.log(Level.INFO, "User {0} not found", id.toString());
 
+            this.getLastLocation(u);
             future.complete(u);
 
         }, resultHandler);
@@ -251,8 +268,8 @@ public class UserDAO extends DAO<User, ObjectId> {
         return users != null ? users.stream().map(user -> new UserDTO(user, picWidth, picHeight)).collect(Collectors.toList()) : new ArrayList<>();
     }
 
+
     @Override
     public void init(Map<Class, DAO> daos) {
-
     }
 }

@@ -8,6 +8,8 @@ import compa.models.User;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import org.bson.types.ObjectId;
+import org.mongodb.morphia.query.FindOptions;
+import org.mongodb.morphia.query.Query;
 
 import java.util.Date;
 import java.util.List;
@@ -39,7 +41,7 @@ public class LocationDAO extends DAO<Location, ObjectId> {
         vertx.executeBlocking( future -> {
 
             logger.log(Level.INFO, "Creating a new location for {0}", me.getUsername());
-            Location location = new Location(lat, lon, date);
+            Location location = new Location(me.getId().toString(),lat, lon, date);
             this.save(location);
             me.addLocation(location);
             this.userDAO.save(me);

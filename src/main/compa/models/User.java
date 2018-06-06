@@ -19,6 +19,9 @@ public class User {
     @Id
     public ObjectId id;
 
+    @Transient
+    private Location lastLocation;
+
     private String email, name, username, password, token, salt;
 
     @Reference(lazy=true)
@@ -44,6 +47,15 @@ public class User {
 
     }
 
+    public Location getLastLocation() {
+        return lastLocation;
+    }
+
+    public void setLastLocation(Location lastLocation) {
+        this.lastLocation = lastLocation;
+    }
+
+
     public String getEmail() {return email;}
 
     public void setEmail(String email) {this.email = email;}
@@ -66,12 +78,6 @@ public class User {
 
     public List<Location> getLocations() {
         return locations;
-    }
-
-    public Location getLastLocation() {
-        return this.getLocations().size() > 0 ?
-                this.getLocations().stream().max(Comparator.comparing(Location::getDatetime)).get() :
-                null; //TODO CHANGE ????
     }
 
     public String getName() {

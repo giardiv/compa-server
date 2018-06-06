@@ -44,6 +44,7 @@ public class UserController extends Controller {
      * @apiUse UserDTO
      */
     private void getCurrentProfile(User me, RoutingContext routingContext){
+
         routingContext.response().end(gson.toJson(userDAO.toDTO(me)));
     }
 
