@@ -9,7 +9,7 @@ import java.util.List;
 
 public class UserDTO {
 
-    private String email,id, login, name, profilePicId;
+    private String email,id, login, name, profilePicId,profilePicUrl;
     private LocationDTO lastLocation;
     private boolean ghostMode;
 

@@ -28,19 +28,19 @@ public class FriendshipTest {
     public static String USER_TOKEN = "q5ZV67c7MOBSNv97";
 
     public static enum TestUser {
-            BASIC,    //  1 ACCEPTED, 1 PENDING, 1 AWAITING, 1 BLOCKED, 1 BLOCKER
+        BASIC,    //  1 ACCEPTED, 1 PENDING, 1 AWAITING, 1 BLOCKED, 1 BLOCKER
 
-            ACCEPTED, //  1 ACCEPTED, 0 PENDING, 0 AWAITING, 0 BLOCKED, 0 BLOCKER
-            PENDING,  //  0 ACCEPTED, 1 PENDING, 0 AWAITING, 0 BLOCKED, 0 BLOCKER
-            AWAITING, //  0 ACCEPTED, 0 PENDING, 1 AWAITING, 0 BLOCKED, 0 BLOCKER
-            BLOCKED,  //  0 ACCEPTED, 0 PENDING, 0 AWAITING, 1 BLOCKED, 0 BLOCKER
-            BLOCKER,  //  0 ACCEPTED, 0 PENDING, 0 AWAITING, 0 BLOCKED, 1 BLOCKER
+        ACCEPTED, //  1 ACCEPTED, 0 PENDING, 0 AWAITING, 0 BLOCKED, 0 BLOCKER
+        PENDING,  //  0 ACCEPTED, 1 PENDING, 0 AWAITING, 0 BLOCKED, 0 BLOCKER
+        AWAITING, //  0 ACCEPTED, 0 PENDING, 1 AWAITING, 0 BLOCKED, 0 BLOCKER
+        BLOCKED,  //  0 ACCEPTED, 0 PENDING, 0 AWAITING, 1 BLOCKED, 0 BLOCKER
+        BLOCKER,  //  0 ACCEPTED, 0 PENDING, 0 AWAITING, 0 BLOCKED, 1 BLOCKER
 
-            ALONE,     //  0 ACCEPTED, 0 PENDING, 0 AWAITING, 0 BLOCKED, 0 BLOCKER
+        ALONE,     //  0 ACCEPTED, 0 PENDING, 0 AWAITING, 0 BLOCKED, 0 BLOCKER
 
-            OTHER1,
-            OTHER2,
-            OTHER3,
+        OTHER1,
+        OTHER2,
+        OTHER3,
     };
 
     Vertx vertx;
@@ -75,13 +75,13 @@ public class FriendshipTest {
             u.setToken(USER_TOKEN);
             users.put(un, u);
         }
-     
+
         datastore.save(users);
 
         List<Friendship> fs = new ArrayList<>();
 
         for (TestUser username: TestUser.values()
-             ) {
+                ) {
             if(username != TestUser.BASIC && username != TestUser.ALONE && !username.toString().contains("OTHER")){
                 Friendship f = new Friendship(users.get(TestUser.BASIC), users.get(username));
                 f.setStatusB(Friendship.Status.valueOf(username.toString().toUpperCase()));
@@ -97,41 +97,36 @@ public class FriendshipTest {
         datastore.getCollection(User.class).drop();
     }
 
-    @Test
-    public void addFriendshipExist(TestContext context){
-        //usre
-        HttpClient client = vertx.createHttpClient();
-        Async async = context.async();
-        JsonObject localUser = this.testFriendship.deepCopy();
-
-
-        localUser.remove("friend_id");
-        localUser.addProperty("friend_id", users.get(2).getId().toString());
-
-        final String json = localUser.toString();
-        final String length = Integer.toString(json.length());
-        client.post(Container.SERVER_PORT, Container.SERVER_HOST, "/friend")
-                .putHeader("content-type", "application/json")
-                .putHeader("content-length", length)
-                .handler( resp -> {
-                    context.assertEquals(resp.statusCode(), 400);
-                    resp.bodyHandler(body -> {
-                        Exception e = gson.toObject(body.toString(), Exception.class);
-                        context.assertEquals(e.getCode(), FriendshipException.FRIENDSHIP_ALREADY_EXISTS.getKey());
-                        client.close();
-                        async.complete();
-                    });
-                })
-                .end(json);
-    }
-
+//    @Test
+//    public void addFriendshipExist(TestContext context){
+//        //usre
+//        HttpClient client = vertx.createHttpClient();
+//        Async async = context.async();
+//        JsonObject localUser = this.testFriendship.deepCopy();
+//
+//
+//        localUser.remove("friend_id");
+//        localUser.addProperty("friend_id", users.get(2).getId().toString());
+//
+//        final String json = localUser.toString();
+//        final String length = Integer.toString(json.length());
+//        client.post(Container.SERVER_PORT, Container.SERVER_HOST, "/friend")
+//                .putHeader("content-type", "application/json")
+//                .putHeader("content-length", length)
+//                .handler( resp -> {
+//                    context.assertEquals(resp.statusCode(), 400);
+//                    resp.bodyHandler(body -> {
+//                        Exception e = gson.toObject(body.toString(), Exception.class);
+//                        context.assertEquals(e.getCode(), FriendshipException.FRIENDSHIP_ALREADY_EXISTS.getKey());
+//                        client.close();
+//                        async.complete();
+//                    });
+//                })
+//                .end(json);
+//    }
+    /*
     @Test
     public void addFriendshipWork(TestContext context) {
-
-        HttpClient client = vertx.createHttpClient();
-        Async async = context.async();
-        JsonObject localUser = this.testFriendship.deepCopy();
-
 
         /**HttpClient client = vertx.createHttpClient();
         Async async = context.async();
@@ -152,25 +147,9 @@ public class FriendshipTest {
                     });
                 })
                 .end(json);**/
-    }
 
-        final String json = localUser.toString();
-        final String length = Integer.toString(json.length());
-        client.post(Container.SERVER_PORT, Container.SERVER_HOST, "/friend")
-                .putHeader("content-type", "application/json")
-                .putHeader("content-length", length)
-                .handler( resp -> {
-                    context.assertEquals(resp.statusCode(), 400);
-                    resp.bodyHandler(body -> {
-                        JsonObject e = gson.toObject(body.toString(), JsonObject.class);
-                        context.assertNotNull(e.get("_id"));
-                        client.close();
-                        async.complete();
-                    });
-                })
-                .end(json);
 
-    }
+
 
     @Test
     public void addFriendshipBeFriend(TestContext context) {
@@ -182,7 +161,6 @@ public class FriendshipTest {
 
     @Test
     public void setFriendshipStatus(TestContext context) {
-
     }
 
     @Test
