@@ -33,15 +33,16 @@ public class FriendshipTest {
     public static String USER_TOKEN = "q5ZV67c7MOBSNv97";
 
     public static enum TestUser {
-            BASIC,    //  1 ACCEPTED, 1 PENDING, 1 AWAITING, 1 BLOCKED, 1 BLOCKER
+        BASIC,    //  1 ACCEPTED, 1 PENDING, 1 AWAITING, 1 BLOCKED, 1 BLOCKER
 
-            ACCEPTED, //  1 ACCEPTED, 0 PENDING, 0 AWAITING, 0 BLOCKED, 0 BLOCKER
-            PENDING,  //  0 ACCEPTED, 1 PENDING, 0 AWAITING, 0 BLOCKED, 0 BLOCKER
-            AWAITING, //  0 ACCEPTED, 0 PENDING, 1 AWAITING, 0 BLOCKED, 0 BLOCKER
-            BLOCKED,  //  0 ACCEPTED, 0 PENDING, 0 AWAITING, 1 BLOCKED, 0 BLOCKER
-            BLOCKER,  //  0 ACCEPTED, 0 PENDING, 0 AWAITING, 0 BLOCKED, 1 BLOCKER
+        ACCEPTED, //  1 ACCEPTED, 0 PENDING, 0 AWAITING, 0 BLOCKED, 0 BLOCKER
+        PENDING,  //  0 ACCEPTED, 1 PENDING, 0 AWAITING, 0 BLOCKED, 0 BLOCKER
+        AWAITING, //  0 ACCEPTED, 0 PENDING, 1 AWAITING, 0 BLOCKED, 0 BLOCKER
+        BLOCKED,  //  0 ACCEPTED, 0 PENDING, 0 AWAITING, 1 BLOCKED, 0 BLOCKER
+        BLOCKER,  //  0 ACCEPTED, 0 PENDING, 0 AWAITING, 0 BLOCKED, 1 BLOCKER
 
-            ALONE,     //  0 ACCEPTED, 0 PENDING, 0 AWAITING, 0 BLOCKED, 0 BLOCKER
+        ALONE,     //  0 ACCEPTED, 0 PENDING, 0 AWAITING, 0 BLOCKED, 0 BLOCKER
+
 
             OTHER1,
             OTHER2,
@@ -81,13 +82,14 @@ public class FriendshipTest {
             users.put(username, u);
         }
 
+
         this.users = users;
         datastore.save(users.values());
 
         List<Friendship> fs = new ArrayList<>();
 
         for (TestUser username: TestUser.values()
-             ) {
+                ) {
             if(username != TestUser.BASIC && username != TestUser.ALONE && !username.toString().contains("OTHER")){
                 Friendship f = new Friendship(users.get(TestUser.BASIC), users.get(username));
                 f.setStatusB(Friendship.Status.valueOf(username.toString().toUpperCase()));
@@ -111,6 +113,7 @@ public class FriendshipTest {
         datastore.getCollection(Friendship.class).drop();
         datastore.getCollection(User.class).drop();
     }
+
 
     @Test
     public void addFriendshipWork(TestContext context){
@@ -160,6 +163,7 @@ public class FriendshipTest {
                         async.complete();
                     });
                 })
+
                 .putHeader("Authorization", getUserToken(TestUser.BASIC.toString()))
                 .end(json);
     }
@@ -194,7 +198,6 @@ public class FriendshipTest {
 
     @Test
     public void setFriendshipStatus(TestContext context) {
-
     }
 
     @Test
