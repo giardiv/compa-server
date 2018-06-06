@@ -44,7 +44,7 @@ public class AuthTest {
         c.run(new ClassFinder());
         vertx = c.getVertx();
         this.gson = (GsonService) c.getServices().get(GsonService.class);
-        datastore = c.getMongoUtil().getDatastore();
+        this.datastore = c.getMongoUtil().getDatastore();
         dropData();
         fakeData();
 
@@ -60,16 +60,16 @@ public class AuthTest {
         vertx.close(context.asyncAssertSuccess());
     }
 
-    public static void dropData(){
-        datastore.getCollection(User.class).drop();
+    public void dropData(){
+        this.datastore.getCollection(User.class).drop();
     }
 
-    public static void fakeData(){
+    public void fakeData(){
         String salt = AuthenticationService.getSalt();
         String encPassword = AuthenticationService.encrypt(USER_RAW_PW, salt);
         User u = new User(USER_EMAIL, USER_NAME,USER_LOGIN, encPassword, salt.toString());
         u.setToken(USER_TOKEN);
-        datastore.save(u);
+        this.datastore.save(u);
     }
 
     @Test
