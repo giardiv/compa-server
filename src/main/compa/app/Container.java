@@ -1,4 +1,11 @@
 package compa.app;
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
+import io.vertx.core.http.HttpServer;
+import io.vertx.core.http.HttpServerOptions;
+import io.vertx.core.net.JksOptions;
+import io.vertx.core.net.TrustOptions;
 import io.netty.handler.ssl.OpenSsl;
 import io.vertx.core.*;
 import io.vertx.core.buffer.Buffer;
@@ -7,6 +14,7 @@ import io.vertx.core.http.*;
 import io.vertx.core.net.*;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
+import sun.rmi.rmic.Constants;
 
 import javax.security.auth.login.Configuration;
 import java.util.List;
@@ -16,7 +24,7 @@ import java.util.Set;
 public class Container {
 
     public final static String SERVER_HOST = "localhost";
-    public final static int SERVER_PORT = 8080;
+    public final static int SERVER_PORT = 8443;
     private Router router;
     private Map<Class, DAO> daos;
     private MongoUtil mongoUtil;
@@ -43,10 +51,10 @@ public class Container {
         HttpServerOptions options = new HttpServerOptions();
         options.setHost(SERVER_HOST);
         options.setPort(SERVER_PORT);
-//        options.setSsl(true);
-//        options.setKeyStoreOptions(
-//                new JksOptions().setPath("C:\\Users\\amich\\.keystore").setPassword("compa2605"));
-//
+        options.setKeyStoreOptions(new JksOptions()
+                .setPath("compa-server/server.jks")
+                .setPassword("Pomme-3001"))
+                .setSsl(true);
 
         HttpServer server = vertx.createHttpServer(options);
 

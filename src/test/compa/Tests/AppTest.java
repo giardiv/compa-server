@@ -27,7 +27,6 @@ public class AppTest {
         c.run(new ClassFinder());
         vertx = c.getVertx();
         this.gson = (GsonService) c.getServices().get(GsonService.class);
-        AuthTest.fakeData();
     }
 
     @After
