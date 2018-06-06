@@ -16,19 +16,29 @@ public class Location {
     @Id
     private ObjectId id;
 
+    private String user_id;
     private double latitude, longitude;
     private Date datetime;
 
     public Location(){}
 
     public Location(double lat, double lng){
-        this(lat, lng, null);
+        this(null,lat, lng, null);
     }
 
-    public Location(double lat, double lng, Date date){
+    public Location(String user_id, double lat, double lng, Date date){
+        this.user_id = user_id;
         this.latitude = lat;
         this.longitude = lng;
         this.datetime = date;
+    }
+
+    public String getUser_id() {
+        return user_id;
+    }
+
+    public void setUser_id(String user_id) {
+        this.user_id = user_id;
     }
 
     public ObjectId getId() {

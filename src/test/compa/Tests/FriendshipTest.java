@@ -44,9 +44,9 @@ public class FriendshipTest {
         ALONE,     //  0 ACCEPTED, 0 PENDING, 0 AWAITING, 0 BLOCKED, 0 BLOCKER
 
 
-            OTHER1,
-            OTHER2,
-            OTHER3,
+        OTHER1,
+        OTHER2,
+        OTHER3,
     }
 
     Vertx vertx;
@@ -196,16 +196,16 @@ public class FriendshipTest {
 /**
 
 
-    @Test
-    public void setFriendshipStatus(TestContext context) {
-    }
+ @Test
+ public void setFriendshipStatus(TestContext context) {
+ }
 
-    @Test
-    public void getFriendshipByStatus(TestContext context) {
-    }
+ @Test
+ public void getFriendshipByStatus(TestContext context) {
+ }
 
-    @Test
-    public void searchFriendshipWork(TestContext context) {
-    }**/
+ @Test
+ public void searchFriendshipWork(TestContext context) {
+ }**/
 
 }

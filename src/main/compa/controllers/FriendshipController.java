@@ -59,7 +59,7 @@ public class FriendshipController extends Controller{
         }
 
         //TODO if status equals "blocked", we cant access it ??? perhaps even "sorry"
-        if(status == Friendship.Status.BLOCKED || status == Friendship.Status.SORRY)
+        if(status == Friendship.Status.BLOCKED || status == Friendship.Status.REFUSED || status == Friendship.Status.SORRY)
             routingContext.response().end(gson.toJson(FriendshipException.INVALID_STATUS));
 
 
@@ -96,8 +96,8 @@ public class FriendshipController extends Controller{
             return;
         }
 
-        //TODO if status equals "blocked", we cant access it ??? perhaps even "sorry"
-        if(status == Friendship.Status.BLOCKED || status == Friendship.Status.SORRY)
+        //TODO if status equals "SORRY", we can access it !! change in addfriend
+        if(status == Friendship.Status.BLOCKED || status == Friendship.Status.REFUSED || status == Friendship.Status.SORRY)
             routingContext.response().end(gson.toJson(FriendshipException.INVALID_STATUS));
 
         userDAO.findById(user_id, res1 -> {
