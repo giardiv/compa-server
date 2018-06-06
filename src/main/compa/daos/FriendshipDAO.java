@@ -50,6 +50,8 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
         }, resultHandler);
     }
 
+
+
     public void findFriendshipByUsers(User a, User b, Handler<AsyncResult<Friendship>> resultHandler){
         Object[] params = new Object[]{a.getUsername(), b.getUsername()};
 
@@ -95,7 +97,6 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
     }
 
     public void updateFriendship(Friendship f, Friendship.Status m, boolean isA, Handler<AsyncResult<Friendship>> resultHandler){
-        System.out.println("...........................................................................;");
         Object[] params = isA
                 ? new Object[]{f.getUserA().getUsername(), f.getUserB().getUsername(), m.toString()}
                 : new Object[]{f.getUserB().getUsername(), f.getUserA().getUsername(), m.toString()};

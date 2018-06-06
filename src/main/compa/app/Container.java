@@ -6,6 +6,12 @@ import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.net.JksOptions;
 import io.vertx.core.net.TrustOptions;
+import io.netty.handler.ssl.OpenSsl;
+import io.vertx.core.*;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.eventbus.EventBusOptions;
+import io.vertx.core.http.*;
+import io.vertx.core.net.*;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
 import sun.rmi.rmic.Constants;
@@ -41,6 +47,7 @@ public class Container {
 
     public void run(ClassFinder cf) {
         vertx = Vertx.vertx();
+
         HttpServerOptions options = new HttpServerOptions();
         options.setHost(SERVER_HOST);
         options.setPort(SERVER_PORT);
@@ -50,10 +57,10 @@ public class Container {
                 .setSsl(true);
 
         HttpServer server = vertx.createHttpServer(options);
+
+
         router = Router.router(vertx);
-
         router.route().handler(BodyHandler.create());
-
         mongoUtil = new MongoUtil(cf.getModelDirectory(), this.mode);
 
         daos = cf.getDAOs(this);

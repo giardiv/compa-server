@@ -13,7 +13,10 @@ import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.web.RoutingContext;
 import org.bson.types.ObjectId;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class FriendshipController extends Controller{
 
@@ -26,6 +29,7 @@ public class FriendshipController extends Controller{
         this.registerAuthRoute(HttpMethod.POST, "", this::addFriend, "application/json");
         this.registerAuthRoute(HttpMethod.GET, "/search", this::searchFriends, "application/json");
         this.registerAuthRoute(HttpMethod.GET, "/:status", this::getFriendsByStatus, "application/json");
+        this.registerAuthRoute(HttpMethod.GET, "/:user_id/:status", this::getFriendsByStatusById, "application/json");
         this.registerAuthRoute(HttpMethod.DELETE, "", this::deleteFriendship, "application/json");
         this.registerAuthRoute(HttpMethod.PUT, "", this::setStatus, "application/json");
         friendshipDAO = (FriendshipDAO) container.getDAO(Friendship.class);
@@ -55,6 +59,9 @@ public class FriendshipController extends Controller{
         }
 
         //TODO if status equals "blocked", we cant access it ??? perhaps even "sorry"
+        if(status == Friendship.Status.BLOCKED || status == Friendship.Status.SORRY)
+            routingContext.response().end(gson.toJson(FriendshipException.INVALID_STATUS));
+
 
         friendshipDAO.findFriendsByStatus(me, status, res -> {
             List<User> friendList = res.result();
@@ -65,6 +72,53 @@ public class FriendshipController extends Controller{
         });
     }
 
+    /**
+     * @api {get} /friend/:user_id/:status Get list of friends bu user_id, filtered by status
+     * @apiName GetByStatusByid
+     * @apiGroup Friendship
+     *
+     * @apiParam {String} status      The Friendship.Status
+     * @apiParam {String} uder_id     String
+     *
+     * @apiSuccess Return a list of User
+     */
+    private void getFriendsByStatusById(User me, RoutingContext routingContext){
+        Friendship.Status status;
+        Integer size;
+        String user_id;
+
+        try {
+            user_id = this.getParam(routingContext, "user_id", false, ParamMethod.GET, String.class);
+            status = this.getParam(routingContext, "status", true, ParamMethod.GET, Friendship.Status.class);
+            size = this.getParam(routingContext, "size", false, ParamMethod.GET, Integer.class);
+        } catch (ParameterException e) {
+            routingContext.response().setStatusCode(400).end(gson.toJson(e));
+            return;
+        }
+
+        //TODO if status equals "blocked", we cant access it ??? perhaps even "sorry"
+        if(status == Friendship.Status.BLOCKED || status == Friendship.Status.SORRY)
+            routingContext.response().end(gson.toJson(FriendshipException.INVALID_STATUS));
+
+        userDAO.findById(user_id, res1 -> {
+            User user = res1.result();
+            System.out.println("user : " + user);
+
+            if (user == null) {
+                routingContext.response().setStatusCode(404).end(gson.toJson(
+                        new UserException(UserException.USER_NOT_FOUND, "id", user.toString())));
+                return;
+            }
+
+            friendshipDAO.findFriendsByStatus(user, status, res -> {
+                List<User> friendList = res.result();
+                if (size != null)
+                    routingContext.response().end(gson.toJson(userDAO.toDTO(friendList, size, size)));
+                else
+                    routingContext.response().end(gson.toJson(userDAO.toDTO(friendList)));
+            });
+        });
+    }
 
     /**
      * @api {put} /friend
@@ -89,8 +143,6 @@ public class FriendshipController extends Controller{
             return;
         }
 
-        System.out.println("status : " + status);
-        System.out.println("friend id : " + friend_id);
         userDAO.findById(friend_id, res1 -> {
             User friend = res1.result();
             System.out.println("friend: " + friend);
