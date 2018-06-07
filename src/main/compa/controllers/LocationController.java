@@ -34,8 +34,8 @@ public class LocationController extends Controller {
         super(PREFIX, container);
         this.registerAuthRoute(HttpMethod.POST, "", this::newInstance, "application/json");
         this.registerAuthRoute(HttpMethod.GET, "", this::getAll, "application/json");
-        this.registerAuthRoute(HttpMethod.GET, "/friend/:friend_id", this::getFromFriend, "application/json"); //OK
-        this.registerAuthRoute(HttpMethod.GET, "/getLocationsList", this::getLastLocations, "application/json");//OK
+        this.registerAuthRoute(HttpMethod.GET, "/friend/:friend_id", this::getFromFriend, "application/json");
+        this.registerAuthRoute(HttpMethod.GET, "/getLocationsList", this::getLastLocations, "application/json");
 
         friendshipDAO = (FriendshipDAO) container.getDAO(Friendship.class);
         locationDAO = (LocationDAO) container.getDAO(Location.class);

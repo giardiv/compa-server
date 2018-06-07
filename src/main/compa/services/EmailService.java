@@ -62,5 +62,4 @@ public class EmailService extends compa.app.Service {
         }, resultHandler);
 
     }
-
 }

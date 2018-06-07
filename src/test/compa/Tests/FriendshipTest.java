@@ -211,18 +211,11 @@ public class FriendshipTest {
      JsonObject body = new JsonObject();
 
      Friendship fs = new Friendship((User)users.get(TestUser.OTHER4),u);
-     System.out.println("fs : "+ fs);
-     System.out.println("A (4) : "+ fs.getStatusA() + "name : " + fs.getUserA().getName());
-     System.out.println("B (u) : "+ fs.getStatusB() + "name : " + fs.getUserB().getName());
-
-     System.out.println("id 11111: "+ ((User) users.get(TestUser.OTHER4)).getId().toString());
 
 
      body.addProperty("status", TestUser.ACCEPTED.toString());
      body.addProperty("friend_id", ((User) users.get(TestUser.OTHER4)).getId().toString());
 
-     System.out.println("status : " +  TestUser.ACCEPTED.toString());
-     System.out.println("id : " +  ((User) users.get(TestUser.OTHER4)).getId().toString());
      final String json = body.toString();
      final String length = Integer.toString(json.length());
      client.put(Container.SERVER_PORT, Container.SERVER_HOST, "/friend")

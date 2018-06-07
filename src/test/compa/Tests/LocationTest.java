@@ -146,7 +146,7 @@ public class LocationTest {
 
     // based on fake location
     @Test
-    public void getLocationWork(TestContext context) {
+    public void addLocationWork(TestContext context) {
 
         HttpClient client = vertx.createHttpClient();
 
@@ -154,6 +154,7 @@ public class LocationTest {
         LocalDateTime date = LocalDateTime.now().minus(-10000, ChronoUnit.SECONDS);
 
         JsonObject body = new JsonObject();
+
         body.addProperty("latitude", (baseLatitude + new Random().nextInt(140) * 0.0001));
         body.addProperty("longitude", (baseLongitude + new Random().nextInt(140) * 0.0001));
         body.addProperty("datetime", (java.sql.Timestamp.valueOf(date)).toString());
@@ -170,13 +171,13 @@ public class LocationTest {
                         async.complete();
                     });
                 })
-                .putHeader("Authorization", getUserToken(TestUser.OTHER1.toString()))
+                .putHeader("Authorization", getUserToken(TestUser.OTHER2.toString()))
                 .end(json);
     }
-
+/*
     @Test
     public void getLocationOnPeriod(TestContext context) {
 
     }
-
+*/
 }

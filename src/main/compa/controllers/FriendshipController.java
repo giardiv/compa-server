@@ -48,11 +48,9 @@ public class FriendshipController extends Controller{
             friendshipDAO.suggestFriend(me,status,friendList, resf -> {
                 List<User> allFriends = resf.result();
 
-                System.out.println("size : " + allFriends.size());
                 List<User> result = allFriends.stream().filter(aObject -> {
                     return !friendList.contains(aObject);
                 }).collect(Collectors.toList());
-                System.out.println("result : " + result.size());
 
                 routingContext.response().end(gson.toJson(userDAO.toDTO(result)));
 
@@ -170,7 +168,6 @@ public class FriendshipController extends Controller{
 
         userDAO.findById(friend_id, res1 -> {
             User friend = res1.result();
-            System.out.println("friend: " + friend);
 
             if (friend == null) {
                 routingContext.response().setStatusCode(404).end(gson.toJson(
@@ -260,7 +257,6 @@ public class FriendshipController extends Controller{
      * @apiSuccess Return a User
      */
     private void searchFriends(User me, RoutingContext routingContext){
-        System.out.println("In search");
         String tag;
 
         try {

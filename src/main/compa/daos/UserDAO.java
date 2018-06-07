@@ -27,7 +27,7 @@ public class UserDAO extends DAO<User, ObjectId> {
         super(User.class, container);
     }
 
-    private User LastLocation(User user){
+    private User lastLocation(User user){
         Query<Location> query = getDatastore().createQuery(Location.class);
         query.filter("user_id",user.getId().toString());
         query.order(Sort.ascending("datetime"));
@@ -38,7 +38,7 @@ public class UserDAO extends DAO<User, ObjectId> {
     }
 
     public User setLastLocation(User u ){
-        return this.LastLocation(u);
+        return this.lastLocation(u);
     }
 
     public void getByLoginAndPassword(String login, String password, Handler<AsyncResult<User>> resultHandler){
@@ -60,7 +60,7 @@ public class UserDAO extends DAO<User, ObjectId> {
                 return;
             }
 
-            this.LastLocation(u);
+            this.lastLocation(u);
 
             String encPassword = AuthenticationService.encrypt(password, u.getSalt());
             if(u.isPassword(encPassword)) {
@@ -107,10 +107,29 @@ public class UserDAO extends DAO<User, ObjectId> {
         vertx.executeBlocking( future -> {
             logger.log(Level.INFO, "Looking for user by {0} : {1}",  new Object[]{key, value});
             User u = super.findOne(key, value);
-            this.LastLocation(u);
-            System.out.println("last location : " + u.getLastLocation());
+            this.lastLocation(u);
             logger.log(Level.INFO, u == null ? "No user found" : "User found");
             future.complete(u);
+        }, resultHandler);
+
+    }
+
+
+    public void findByLoginOrMail(String value, Handler<AsyncResult<User>> resultHandler){
+        vertx.executeBlocking( future -> {
+            logger.log(Level.INFO, "Looking for field {0}",  value);
+            Query<User> query = this.createQuery();
+
+            query.or(
+                    query.criteria("email").equal(value),
+                    query.criteria("username").equal(value)
+            );
+
+            User u = this.findOne(query);
+                this.lastLocation(u);
+                logger.log(Level.INFO, u == null ? "No user found" : "User found");
+                future.complete(u);
+
         }, resultHandler);
 
     }
@@ -151,7 +170,7 @@ public class UserDAO extends DAO<User, ObjectId> {
             else
                 logger.log(Level.INFO, "User {0} not found", id.toString());
 
-            this.LastLocation(u);
+            this.lastLocation(u);
             future.complete(u);
 
         }, resultHandler);
@@ -254,6 +273,7 @@ public class UserDAO extends DAO<User, ObjectId> {
     }
 
     public UserDTO toDTO(User me){
+        this.lastLocation(me);
         return new UserDTO(me);
     }
 

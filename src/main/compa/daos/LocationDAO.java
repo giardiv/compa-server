@@ -58,18 +58,14 @@ public class LocationDAO extends DAO<Location, ObjectId> {
         startDate = calendar.getTime();
         calendar.add(Calendar.DAY_OF_WEEK, PERIOD);
         endDate = calendar.getTime();
-        System.out.println("data start : " + startDate);
-        System.out.println("endDate  : " + endDate);
 
         vertx.executeBlocking( future -> {
-            System.out.println("me : " + me.getLocations().size());
 
             List<Location> locationList = me.getLocations().size() > 0 ?
                     me.getLocations().stream()
                             .filter(d -> d.getDatetime().after(endDate) && d.getDatetime().before(startDate))
                             .collect(Collectors.toList()):
                     null;
-            System.out.println("size : " + locationList.size());
             future.complete(locationList);
         }, resultHandler);
     }
