@@ -14,7 +14,6 @@ import io.vertx.core.http.*;
 import io.vertx.core.net.*;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
-import sun.rmi.rmic.Constants;
 
 import javax.security.auth.login.Configuration;
 import java.util.List;
@@ -51,10 +50,10 @@ public class Container {
         HttpServerOptions options = new HttpServerOptions();
         options.setHost(SERVER_HOST);
         options.setPort(SERVER_PORT);
-        options.setKeyStoreOptions(new JksOptions()
-                .setPath("compa-server/server.jks")
-                .setPassword("Pomme-3001"))
-                .setSsl(true);
+//        options.setSsl(true);
+//        options.setKeyStoreOptions(
+//                new JksOptions().setPath("C:\\Users\\amich\\.keystore").setPassword("compa2605"));
+//
 
         HttpServer server = vertx.createHttpServer(options);
 

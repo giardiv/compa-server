@@ -32,7 +32,8 @@ public class UserDTO {
         this.name = user.getName();
         this.ghostMode = user.getGhostMode();
         this.email = user.getEmail();
-        this.lastLocation = new LocationDTO(user.getLastLocation());
+        System.out.println(user.getLastLocation());
+            this.lastLocation = new LocationDTO(user.getLastLocation());
         if(user.getProfilePic() != null)
             this.profilePicUrl = ImageService.getUrl(DEFAULT_PP_WIDTH, DEFAULT_PP_HEIGHT, user.getProfilePic());
     }

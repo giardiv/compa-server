@@ -25,12 +25,13 @@ public class AuthenticationService extends Service {
 
     public void checkAuth(HttpServerRequest request, Handler<AsyncResult<User>> resultHandler){
         String token = request.getHeader("Authorization");
-
         if(token == null) {
             Future<User> f = Future.failedFuture(new LoginException(LoginException.INCORRECT_TOKEN));
             f.setHandler(resultHandler);
         } else {
             userDAO.findOne("token", token, res -> {
+                System.out.println("tocke,nnnnnnn      oooooooooooooooooooooooooooooooo");
+
                 User u = res.result();
                 Future<User> f = (res.result() == null)
                         ? Future.failedFuture(new LoginException(LoginException.INCORRECT_TOKEN))

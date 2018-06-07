@@ -55,29 +55,29 @@ public class User {
         this.lastLocation = lastLocation;
     }
 
+    public void addLocation(Location l){
+        locations.add(l);
+    }
+
+    public List<Location> getLocations() {
+        return locations;
+    }
+
 
     public String getEmail() {return email;}
 
     public void setEmail(String email) {this.email = email;}
 
-    public void addLocation(Location l){
-        locations.add(l);
-    }
-
     public String getToken(){
         return this.token;
     }
 
-    public void generateToken(){this.token = RandomStringUtils.randomAlphanumeric(TOKEN_SIZE);}
-
     public void setToken(String token){this.token = token;}
+
+    public void generateToken(){this.token = RandomStringUtils.randomAlphanumeric(TOKEN_SIZE);}
 
     public String getUsername() {
         return username;
-    }
-
-    public List<Location> getLocations() {
-        return locations;
     }
 
     public String getName() {
@@ -106,6 +106,7 @@ public class User {
     public Image getProfilePic(){
         return this.profilePic;
     }
+
     public void setProfilePic(Image image){
         this.profilePic = image;
     }
