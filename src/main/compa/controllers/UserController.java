@@ -2,11 +2,11 @@ package compa.controllers;
 
 import compa.app.Container;
 import compa.app.Controller;
+import compa.daos.FriendshipDAO;
 import compa.daos.ImageDAO;
 import compa.daos.UserDAO;
-import compa.exception.ParameterException;
-import compa.exception.RegisterException;
-import compa.exception.UserException;
+import compa.exception.*;
+import compa.models.Friendship;
 import compa.models.Image;
 import compa.models.User;
 import compa.services.ImageService;
@@ -23,16 +23,18 @@ import java.util.Set;
 public class UserController extends Controller {
     private static final String PREFIX = "/user";
 
+    private FriendshipDAO friendshipDAO;
     private UserDAO userDAO;
 
     public UserController(Container container){
         super(PREFIX, container);
-        this.registerAuthRoute(HttpMethod.GET, "/:id", this::getProfile, "application/json");
-        this.registerAuthRoute(HttpMethod.GET, "", this::getCurrentProfile, "application/json");
+        this.registerAuthRoute(HttpMethod.GET, "/:id", this::getProfile, "application/json");                   //OK
+        this.registerAuthRoute(HttpMethod.GET, "", this::getCurrentProfile, "application/json");                //OK
         this.registerAuthRoute(HttpMethod.PUT, "/updateProfile", this::updateProfile, "application/json");
         this.registerAuthRoute(HttpMethod.PUT, "/ghostmode", this::setGhostMode, "application/json");
-        this.registerAuthRoute(HttpMethod.POST, "/uploadPic/:image_size", this::uploadPic, "application/json");
+        this.registerAuthRoute(HttpMethod.POST, "/uploadPic", this::uploadPic, "application/json");
 
+        friendshipDAO = (FriendshipDAO) container.getDAO(Friendship.class);
         userDAO = (UserDAO) container.getDAO(User.class);
     }
 
@@ -65,15 +67,23 @@ public class UserController extends Controller {
             return;
         }
 
-
         userDAO.findById(id, res -> {
             User u = res.result();
             if(u != null){
-                routingContext.response().end(gson.toJson(userDAO.toDTO(u)));
+
+                friendshipDAO.findFriendshipByUsers(me, u, res1 -> {
+                    Friendship fs = res1.result();
+
+                    if (fs == null || ( fs.getStatusA() != Friendship.Status.ACCEPTED && fs.getStatusB() != Friendship.Status.ACCEPTED)) {
+                        routingContext.response().setStatusCode(404).end(gson.toJson(
+                                new UserException(FriendshipException.NOT_FRIEND)));
+                        return;
+                    }
+
+                    routingContext.response().end(gson.toJson(userDAO.toDTO(u)));
+                });
+
             } else {
-
-                //TODO FIND FRIENDSHIP BY USERS TO CHECK THEY ARE FRIENDS
-
                 routingContext.response().setStatusCode(404).end(gson.toJson(
                                 new UserException(UserException.USER_NOT_FOUND, "id", id)));
             }
@@ -109,7 +119,6 @@ public class UserController extends Controller {
      * @apiSuccess Return 200 without body
      */
     private void updateProfile(User me, RoutingContext routingContext){
-        System.out.println("In updateProfile");
         String name, email;
         try {
             email = this.getParam(routingContext, "email", true, ParamMethod.JSON, String.class);
@@ -123,25 +132,28 @@ public class UserController extends Controller {
                             new RegisterException(RegisterException.NOT_VALID_EMAIL)));
             return;
         }
-        System.out.println("email : " + email);
-        System.out.println("name : " + name);
-        userDAO.updateProfile(me, name,email, res -> {
-            User u = res.result();
-            routingContext.response().end(gson.toJson(userDAO.toDTO(u)));
+
+        userDAO.findOne("email",email, res -> {
+            User user = res.result();
+            if(user != null){
+                routingContext.response().setStatusCode(400).end(gson.toJson(new LoginException(UserException.USER_ALREADY_EXIST)));
+                return;
+            }
+
+            userDAO.updateProfile(me, name,email, res1 -> {
+                User u = res1.result();
+                routingContext.response().end(gson.toJson(userDAO.toDTO(u)));
+            });
+
         });
+
+
     }
 
     private void uploadPic(User me, RoutingContext routingContext){
       
         Set<FileUpload> files = routingContext.fileUploads();
 
-        Integer size;
-        try {
-            size = this.getParam(routingContext, "image_size", false, ParamMethod.GET, Integer.class);
-        } catch (ParameterException e) {
-            routingContext.response().setStatusCode(400).end(gson.toJson(e));
-            return;
-        }
 
         for(FileUpload file : files) {
             ImageService imageService = (ImageService) this.get(ImageService.class);
@@ -151,12 +163,7 @@ public class UserController extends Controller {
                 } else {
                     Image image = mapAsyncResult.result();
                     userDAO.setProfilePic(me, image, res -> {
-
-                        if(size != null)
-                            routingContext.response().setStatusCode(201).end(gson.toJson(userDAO.toDTO(res.result(), size, size)));
-                        else
-                            routingContext.response().setStatusCode(201).end(gson.toJson(userDAO.toDTO(res.result())));
-                        routingContext.response().close();
+                        routingContext.response().setStatusCode(201).end(gson.toJson(userDAO.toDTO(res.result())));
                     });
                 }
             });

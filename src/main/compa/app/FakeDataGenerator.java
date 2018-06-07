@@ -92,9 +92,8 @@ public class FakeDataGenerator {
                 datastore.update(u, update);
             }
         }
-        System.out.println(userNb + " users created");
 
-       Random r = new Random();
+        Random r = new Random();
 
         for(int i = 0; i < userNb - 1; ++i){
             User me = users.get(i);
@@ -121,7 +120,5 @@ public class FakeDataGenerator {
                 datastore.save(fs);
             }
         }
-        System.out.println("friendships created");
-        System.out.println("...over");
     }
 }

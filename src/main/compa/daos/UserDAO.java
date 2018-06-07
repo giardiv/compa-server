@@ -1,8 +1,6 @@
 package compa.daos;
 
-import com.mongodb.BasicDBObject;
 import compa.dtos.UserDTO;
-import compa.models.Friendship;
 import compa.models.Image;
 import compa.models.Location;
 import compa.services.AuthenticationService;
@@ -15,14 +13,12 @@ import compa.app.DAO;
 import org.bson.types.ObjectId;
 import org.mongodb.morphia.query.*;
 
-import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import com.mongodb.client.model.Sorts.*;
 
 public class UserDAO extends DAO<User, ObjectId> {
     private Logger logger = Logger.getLogger("user_dao");
@@ -31,13 +27,18 @@ public class UserDAO extends DAO<User, ObjectId> {
         super(User.class, container);
     }
 
-    private void getLastLocation(User user){
+    private User lastLocation(User user){
         Query<Location> query = getDatastore().createQuery(Location.class);
         query.filter("user_id",user.getId().toString());
         query.order(Sort.ascending("datetime"));
         Location lastLocation = query.get();
 
         user.setLastLocation(lastLocation);
+        return  user;
+    }
+
+    public User setLastLocation(User u ){
+        return this.lastLocation(u);
     }
 
     public void getByLoginAndPassword(String login, String password, Handler<AsyncResult<User>> resultHandler){
@@ -59,7 +60,7 @@ public class UserDAO extends DAO<User, ObjectId> {
                 return;
             }
 
-            this.getLastLocation(u);
+            this.lastLocation(u);
 
             String encPassword = AuthenticationService.encrypt(password, u.getSalt());
             if(u.isPassword(encPassword)) {
@@ -103,13 +104,32 @@ public class UserDAO extends DAO<User, ObjectId> {
     }
 
     public void findOne(String key, Object value, Handler<AsyncResult<User>> resultHandler){
-
         vertx.executeBlocking( future -> {
             logger.log(Level.INFO, "Looking for user by {0} : {1}",  new Object[]{key, value});
             User u = super.findOne(key, value);
+            this.lastLocation(u);
             logger.log(Level.INFO, u == null ? "No user found" : "User found");
-            this.getLastLocation(u);
             future.complete(u);
+        }, resultHandler);
+
+    }
+
+
+    public void findByLoginOrMail(String value, Handler<AsyncResult<User>> resultHandler){
+        vertx.executeBlocking( future -> {
+            logger.log(Level.INFO, "Looking for field {0}",  value);
+            Query<User> query = this.createQuery();
+
+            query.or(
+                    query.criteria("email").equal(value),
+                    query.criteria("username").equal(value)
+            );
+
+            User u = this.findOne(query);
+                this.lastLocation(u);
+                logger.log(Level.INFO, u == null ? "No user found" : "User found");
+                future.complete(u);
+
         }, resultHandler);
 
     }
@@ -150,7 +170,7 @@ public class UserDAO extends DAO<User, ObjectId> {
             else
                 logger.log(Level.INFO, "User {0} not found", id.toString());
 
-            this.getLastLocation(u);
+            this.lastLocation(u);
             future.complete(u);
 
         }, resultHandler);
@@ -253,6 +273,7 @@ public class UserDAO extends DAO<User, ObjectId> {
     }
 
     public UserDTO toDTO(User me){
+        this.lastLocation(me);
         return new UserDTO(me);
     }
 

@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mongodb.morphia.Datastore;
+import org.omg.PortableInterceptor.USER_EXCEPTION;
 
 import java.util.*;
 
@@ -47,6 +48,8 @@ public class FriendshipTest {
         OTHER1,
         OTHER2,
         OTHER3,
+        OTHER4,
+        OTHER5,
     }
 
     Vertx vertx;
@@ -193,13 +196,43 @@ public class FriendshipTest {
                 .end(json);
     }
 
-/**
-
 
  @Test
- public void setFriendshipStatus(TestContext context) {
+ public void setFriendshipStatusWork(TestContext context) {
+     String un = "user";
+     String salt = AuthenticationService.getSalt();
+     String encPassword = AuthenticationService.encrypt(PASSWORD, salt);
+     User u = new User( un + MAIL_POST, un, un, encPassword, salt);
+
+
+     HttpClient client = vertx.createHttpClient();
+     Async async = context.async();
+
+     JsonObject body = new JsonObject();
+
+     Friendship fs = new Friendship((User)users.get(TestUser.OTHER4),u);
+
+
+     body.addProperty("status", TestUser.ACCEPTED.toString());
+     body.addProperty("friend_id", ((User) users.get(TestUser.OTHER4)).getId().toString());
+
+     final String json = body.toString();
+     final String length = Integer.toString(json.length());
+     client.put(Container.SERVER_PORT, Container.SERVER_HOST, "/friend")
+             .putHeader("content-type", "application/json")
+             .putHeader("content-length", length)
+             .handler( resp -> {
+                 context.assertEquals(resp.statusCode(), 200);
+                 resp.bodyHandler(response -> {
+                     client.close();
+                     async.complete();
+                 });
+             })
+             .putHeader("Authorization", getUserToken(u.getToken()))
+             .end(json);
  }
 
+ /**
  @Test
  public void getFriendshipByStatus(TestContext context) {
  }
