@@ -10,6 +10,7 @@ import java.util.List;
 public class UserDTO {
 
     private String id, login, name, email, profilePicUrl;
+
     private LocationDTO lastLocation;
     private boolean ghostMode;
 
@@ -31,8 +32,10 @@ public class UserDTO {
         this.email = user.getEmail();
         this.name = user.getName();
         this.ghostMode = user.getGhostMode();
+
         this.email = user.getEmail();
         this.lastLocation = user.getLastLocation() == null ? null : new LocationDTO(user.getLastLocation());
+
         if(user.getProfilePic() != null)
             this.profilePicUrl = ImageService.getUrl(DEFAULT_PP_WIDTH, DEFAULT_PP_HEIGHT, user.getProfilePic());
     }

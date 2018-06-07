@@ -175,7 +175,7 @@ public class AuthController extends Controller {
         }
         String encryptedNewPassword = AuthenticationService.encrypt(newPassword, me.getSalt());
 
-        if(password.equals(encryptedNewPassword)){
+        if(password.equals(newPassword)){
             routingContext.response().setStatusCode(400).end(
                     gson.toJson(
                             new RegisterException(RegisterException.SAME_PASSWORD)));

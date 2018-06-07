@@ -55,7 +55,7 @@ public class FriendshipTest {
     Vertx vertx;
     static GsonService gson;
     static Datastore datastore;
-    static Map users = new HashMap<TestUser, User>();
+    static Map<TestUser, User> users = new HashMap<>();
 
     @Before
     public void before(TestContext context) {
@@ -73,26 +73,24 @@ public class FriendshipTest {
 
     public void fakeData(){
 
-        Map<TestUser , User> users = new HashMap<TestUser, User>();
-
         for(TestUser username : TestUser.values()) {
             String un = username.toString();
             String salt = AuthenticationService.getSalt();
             String encPassword = AuthenticationService.encrypt(PASSWORD, salt);
             User u = new User( un + MAIL_POST, un, un, encPassword, salt);
-
             u.setToken(getUserToken(un));
             users.put(username, u);
         }
 
 
         this.users = users;
+
         datastore.save(users.values());
 
         List<Friendship> fs = new ArrayList<>();
 
-        for (TestUser username: TestUser.values()
-                ) {
+        for (TestUser username: TestUser.values()) {
+
             if(username != TestUser.BASIC && username != TestUser.ALONE && !username.toString().contains("OTHER")){
                 Friendship f = new Friendship(users.get(TestUser.BASIC), users.get(username));
                 f.setStatusB(Friendship.Status.valueOf(username.toString().toUpperCase()));
@@ -124,7 +122,7 @@ public class FriendshipTest {
         Async async = context.async();
 
         JsonObject body = new JsonObject();
-        body.addProperty("friend_id", ((User) this.users.get(TestUser.OTHER1)).getId().toString());
+        body.addProperty("friend_id", users.get(TestUser.OTHER1).getId().toString());
 
         final String json = body.toString();
         final String length = Integer.toString(json.length());
@@ -150,7 +148,7 @@ public class FriendshipTest {
         Async async = context.async();
 
         JsonObject body = new JsonObject();
-        body.addProperty("friend_id", ((User) this.users.get(TestUser.ACCEPTED)).getId().toString());
+        body.addProperty("friend_id", users.get(TestUser.ACCEPTED).getId().toString());
 
         final String json = body.toString();
         final String length = Integer.toString(json.length());
@@ -177,7 +175,7 @@ public class FriendshipTest {
         Async async = context.async();
 
         JsonObject body = new JsonObject();
-        body.addProperty("friend_id", ((User) this.users.get(TestUser.OTHER2)).getId().toString());
+        body.addProperty("friend_id", users.get(TestUser.OTHER2).getId().toString());
 
         final String json = body.toString();
         final String length = Integer.toString(json.length());
@@ -240,5 +238,6 @@ public class FriendshipTest {
  @Test
  public void searchFriendshipWork(TestContext context) {
  }**/
+
 
 }
