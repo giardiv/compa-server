@@ -8,7 +8,10 @@ import compa.models.User;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import org.bson.types.ObjectId;
+import org.mongodb.morphia.query.FindOptions;
+import org.mongodb.morphia.query.Query;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +23,7 @@ public class LocationDAO extends DAO<Location, ObjectId> {
 
 
     private Logger logger = Logger.getLogger("location_dao");
+    private static final int PERIOD = -5;
 
     private UserDAO userDAO;
 
@@ -39,22 +43,27 @@ public class LocationDAO extends DAO<Location, ObjectId> {
         vertx.executeBlocking( future -> {
 
             logger.log(Level.INFO, "Creating a new location for {0}", me.getUsername());
-            Location location = new Location(lat, lon, date);
+            Location location = new Location(me.getId().toString(),lat, lon, date);
             this.save(location);
             me.addLocation(location);
             this.userDAO.save(me);
             logger.log(Level.INFO, "Created a new location for {0}", me.getUsername());
             future.complete(location);
-
         }, resultHandler);
     }
 
-    public void getLocationFromDateInterval(User me, Date startDate, Date endDate, Handler<AsyncResult<List<Location>>> resultHandler){
+    public void getLocationFromDateInterval(User me, Handler<AsyncResult<List<Location>>> resultHandler){
+        Date startDate, endDate;
+        Calendar calendar = Calendar.getInstance();
+        startDate = calendar.getTime();
+        calendar.add(Calendar.DAY_OF_WEEK, PERIOD);
+        endDate = calendar.getTime();
+
         vertx.executeBlocking( future -> {
 
             List<Location> locationList = me.getLocations().size() > 0 ?
                     me.getLocations().stream()
-                            .filter(d -> d.getDatetime().after(startDate) && d.getDatetime().before(endDate))
+                            .filter(d -> d.getDatetime().after(endDate) && d.getDatetime().before(startDate))
                             .collect(Collectors.toList()):
                     null;
             future.complete(locationList);

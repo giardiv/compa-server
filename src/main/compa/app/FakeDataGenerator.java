@@ -9,6 +9,7 @@ import compa.models.User;
 import compa.services.AuthenticationService;
 import compa.services.ImageService;
 import org.mongodb.morphia.Datastore;
+import org.mongodb.morphia.query.UpdateOperations;
 
 import java.lang.Exception;
 import java.time.LocalDateTime;
@@ -60,32 +61,39 @@ public class FakeDataGenerator {
         else
             System.out.println(imagesPublicIds.size() + " pictures found");
 
-
         for(int i = 0; i < userNb; ++i){
             String salt = AuthenticationService.getSalt();
             String encPassword = AuthenticationService.encrypt("password" + i, salt);
             User u = new User("email" + i + "@toto.fr", "Name "+ i, "user" + i, encPassword, salt);
             if(imagesPublicIds.size() != 0)
                 u.setProfilePic(new Image(imagesPublicIds.get(i % imagesPublicIds.size()), "", "jpg"));
-            for(int j = 0; j < locationsPerUser; ++j){
+
+            users.add(u);
+            datastore.save(u);
+        }
+
+        for(int i = 0; i < userNb; ++i) {
+            User u = users.get(i);
+            for (int j = 0; j < locationsPerUser; ++j) {
                 LocalDateTime date = LocalDateTime.now().minus(offset, ChronoUnit.SECONDS);
                 Location l = new Location(
+                        u.getId().toString(),
                         baseLatitude + new Random().nextInt(140) * 0.0001,
                         baseLongitude + new Random().nextInt(140) * 0.0001,
                         java.sql.Timestamp.valueOf(date));
 
                 datastore.save(l);
                 u.addLocation(l);
-
                 offset += 100;
+
+                UpdateOperations<User> update = datastore.createUpdateOperations(User.class)
+                        .addToSet("locations", l);
+
+                datastore.update(u, update);
             }
-
-            users.add(u);
-            datastore.save(u);
         }
-        System.out.println(userNb + " users created");
 
-       Random r = new Random();
+        Random r = new Random();
 
         for(int i = 0; i < userNb - 1; ++i){
             User me = users.get(i);
@@ -112,7 +120,5 @@ public class FakeDataGenerator {
                 datastore.save(fs);
             }
         }
-        System.out.println("friendships created");
-        System.out.println("...over");
     }
 }

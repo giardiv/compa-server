@@ -108,6 +108,7 @@ public class ImageService extends Service {
                 new Transformation()
                         .width(width)
                         .height(height)
+                        .radius("max")
                         .crop("fill"))
                 .generate(image.getPublicId());
     }

@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mongodb.morphia.Datastore;
+import org.omg.PortableInterceptor.USER_EXCEPTION;
 
 import java.util.*;
 
@@ -33,19 +34,22 @@ public class FriendshipTest {
     public static String USER_TOKEN = "q5ZV67c7MOBSNv97";
 
     public static enum TestUser {
-            BASIC,    //  1 ACCEPTED, 1 PENDING, 1 AWAITING, 1 BLOCKED, 1 BLOCKER
+        BASIC,    //  1 ACCEPTED, 1 PENDING, 1 AWAITING, 1 BLOCKED, 1 BLOCKER
 
-            ACCEPTED, //  1 ACCEPTED, 0 PENDING, 0 AWAITING, 0 BLOCKED, 0 BLOCKER
-            PENDING,  //  0 ACCEPTED, 1 PENDING, 0 AWAITING, 0 BLOCKED, 0 BLOCKER
-            AWAITING, //  0 ACCEPTED, 0 PENDING, 1 AWAITING, 0 BLOCKED, 0 BLOCKER
-            BLOCKED,  //  0 ACCEPTED, 0 PENDING, 0 AWAITING, 1 BLOCKED, 0 BLOCKER
-            BLOCKER,  //  0 ACCEPTED, 0 PENDING, 0 AWAITING, 0 BLOCKED, 1 BLOCKER
+        ACCEPTED, //  1 ACCEPTED, 0 PENDING, 0 AWAITING, 0 BLOCKED, 0 BLOCKER
+        PENDING,  //  0 ACCEPTED, 1 PENDING, 0 AWAITING, 0 BLOCKED, 0 BLOCKER
+        AWAITING, //  0 ACCEPTED, 0 PENDING, 1 AWAITING, 0 BLOCKED, 0 BLOCKER
+        BLOCKED,  //  0 ACCEPTED, 0 PENDING, 0 AWAITING, 1 BLOCKED, 0 BLOCKER
+        BLOCKER,  //  0 ACCEPTED, 0 PENDING, 0 AWAITING, 0 BLOCKED, 1 BLOCKER
 
-            ALONE,     //  0 ACCEPTED, 0 PENDING, 0 AWAITING, 0 BLOCKED, 0 BLOCKER
+        ALONE,     //  0 ACCEPTED, 0 PENDING, 0 AWAITING, 0 BLOCKED, 0 BLOCKER
 
-            OTHER1,
-            OTHER2,
-            OTHER3,
+
+        OTHER1,
+        OTHER2,
+        OTHER3,
+        OTHER4,
+        OTHER5,
     }
 
     Vertx vertx;
@@ -78,11 +82,15 @@ public class FriendshipTest {
             users.put(username, u);
         }
 
+
+        this.users = users;
+
         datastore.save(users.values());
 
         List<Friendship> fs = new ArrayList<>();
 
         for (TestUser username: TestUser.values()) {
+
             if(username != TestUser.BASIC && username != TestUser.ALONE && !username.toString().contains("OTHER")){
                 Friendship f = new Friendship(users.get(TestUser.BASIC), users.get(username));
                 f.setStatusB(Friendship.Status.valueOf(username.toString().toUpperCase()));
@@ -106,6 +114,7 @@ public class FriendshipTest {
         datastore.getCollection(Friendship.class).drop();
         datastore.getCollection(User.class).drop();
     }
+
 
     @Test
     public void addFriendshipWork(TestContext context){
@@ -155,6 +164,7 @@ public class FriendshipTest {
                         async.complete();
                     });
                 })
+
                 .putHeader("Authorization", getUserToken(TestUser.BASIC.toString()))
                 .end(json);
     }
@@ -184,19 +194,50 @@ public class FriendshipTest {
                 .end(json);
     }
 
-/**
+
+ @Test
+ public void setFriendshipStatusWork(TestContext context) {
+     String un = "user";
+     String salt = AuthenticationService.getSalt();
+     String encPassword = AuthenticationService.encrypt(PASSWORD, salt);
+     User u = new User( un + MAIL_POST, un, un, encPassword, salt);
 
 
-    @Test
-    public void setFriendshipStatus(TestContext context) {
+     HttpClient client = vertx.createHttpClient();
+     Async async = context.async();
 
-    }
+     JsonObject body = new JsonObject();
 
-    @Test
-    public void getFriendshipByStatus(TestContext context) {
-    }
+     Friendship fs = new Friendship((User)users.get(TestUser.OTHER4),u);
 
-    @Test
-    public void searchFriendshipWork(TestContext context) {
-*/
+
+     body.addProperty("status", TestUser.ACCEPTED.toString());
+     body.addProperty("friend_id", ((User) users.get(TestUser.OTHER4)).getId().toString());
+
+     final String json = body.toString();
+     final String length = Integer.toString(json.length());
+     client.put(Container.SERVER_PORT, Container.SERVER_HOST, "/friend")
+             .putHeader("content-type", "application/json")
+             .putHeader("content-length", length)
+             .handler( resp -> {
+                 context.assertEquals(resp.statusCode(), 200);
+                 resp.bodyHandler(response -> {
+                     client.close();
+                     async.complete();
+                 });
+             })
+             .putHeader("Authorization", getUserToken(u.getToken()))
+             .end(json);
+ }
+
+ /**
+ @Test
+ public void getFriendshipByStatus(TestContext context) {
+ }
+
+ @Test
+ public void searchFriendshipWork(TestContext context) {
+ }**/
+
+
 }

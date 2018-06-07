@@ -32,9 +32,10 @@ public class UserDTO {
         this.email = user.getEmail();
         this.name = user.getName();
         this.ghostMode = user.getGhostMode();
-        List<Location> locs = user.getLocations();
-        Location loc = (locs.size() > 0 && !ghostMode)? locs.get(locs.size() - 1) : null; //TODO CHANGE THIS DEFINETELY
-        this.lastLocation = loc == null ? null : new LocationDTO(loc);
+
+        this.email = user.getEmail();
+        this.lastLocation = user.getLastLocation() == null ? null : new LocationDTO(user.getLastLocation());
+
         if(user.getProfilePic() != null)
             this.profilePicUrl = ImageService.getUrl(DEFAULT_PP_WIDTH, DEFAULT_PP_HEIGHT, user.getProfilePic());
     }

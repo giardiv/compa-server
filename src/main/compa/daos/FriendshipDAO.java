@@ -9,6 +9,7 @@ import compa.models.User;
 import org.bson.types.ObjectId;
 import org.mongodb.morphia.query.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -17,13 +18,15 @@ import java.util.stream.Collectors;
 public class FriendshipDAO extends DAO<Friendship, ObjectId> {
 
     private Logger logger = Logger.getLogger("friendship_dao");
+    private UserDAO userDAO;
 
     public FriendshipDAO(Container container){
         super(Friendship.class, container);
     }
 
     public void findFriendsByStatus(User user, Friendship.Status status, Handler<AsyncResult<List<User>>> resultHandler){
-        Object[] params = new Object[]{user.getUsername(), status.name()};
+
+       Object[] params = new Object[]{user.getUsername(), status.name()};
 
         vertx.executeBlocking( future -> {
             logger.log(Level.INFO, "Looking for {0}'s friends {1}", params);
@@ -42,6 +45,7 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
 
             List<User> friends = query.asList().stream()
                     .map((fs) -> fs.getUserA().equals(user) ? fs.getUserB() : fs.getUserA())
+                    .map((fsu) -> userDAO.setLastLocation(fsu))
                     .collect(Collectors.toList());
 
             logger.log(Level.INFO, "Found {0} friends", friends.size());
@@ -49,6 +53,42 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
 
         }, resultHandler);
     }
+
+    public void suggestFriend(User user, Friendship.Status status, List<User> friendsList, Handler<AsyncResult<List<User>>> resultHandler){
+        Object[] params = new Object[]{user.getUsername(), status.name()};
+
+        List<User> sugF = new ArrayList<>();
+        vertx.executeBlocking( future -> {
+            for(User f : friendsList){
+                logger.log(Level.INFO, "Looking for {0}'s friends {1}", params);
+                Query<Friendship> query = this.createQuery();
+                query.or(
+                        query.and(
+                                query.criteria("userA").equal(f),
+                                query.criteria("statusA").equal(status)
+                        ),
+
+                        query.and(
+                                query.criteria("userB").equal(f),
+                                query.criteria("statusB").equal(status)
+                        )
+                );
+
+                List<User> friends = query.asList().stream()
+                        .map((fs) -> fs.getUserA().equals(f) ? fs.getUserB() : fs.getUserA())
+                        .map((fsu) -> userDAO.setLastLocation(fsu))
+                        .collect(Collectors.toList());
+
+                logger.log(Level.INFO, "Found {0} friends", friends.size());
+                sugF.addAll(friends);
+            }
+
+            future.complete(sugF);
+
+        }, resultHandler);
+    }
+
+
 
     public void findFriendshipByUsers(User a, User b, Handler<AsyncResult<Friendship>> resultHandler){
         Object[] params = new Object[]{a.getUsername(), b.getUsername()};
@@ -95,7 +135,6 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
     }
 
     public void updateFriendship(Friendship f, Friendship.Status m, boolean isA, Handler<AsyncResult<Friendship>> resultHandler){
-        System.out.println("...........................................................................;");
         Object[] params = isA
                 ? new Object[]{f.getUserA().getUsername(), f.getUserB().getUsername(), m.toString()}
                 : new Object[]{f.getUserB().getUsername(), f.getUserA().getUsername(), m.toString()};
@@ -127,8 +166,11 @@ public class FriendshipDAO extends DAO<Friendship, ObjectId> {
         }, resultHandler);
     }
 
+
     @Override
     public void init(Map<Class, DAO> daos) {
-
+        this.userDAO = (UserDAO) daos.get(User.class);
     }
+
+
 }

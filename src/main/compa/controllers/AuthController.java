@@ -110,23 +110,33 @@ public class AuthController extends Controller {
             return;
         }
 
-        String salt = AuthenticationService.getSalt();
-        String encryptedPassword = AuthenticationService.encrypt(password, salt);
-
-        userDAO.addUser(email, name, login, encryptedPassword, salt, res -> {
-            if(res.failed()){
-                System.out.println("fail");
-                routingContext.response().setStatusCode(400).end(gson.toJson(res.cause()));
-            } else {
-                User user = res.result();
-                System.out.println("ok");
-                sendEmail(email,"titre", "message sans pièce joint", res1 -> {
-                    if(res1!=null)
-                        System.out.println("email Ok");
-                });
-                routingContext.response().end(gson.toJson(
-                        AuthenticationService.getJsonFromToken(user.getToken())));
+        userDAO.findByLoginOrMail(email, res -> {
+            User user = res.result();
+            if (user != null) {
+                routingContext.response().setStatusCode(400).end(gson.toJson(new LoginException(UserException.USER_ALREADY_EXIST)));
+                return;
             }
+
+
+            String salt = AuthenticationService.getSalt();
+            String encryptedPassword = AuthenticationService.encrypt(password, salt);
+
+            userDAO.addUser(email, name, login, encryptedPassword, salt, res2 -> {
+                if(res2.failed()){
+                    System.out.println("fail");
+                    routingContext.response().setStatusCode(400).end(gson.toJson(res.cause()));
+                } else {
+                    User user2 = res2.result();
+                    System.out.println("ok");
+                    sendEmail(email,"Inscription compa", "Vous être maintenant inscrit à compa", res1 -> {
+                        if(res1!=null)
+                            System.out.println("email Ok");
+                    });
+                    routingContext.response().end(gson.toJson(
+                            AuthenticationService.getJsonFromToken(user2.getToken())));
+                }
+            });
+
         });
     }
 
@@ -202,7 +212,6 @@ public class AuthController extends Controller {
      * @apiSuccess {String} email    A new password is send by email
      */
     private void forgotPassword(RoutingContext routingContext){
-
         String email;
         try {
             email = this.getParam(routingContext, "email", true, ParamMethod.JSON, String.class);
