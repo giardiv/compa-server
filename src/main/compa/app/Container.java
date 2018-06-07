@@ -50,10 +50,11 @@ public class Container {
         HttpServerOptions options = new HttpServerOptions();
         options.setHost(SERVER_HOST);
         options.setPort(SERVER_PORT);
-//        options.setSsl(true);
-//        options.setKeyStoreOptions(
-//                new JksOptions().setPath("C:\\Users\\amich\\.keystore").setPassword("compa2605"));
-//
+        
+        options.setKeyStoreOptions(new JksOptions()	
+               .setPath("compa-server/server.jks")
+               .setPassword("Pomme-3001"))
+               .setSsl(true);
 
         HttpServer server = vertx.createHttpServer(options);
 
